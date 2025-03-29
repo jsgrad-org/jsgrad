@@ -4,13 +4,9 @@ import Layout from "../../components/Layout.astro";
 
 export const getStaticPaths = async () => {
   const posts = await getCollection("docs");
-  return posts.map((post) => ({
-    params: { id: post.id },
-    props: { post },
-  }));
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
 };
-const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content } = await render(Astro.props.post);
 ---
 
 <Layout>
