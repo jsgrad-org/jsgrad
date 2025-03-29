@@ -9,8 +9,7 @@ export default defineConfig({
   output: 'static',
   integrations: [react(), mdx()],
   devToolbar: { enabled: false },
-
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss() as any],
   },
 })
