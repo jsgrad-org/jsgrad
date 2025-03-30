@@ -3,7 +3,7 @@ import { type FmtStr, MemoryView } from './helpers/memoryview.ts'
 export type { FmtStr } from './helpers/memoryview.ts'
 export type { ConstType } from './helpers/helpers.ts'
 
-export const bitcast = (data: (number | bigint | boolean)[], srcFmt: FmtStr, destFmt: FmtStr) => {
+export const bitcast = (data: (number | bigint | boolean)[], srcFmt: FmtStr, destFmt: FmtStr): any[] => {
   const src = new MemoryView.ARRAYS[srcFmt](data as any)
   return [...new MemoryView.ARRAYS[destFmt](src.buffer)]
 }
@@ -16,25 +16,25 @@ export class DType {
     return DType.cache.setDefault(this.key, this)
   }
 
-  static new = (priority: number, itemsize: number, name: string, fmt?: FmtStr) => new DType(priority, itemsize, name, fmt, 1, undefined)
-  toString = () => `dtypes.${INVERSE_DTYPES_DICT[this.scalar().name]}${this.count > 1 ? `.vec(${this.count})` : ''}`;
+  static new = (priority: number, itemsize: number, name: string, fmt?: FmtStr): DType => new DType(priority, itemsize, name, fmt, 1, undefined)
+  toString = (): string => `dtypes.${INVERSE_DTYPES_DICT[this.scalar().name]}${this.count > 1 ? `.vec(${this.count})` : ''}`;
   [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any) {
     return this.toString()
   }
-  lt = (o: DType) => is_less_than(...[this, o].map((x) => [x.priority, x.itemsize, x.name, x.fmt, x.count]) as [number[], number[]])
+  lt = (o: DType): boolean => is_less_than(...[this, o].map((x) => [x.priority, x.itemsize, x.name, x.fmt, x.count]) as [number[], number[]])
   get base(): DType {
     return this
   }
   get vcount() {
     return this.count
   }
-  vec = cache((sz: number): DType => {
+  vec: (sz: number) => DType = cache((sz: number): DType => {
     if (this.count !== 1) throw new Error(`can't vectorize ${this} with size ${sz}`)
     if (sz === 1 || this === dtypes.void) return this // void doesn't vectorize, and sz=1 is scalar
     return new DType(this.priority, this.itemsize * sz, `${INVERSE_DTYPES_DICT[this.name]}${sz}`, undefined, sz, this)
   })
-  ptr = (size = -1, local = false) => new PtrDType(this.priority, this.itemsize, this.name, this.fmt, this.count, undefined, this, local, 1, size)
-  scalar = () => this._scalar || this
+  ptr = (size = -1, local = false): PtrDType => new PtrDType(this.priority, this.itemsize, this.name, this.fmt, this.count, undefined, this, local, 1, size)
+  scalar = (): DType => this._scalar || this
 }
 
 export class PtrDType extends DType {
@@ -56,7 +56,7 @@ export class PtrDType extends DType {
   override get base() {
     return this._base
   }
-  override vec = cache((sz: number): PtrDType => {
+  override vec: (sz: number) => DType = cache((sz: number): PtrDType => {
     if (this.v !== 1) throw new Error(`can't vectorize ptr ${this} with size ${sz}`)
     if (sz === 1) return this
     return new PtrDType(this.priority, this.itemsize, this.name, this.fmt, this.count, this, this.base, this.local, sz)
@@ -67,7 +67,7 @@ export class PtrDType extends DType {
   override get vcount() {
     return this.v
   }
-  override toString = () => `${this.base.toString()}.ptr(${this.size}${this.local ? ', true' : ''})${this.v !== 1 ? `.vec(${this.v})` : ''}`
+  override toString = (): string => `${this.base.toString()}.ptr(${this.size}${this.local ? ', true' : ''})${this.v !== 1 ? `.vec(${this.v})` : ''}`
 }
 
 export class ImageDType extends PtrDType {
@@ -86,29 +86,29 @@ export class ImageDType extends PtrDType {
   ) {
     super(priority, itemsize, name, fmt, count, _scalar, _base, local, v, size, [shape])
   }
-  override ptr = (size = -1, local = false) => {
+  override ptr = (size = -1, local = false): ImageDType => {
     if (local) throw new Error("images can't be local")
     return this
   }
-  override vec = cache((sz: number): ImageDType => {
+  override vec: (sz: number) => DType = cache((sz: number): ImageDType => {
     if (this.v !== 1) throw new Error(`can't vectorize ptr ${this} with size ${sz}`)
     if (sz === 1) return this
     return new ImageDType(this.priority, this.itemsize, this.name, this.fmt, this.count, this, this.base, this.local, sz, this.size, this.shape)
   })
-  override toString = () => `dtypes.${this.name}((${this.shape.join(', ')}))${this.v !== 1 ? `.vec(${this.v})` : ''}`
+  override toString = (): string => `dtypes.${this.name}((${this.shape.join(', ')}))${this.v !== 1 ? `.vec(${this.v})` : ''}`
 }
 
 export class dtypes {
-  static is_float = cache((x: DType) => {
+  static is_float: (x: DType) => boolean = cache((x: DType) => {
     return dtypes.floats.includes(x.scalar()) || x instanceof ImageDType
   })
-  static is_int = cache((x: DType) => {
+  static is_int: (x: DType) => boolean = cache((x: DType) => {
     return dtypes.ints.includes(x.scalar())
   })
-  static is_big_int = cache((x: DType) => {
+  static is_big_int: (x: DType) => boolean = cache((x: DType) => {
     return dtypes.bigints.includes(x.scalar())
   })
-  static is_unsigned = cache((x: DType) => {
+  static is_unsigned: (x: DType) => boolean = cache((x: DType) => {
     return dtypes.uints.includes(x.scalar())
   })
   static from_js = (x: number | boolean | bigint | (number | bigint | boolean)[]): DType => {
@@ -119,7 +119,7 @@ export class dtypes {
     if (Array.isArray(x)) return x.length ? x.map((x) => dtypes.from_js(x)).reduce((max, curr) => max.lt(curr) ? curr : max) : dtypes.default_float
     throw new Error(`Could not infer dtype of ${x} with type ${typeof x}`)
   }
-  static verify = (val: ConstType, dtype: DType) => {
+  static verify = (val: ConstType, dtype: DType): boolean => {
     if (dtypes.is_big_int(dtype)) return typeof val === 'bigint'
     if (dtypes.is_int(dtype)) return Number.isInteger(val)
     if (dtypes.is_float(dtype)) return typeof val === 'number'
@@ -138,12 +138,12 @@ export class dtypes {
     else if (Number.isNaN(val)) return true //python bool(math.nan) returns True
     else return Boolean(val)
   }
-  static min = cache((dtype: DType) => {
+  static min: (dtype: DType) => ConstType = cache((dtype: DType) => {
     if (dtypes.is_big_int(dtype)) return dtypes.is_unsigned(dtype) ? 0n : (-2n) ** (BigInt(dtype.itemsize) * 8n - 1n)
     if (dtypes.is_int(dtype)) return dtypes.is_unsigned(dtype) ? 0 : (-2) ** (dtype.itemsize * 8 - 1)
     return dtypes.is_float(dtype) ? -Infinity : false
   })
-  static max = cache((dtype: DType) => {
+  static max: (dtype: DType) => ConstType = cache((dtype: DType) => {
     if (dtypes.is_big_int(dtype)) return 2n ** (BigInt(dtype.itemsize) * 8n) - 1n + BigInt(dtypes.min(dtype))
     if (dtypes.is_int(dtype)) return 2 ** (dtype.itemsize * 8) - 1 + Number(dtypes.min(dtype))
     return dtypes.is_float(dtype) ? Infinity : true
@@ -155,42 +155,42 @@ export class dtypes {
     if (!dtypes.is_float(x)) throw new Error(`${x} is not a floating point type`)
     return new Map<DType, [number, number]>([[dtypes.float16, [5, 10]], [dtypes.bfloat16, [8, 7]], [dtypes.float32, [8, 23]], [dtypes.float64, [11, 52]]]).get(x)!
   }
-  static fields = () => DTYPES_DICT
-  static void = DType.new(-1, 0, 'void', undefined)
-  static bool = DType.new(0, 1, 'bool', '?')
-  static int8 = DType.new(1, 1, 'signed char', 'b')
-  static uint8 = DType.new(2, 1, 'unsigned char', 'B')
-  static int16 = DType.new(3, 2, 'short', 'h')
-  static uint16 = DType.new(4, 2, 'unsigned short', 'H')
-  static int32 = DType.new(5, 4, 'int', 'i')
-  static uint32 = DType.new(6, 4, 'unsigned int', 'I')
-  static int64 = DType.new(7, 8, 'long', 'q')
-  static uint64 = DType.new(8, 8, 'unsigned long', 'Q')
-  static float16 = DType.new(9, 2, 'half', 'e')
+  static fields = (): Record<string, DType> => DTYPES_DICT
+  static void: DType = DType.new(-1, 0, 'void', undefined)
+  static bool: DType = DType.new(0, 1, 'bool', '?')
+  static int8: DType = DType.new(1, 1, 'signed char', 'b')
+  static uint8: DType = DType.new(2, 1, 'unsigned char', 'B')
+  static int16: DType = DType.new(3, 2, 'short', 'h')
+  static uint16: DType = DType.new(4, 2, 'unsigned short', 'H')
+  static int32: DType = DType.new(5, 4, 'int', 'i')
+  static uint32: DType = DType.new(6, 4, 'unsigned int', 'I')
+  static int64: DType = DType.new(7, 8, 'long', 'q')
+  static uint64: DType = DType.new(8, 8, 'unsigned long', 'Q')
+  static float16: DType = DType.new(9, 2, 'half', 'e')
   // bfloat16 has higher priority than float16, so least_upper_dtype(dtypes.int64, dtypes.uint64) = dtypes.float16
-  static bfloat16 = DType.new(10, 2, '__bf16', undefined)
-  static float32 = DType.new(11, 4, 'float', 'f')
-  static float64 = DType.new(12, 8, 'double', 'd')
+  static bfloat16: DType = DType.new(10, 2, '__bf16', undefined)
+  static float32: DType = DType.new(11, 4, 'float', 'f')
+  static float64: DType = DType.new(12, 8, 'double', 'd')
 
   // dtype aliases
-  static half = dtypes.float16
-  static float = dtypes.float32
-  static double = dtypes.float64
-  static uchar = dtypes.uint8
-  static ushort = dtypes.uint16
-  static uint = dtypes.uint32
-  static ulong = dtypes.uint64
-  static char = dtypes.int8
-  static short = dtypes.int16
-  static int = dtypes.int32
-  static long = dtypes.int64
+  static half: DType = dtypes.float16
+  static float: DType = dtypes.float32
+  static double: DType = dtypes.float64
+  static uchar: DType = dtypes.uint8
+  static ushort: DType = dtypes.uint16
+  static uint: DType = dtypes.uint32
+  static ulong: DType = dtypes.uint64
+  static char: DType = dtypes.int8
+  static short: DType = dtypes.int16
+  static int: DType = dtypes.int32
+  static long: DType = dtypes.int64
 
   // NOTE: these are image dtypes
-  static imageh = (...shp: number[]) => new ImageDType(100, 1, 'imageh', 'e', 2, undefined, dtypes.float32, false, 1, shp.reduce((acc, x) => acc * x, 1), shp)
-  static imagef = (...shp: number[]) => new ImageDType(100, 4, 'imagef', 'f', 1, undefined, dtypes.float32, false, 1, shp.reduce((acc, x) => acc * x, 1), shp)
+  static imageh = (...shp: number[]): ImageDType => new ImageDType(100, 1, 'imageh', 'e', 2, undefined, dtypes.float32, false, 1, shp.reduce((acc, x) => acc * x, 1), shp)
+  static imagef = (...shp: number[]): ImageDType => new ImageDType(100, 4, 'imagef', 'f', 1, undefined, dtypes.float32, false, 1, shp.reduce((acc, x) => acc * x, 1), shp)
 
-  static default_float = dtypes.float32
-  static default_int = dtypes.int32
+  static default_float: DType = dtypes.float32
+  static default_int: DType = dtypes.int32
 
   static floats = [dtypes.float16, dtypes.bfloat16, dtypes.float32, dtypes.float64]
   static uints = [dtypes.uint8, dtypes.uint16, dtypes.uint32, dtypes.uint64]
@@ -224,23 +224,23 @@ export const promoLattice = new Map<DType, DType[]>([
   [dtypes.float32, [dtypes.float64]],
 ])
 
-export const _get_recursive_parents = cache_fn((dtype: DType): DType[] => {
+export const _get_recursive_parents: (dtype: DType) => DType[] = cache_fn((dtype: DType): DType[] => {
   if (dtype === dtypes.float64) return [dtypes.float64]
   return [...new Set([dtype, ...promoLattice.get(dtype)!.flatMap(_get_recursive_parents)])]
 })
 
-export const least_upper_dtype = cache_fn((...ds: DType[]): DType => {
+export const least_upper_dtype: (...args: DType[]) => DType = cache_fn((...ds: DType[]): DType => {
   const images = ds.filter((d) => (d instanceof ImageDType))
   if (images.length) return images[0]
   const res = [...intersection(...ds.flatMap((d) => new Set(_get_recursive_parents(d))))]
   return res.reduce((min, curr) => min.lt(curr) ? min : curr)
 })
-export const least_upper_float = (dt: DType) => dtypes.is_float(dt) ? dt : least_upper_dtype(dt, dtypes.float32)
+export const least_upper_float = (dt: DType): DType => dtypes.is_float(dt) ? dt : least_upper_dtype(dt, dtypes.float32)
 
 export const DTYPES_DICT: Record<string, DType> = Object.fromEntries(Object.entries(dtypes).filter(([k, v]) => v instanceof DType && !k.startsWith('default') && k !== 'void'))
 export const INVERSE_DTYPES_DICT: Record<string, string> = { ...Object.fromEntries(Object.entries(DTYPES_DICT).map(([k, v]) => [v.name, k])), 'void': 'void' }
 
-export const sum_acc_dtype = (dt: DType) => {
+export const sum_acc_dtype = (dt: DType): DType => {
   // default acc dtype for sum
   if (dtypes.is_unsigned(dt)) return least_upper_dtype(dt, dtypes.uint)
   if (dtypes.is_int(dt) || dt === dtypes.bool) return least_upper_dtype(dt, dtypes.int)

@@ -483,13 +483,13 @@ export class Tensor extends MathTrait<Tensor> {
     const ld_repr = `<UOp ${ld.device} ${list_str(ld.shape)} ${ld.dtype.toString().slice(7)} ${ld.base !== ld ? ld.st : list_str([ld.op, uop_realized(ld)])}>`
     return `<Tensor ${ld_repr} on ${this.device} with grad ${this.grad?.lazydata}>`
   };
-  [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any) {
+  [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any): string {
     return this.toString()
   }
 
   //   // Python has a non moving GC, so this should be okay
   // const __hash__ = () =>  id(this)
-  get length() {
+  get length(): sint {
     if (!this.shape.length) throw new Error('len() of a 0-d tensor')
     return this.shape[0]
   }

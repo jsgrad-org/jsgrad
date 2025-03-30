@@ -176,8 +176,8 @@ export class BatchNorm {
     )
   }
 }
-export const BatchNorm2d = BatchNorm
-export const BatchNorm3d = BatchNorm
+export const BatchNorm2d: typeof BatchNorm = BatchNorm
+export const BatchNorm3d: typeof BatchNorm = BatchNorm
 
 /**
  * Applies a 1D convolution over an input signal composed of several input planes.
