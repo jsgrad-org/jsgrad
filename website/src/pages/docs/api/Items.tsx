@@ -22,7 +22,7 @@ const Json = ({ item }: { item: any }) => {
 const Link = ({ name, loc }: { loc: any; name: string }) => {
   return (
     <span className='relative group'>
-      <a id={name} href={`#${name}`} className='text-blue-400'>
+      <a id={name} href={`#${name}`} className='text-blue-400 scroll-mt-20'>
         {name}
       </a>
       <div className='absolute top-1/2 -translate-y-1/2 right-[100%] z-20 hidden group-hover:block pr-1'>
@@ -36,9 +36,10 @@ const Link = ({ name, loc }: { loc: any; name: string }) => {
     </span>
   )
 }
-const Ref = ({ children, name }: { name: any; children: string }) => {
+const Ref = ({ children, name, id }: { name: any; children: string; id?: string }) => {
+  if (name.includes('.')) [name, id] = name.split('.')
   return (
-    <a href={allFiles.includes(name) ? `/docs/api/${name}` : undefined} className={allFiles.includes(name) ? 'text-green-500' : ''}>
+    <a href={allFiles.includes(name) ? `/docs/api/${name}${id ? `#${id}` : ''}` : undefined} className={allFiles.includes(name) ? 'text-green-500' : ''}>
       {children}
     </a>
   )
@@ -62,7 +63,7 @@ const Type = ({ item }: { item: any }): any => {
       {item.classDef.isAbstract ? `abstract ` : ``}
       class <Link loc={item.location} name={item.name}/>{item.classDef.typeParams.length!==0 && <>{"<"}<Join sep=", " items={item.classDef.typeParams.map((x:any)=><>{x.name}{!!x.constraint && <> extends <Type item={x.constraint}/></>}{!!x.default && <> = <Type item={x.default}/></>}</>)}/>{">"}</>}
       {item.classDef.extends ? <> extends <Ref name={item.classDef.extends}>{item.classDef.extends}</Ref>{item.classDef.superTypeParams.length!==0 && <>{"<"}<Join sep=", " items={item.classDef.superTypeParams.map((x: any)=><Type item={x}/>)}/>{">"}</>}</>:""}
-      {item.classDef.implements.length!==0 && <>implements <Join sep=", " items={item.classDef.implements.map((x: any)=><Type item={x}/>)}/></>}
+      {item.classDef.implements.length!==0 && <> implements <Join sep=", " items={item.classDef.implements.map((x: any)=><Type item={x}/>)}/></>}
       {" {\n"}
       <div className='pl-4'>
         {item.classDef.constructors.map((x: any) => <Declaration  item={x}>constructor(<Join sep=", " items={x.params.map((x: any)=><Type item={x}/>)}/>)</Declaration>)}
@@ -103,7 +104,7 @@ const Type = ({ item }: { item: any }): any => {
 export const Item = ({ item, all }: { item: any; all: string[] }) => {
   allFiles = all
   return (
-    <div className='mt-16 py-10 section flex flex-col gap-5'>
+    <div className='mt-16 py-10 section flex flex-col gap-5 scroll-m-16'>
       <div className='flex justify-between items-center'>
         <h1 className='text-4xl'>{item.name}</h1>
         <a href={ghUrl(item.location)} target='_blank' className='flex gap-2 items-center bg-dark px-2 p-1 border border-white/10 shadow shadow-white rounded-md'>
