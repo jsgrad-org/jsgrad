@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Starboard Notebook</title>
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1" />
+  <link rel="icon"
+    href="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/starboard-notebook.css"
+    rel="stylesheet" />
+</head>
+
+<body>
+  <script>
+    window.initialNotebookContent = `# %% [markdown]\n# jsgrad with starboard\n\nThis is how you can use jsgrad in starboard\n# %% [javascript]\nconst { Tensor } = await import('https://esm.sh/@jsgrad/jsgrad')\n\nconst a = new Tensor([2,2,2,2])\nconst b = new Tensor([1,2,3,4])\n\nawait a.mul(b).tolist()`;
+    window.starboardArtifactsUrl = `https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/`;
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/starboard-notebook.js"></script>
+</body>
+
+</html>
