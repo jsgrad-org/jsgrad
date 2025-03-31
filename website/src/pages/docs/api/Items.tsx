@@ -1,5 +1,6 @@
 // deno-lint-ignore-file jsx-key
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, type ReactNode, useState } from 'react'
+import { Code } from '../../../components/Code.tsx'
 
 let allFiles: string[] = []
 
@@ -36,6 +37,19 @@ const Link = ({ name, loc }: { loc: any; name: string }) => {
     </span>
   )
 }
+const C = ({ initialCode }: { initialCode: string }) => {
+  const [code, setCode] = useState(initialCode)
+  return (
+    <div className='h-40'>
+      <Code code={code} setCode={setCode} />
+    </div>
+  )
+}
+const Markdown = ({ text }: { text: string }) => {
+  const splits = text.split(/```.*?\n/).flatMap((x) => x.split('```'))
+  return <div>{splits.map((x, i) => i % 2 === 1 ? <C initialCode={x} /> : <p>{x}</p>)}</div>
+}
+
 const Ref = ({ children, name, id }: { name: any; children: string; id?: string }) => {
   if (name.includes('.')) [name, id] = name.split('.')
   return (
@@ -47,7 +61,11 @@ const Ref = ({ children, name, id }: { name: any; children: string; id?: string 
 const Declaration = ({ item, children }: { item: any; children: ReactNode }) => {
   return (
     <div className='mt-3 relative'>
-      {item.jsDoc && <p className='p-2 rounded-md bg-white/10 whitespace-pre prose-sm prose-invert mb-1'>{item.jsDoc.doc}</p>}
+      {item.jsDoc && (
+        <div className='p-2 rounded-md bg-white/10 whitespace-pre prose-sm prose-invert mb-1'>
+          <Markdown text={item.jsDoc.doc} />
+        </div>
+      )}
 
       {children}
     </div>
