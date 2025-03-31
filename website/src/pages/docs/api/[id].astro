@@ -1,0 +1,14 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../../components/Layout.astro";
+import { Item } from "./Items";
+
+export const getStaticPaths = async () => {
+  const posts = await getCollection("api");
+  return posts.map((post) => ({ params: { id: post.data.id }, props: { data: post.data, all: posts.map((x) => x.data.name) } }));
+};
+---
+
+<Layout>
+  <Item item={Astro.props.data} all={Astro.props.all} />
+</Layout>

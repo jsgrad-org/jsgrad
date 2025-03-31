@@ -19,15 +19,7 @@ const api = defineCollection({
   loader: file("./.astro/docs.json", {
     parser: (x) => {
       const data = JSON.parse(x);
-      const getPath = (fn: string) => fn.split("jsgrad/jsgrad/")[1].replace(".ts", "");
-      const paths: Record<string, Node[]> = {};
-      for (const item of data.nodes) {
-        const fn = getPath(item.location.filename);
-        if (!fn) continue;
-        if (!paths[fn]) paths[fn] = [];
-        paths[fn].push(item);
-      }
-      return Object.entries(paths).map(([id, items]) => ({ id, items }));
+      return data.nodes.map((x: any) => ({ ...x, id: x.name }));
     },
   }),
 });

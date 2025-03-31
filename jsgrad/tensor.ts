@@ -398,7 +398,7 @@ export type TensorIndice = number | boolean | Tensor | UOp | undefined | '...' |
 export type Layer = ((x: Tensor) => Tensor) | { call: (x: Tensor) => Tensor }
 export type LayerAsync = ((x: Tensor) => Tensor) | { call: (x: Tensor) => Tensor } | ((x: Tensor) => Promise<Tensor>) | { call: (x: Tensor) => Promise<Tensor> }
 /**
- * A `Tensor` === a multi-dimensional matrix containing elements of a single data type.
+ * A `Tensor` is a multi-dimensional matrix containing elements of a single data type.
  *
  * ```python exec="true" session="tensor"
  * from tinygrad import Tensor, dtypes, nn
