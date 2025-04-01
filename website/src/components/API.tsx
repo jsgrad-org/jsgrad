@@ -126,7 +126,7 @@ const Type = ({ item }: { item: any }): any => {
 
   else return  <Json item={item} />
 };
-export const Item = ({ item, all }: { item: any; all: string[] }) => {
+export const APIItem = ({ item, all }: { item: any; all: string[] }) => {
   allFiles = all
   return (
     <>

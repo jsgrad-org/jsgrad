@@ -1,11 +1,11 @@
 ---
 import { getCollection, render } from "astro:content";
-import Layout from "../../components/Layout.astro";
 import DocsLayout from "../../components/DocsLayout.astro";
 
 export const getStaticPaths = async () => {
   const posts = await getCollection("docs");
-  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+  console.log(posts);
+  return posts.map((post) => ({ params: { id: post.id === "getting-started" ? undefined : post.id }, props: { post } }));
 };
 const { Content } = await render(Astro.props.post);
 ---

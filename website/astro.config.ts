@@ -9,9 +9,6 @@ export default defineConfig({
   output: 'static',
   integrations: [react(), mdx()],
   devToolbar: { enabled: false },
-  redirects: {
-    '/docs': '/docs/getting-started',
-  },
   vite: {
     plugins: [tailwindcss() as any],
   },
