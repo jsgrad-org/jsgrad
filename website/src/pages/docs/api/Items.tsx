@@ -48,7 +48,7 @@ const Code = ({ code }: { code: string }) => {
   code = code.split('\n').slice(1).join('\n')
   return (
     <code
-      className='!bg-dark text-sm p-1 language-js w-full '
+      className='!bg-dark text-sm p-1 language-js w-full not-prose'
       contentEditable
       suppressContentEditableWarning
     >
@@ -58,7 +58,7 @@ const Code = ({ code }: { code: string }) => {
 }
 const Markdown = ({ text }: { text: string }) => {
   const splits = text.split('```').map((x) => x.trim())
-  return <div className='whitespace-pre not-prose p-2 w-full rounded-md bg-white/10 flex flex-col gap-1'>{splits.map((x, i) => i % 2 === 1 ? <Code code={x} /> : <div>{x}</div>)}</div>
+  return <div className='whitespace-pre p-2 rounded-md bg-white/10 flex flex-col gap-1 w-full'>{splits.map((x, i) => i % 2 === 1 ? <Code code={x} /> : <div className='prose-sm prose-invert'>{x}</div>)}</div>
 }
 
 const Ref = ({ children, name, id }: { name: any; children: string; id?: string }) => {
