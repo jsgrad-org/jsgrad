@@ -1,5 +1,9 @@
 # jsgrad - A Modern ML Library for JavaScript and TypeScript
 
+[website](https://jsgrad.org)
+[docs](https://jsgrad.org/docs)
+[discord](https://discord.gg/scGGBNe9Ag)
+
 jsgrad is a rewrite of [tinygrad](https://tinygrad.org/) in TypeScript. JS ecosystem is very large, but it didn't have a good ML library for model inference and **training**. Since tinygrad doesn't use any external python libraries, has potential to be the fastest way to run models, is quite simple compared to others and supports many runtimes, I decided to rewrite it in TS to get the same experience in browser and in deno/node/bun.
 
 Why you should use jsgrad?
