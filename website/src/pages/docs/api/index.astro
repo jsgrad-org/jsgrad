@@ -1,0 +1,21 @@
+---
+import DocsLayout from "../../../components/DocsLayout.astro";
+import { getCollection } from "astro:content";
+import { typeColors } from "./Items";
+
+const posts = await getCollection("api");
+---
+
+<DocsLayout>
+  <h1>API</h1>
+  <div class="flex flex-col gap-1">
+    {
+      posts.map((x) => (
+        <a href={`/docs/api/${x.data.name}`} class="flex gap-2 whitespace-pre">
+          <span class={`w-28 ${typeColors[x.data.kind]}`}>{x.data.kind.replace("typeAlias", "type")}</span>
+          <span> {x.data.name}</span>
+        </a>
+      ))
+    }
+  </div>
+</DocsLayout>

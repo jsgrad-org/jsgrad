@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "docs": "deno doc --json ../jsgrad/node.ts > .astro/docs.json",
+    "docs": "deno doc --json ../jsgrad/base.ts > .astro/docs.json",
     "dev": "npm run docs && astro dev",
     "build": "npm run docs && astro build",
     "preview": "astro preview",

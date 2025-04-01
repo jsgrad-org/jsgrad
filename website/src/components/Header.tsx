@@ -20,7 +20,6 @@ export const Header = () => {
         <div className='flex items-center gap-6 text-sm'>
           <a href='/' className='font-secondary text-2xl mr-2'>jsgrad</a>
           <a href='/docs'>Docs</a>
-          <a href='/blog'>Blog</a>
           <a href='/chat'>Chat</a>
         </div>
         <div className='flex gap-2 items-center'>

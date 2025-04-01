@@ -4,7 +4,7 @@
 @theme {
   --font-primary: "Inter Variable", "sans-serif";
   --font-secondary: "Audiowide";
-  --color-dark: #121212
+  --color-dark: #121212;
 }
 
 input,
@@ -29,4 +29,8 @@ textarea {
 
 .section {
   @apply px-6 w-full max-w-[1200px] mx-auto;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0px;
 }
