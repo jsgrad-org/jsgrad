@@ -11,10 +11,10 @@ const posts = await getCollection("api");
   <div class="flex flex-col gap-1">
     {
       posts.map((x) => (
-        <a href={`/docs/api/${x.data.name}`} class="flex gap-2 whitespace-pre">
+        <span class="flex gap-2 whitespace-pre">
           <span class={`w-28 ${typeColors[x.data.kind]}`}>{x.data.kind.replace("typeAlias", "type")}</span>
-          <span> {x.data.name}</span>
-        </a>
+          <a href={`/docs/api/${x.data.name}`}>{x.data.name}</a>
+        </span>
       ))
     }
   </div>
