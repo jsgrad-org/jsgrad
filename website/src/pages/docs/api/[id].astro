@@ -1,8 +1,7 @@
 ---
 import { getCollection } from "astro:content";
-import Layout from "../../../components/Layout.astro";
-import { Item } from "./Items";
 import DocsLayout from "../../../components/DocsLayout.astro";
+import { APIItem } from "../../../components/API";
 
 export const getStaticPaths = async () => {
   const posts = await getCollection("api");
@@ -11,5 +10,5 @@ export const getStaticPaths = async () => {
 ---
 
 <DocsLayout>
-  <Item item={Astro.props.data} all={Astro.props.all} />
+  <APIItem item={Astro.props.data} all={Astro.props.all} />
 </DocsLayout>

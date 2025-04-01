@@ -1,7 +1,7 @@
 ---
+import { typeColors } from "../../../components/API";
 import DocsLayout from "../../../components/DocsLayout.astro";
 import { getCollection } from "astro:content";
-import { typeColors } from "./Items";
 
 const posts = await getCollection("api");
 ---
