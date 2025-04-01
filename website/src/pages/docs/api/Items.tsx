@@ -1,6 +1,5 @@
 // deno-lint-ignore-file jsx-key
-import { Fragment, type ReactNode, useState } from 'react'
-import { Code } from '../../../components/Code.tsx'
+import { Fragment, type ReactNode } from 'react'
 
 let allFiles: string[] = []
 export const typeColors: Record<string, string> = {
@@ -45,17 +44,21 @@ const Link = ({ name, loc, kind }: { loc: any; name: string; kind: string }) => 
     </span>
   )
 }
-const C = ({ initialCode }: { initialCode: string }) => {
-  const [code, setCode] = useState(initialCode)
+const Code = ({ code }: { code: string }) => {
+  code = code.split('\n').slice(1).join('\n')
   return (
-    <div className='h-40'>
-      <Code code={code} setCode={setCode} />
-    </div>
+    <code
+      className='!bg-dark text-sm p-1 language-js w-full '
+      contentEditable
+      suppressContentEditableWarning
+    >
+      {code}
+    </code>
   )
 }
 const Markdown = ({ text }: { text: string }) => {
-  const splits = text.split(/```.*?\n/).flatMap((x) => x.split('```'))
-  return <div>{splits.map((x, i) => i % 2 === 1 ? <C initialCode={x} /> : <p>{x}</p>)}</div>
+  const splits = text.split('```').map((x) => x.trim())
+  return <div className='whitespace-pre not-prose p-2 w-full rounded-md bg-white/10 flex flex-col gap-1'>{splits.map((x, i) => i % 2 === 1 ? <Code code={x} /> : <div>{x}</div>)}</div>
 }
 
 const Ref = ({ children, name, id }: { name: any; children: string; id?: string }) => {
@@ -70,11 +73,7 @@ const Ref = ({ children, name, id }: { name: any; children: string; id?: string 
 const Declaration = ({ item, children }: { item: any; children: ReactNode }) => {
   return (
     <div className='mt-3 relative'>
-      {item.jsDoc && (
-        <div className='p-2 rounded-md bg-white/10 whitespace-pre prose-sm prose-invert mb-1'>
-          <Markdown text={item.jsDoc.doc} />
-        </div>
-      )}
+      {item.jsDoc && <Markdown text={item.jsDoc.doc} />}
 
       {children}
     </div>
