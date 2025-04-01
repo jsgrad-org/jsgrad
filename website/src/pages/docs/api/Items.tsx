@@ -73,8 +73,7 @@ const Ref = ({ children, name, id }: { name: any; children: string; id?: string 
 const Declaration = ({ item, children }: { item: any; children: ReactNode }) => {
   return (
     <div className='mt-3 relative'>
-      {item.jsDoc && <Markdown text={item.jsDoc.doc} />}
-
+      {item.jsDoc?.doc && <Markdown text={item.jsDoc.doc} />}
       {children}
     </div>
   )
