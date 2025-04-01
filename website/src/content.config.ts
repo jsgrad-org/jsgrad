@@ -9,7 +9,7 @@ const docs = defineCollection({
 })
 
 const api = defineCollection({
-  loader: file('./.astro/docs.json', {
+  loader: file('/tmp/docs.json', {
     parser: (x) => {
       const data = JSON.parse(x)
       return data.nodes.map((x: any) => ({ ...x, id: x.name }))
