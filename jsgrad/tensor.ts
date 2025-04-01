@@ -15,7 +15,7 @@ import { env } from './env/index.ts'
 import { compute_gradient } from './gradient.ts'
 import { get_multi_map } from './multi.ts'
 
-export const all_tensors = new WeakValueMap<string, Tensor>()
+const all_tensors = new WeakValueMap<string, Tensor>()
 
 const _apply_map_to_tensors = (applied_map: Map<UOp, UOp>): undefined => {
   // get all children of keys in applied_map
@@ -86,17 +86,17 @@ function CreateFunction<Args extends any[] = [UOp]>() {
  * This === where the forwards && backwards passes live.
  */
 
-export class Contiguous extends CreateFunction() {
+class Contiguous extends CreateFunction() {
   override forward = (x: UOp): UOp => x.contiguous()
   override backward = (grad_output: UOp): UOp => grad_output
 }
 
-export class ContiguousBackward extends CreateFunction() {
+class ContiguousBackward extends CreateFunction() {
   override forward = (x: UOp): UOp => x.contiguous_backward()
   override backward = (grad_output: UOp): UOp => grad_output.contiguous()
 }
 
-export class Cast extends CreateFunction<[UOp, DType, boolean?]>() {
+class Cast extends CreateFunction<[UOp, DType, boolean?]>() {
   input_dtype!: DType
   bitcast?: boolean
   override forward = (x: UOp, dtype: DType, bitcast?: boolean): UOp => {
@@ -111,7 +111,7 @@ export class Cast extends CreateFunction<[UOp, DType, boolean?]>() {
 
 // // ************* unary ops *************
 
-export class Reciprocal extends CreateFunction() {
+class Reciprocal extends CreateFunction() {
   ret!: UOp
   override forward = (x: UOp): UOp => {
     this.ret = x.reciprocal()
@@ -120,7 +120,7 @@ export class Reciprocal extends CreateFunction() {
 
   override backward = (grad_output: UOp): UOp => grad_output.neg().mul(this.ret).mul(this.ret)
 }
-export class Sin extends CreateFunction() {
+class Sin extends CreateFunction() {
   x!: UOp
   override forward = (x: UOp): UOp => {
     this.x = x
@@ -128,7 +128,7 @@ export class Sin extends CreateFunction() {
   }
   override backward = (grad_output: UOp): UOp => (this.x.sub(Math.PI / 2, true)).sin().mul(grad_output)
 }
-export class Relu extends CreateFunction() {
+class Relu extends CreateFunction() {
   ret!: UOp
   override forward = (x: UOp): UOp => {
     this.ret = (x.gt(0)).where(x, 0)
@@ -136,7 +136,7 @@ export class Relu extends CreateFunction() {
   }
   override backward = (grad_output: UOp): UOp => (this.ret.gt(0)).cast(grad_output.dtype).mul(grad_output)
 }
-export class Log extends CreateFunction() {
+class Log extends CreateFunction() {
   x!: UOp
   override forward = (x: UOp): UOp => {
     this.x = x
@@ -144,7 +144,7 @@ export class Log extends CreateFunction() {
   }
   override backward = (grad_output: UOp): UOp => grad_output.div(this.x)
 }
-export class Exp extends CreateFunction() {
+class Exp extends CreateFunction() {
   ret!: UOp
   override forward = (x: UOp): UOp => {
     this.ret = (x.mul(1 / Math.log(2))).exp2()
@@ -152,7 +152,7 @@ export class Exp extends CreateFunction() {
   }
   override backward = (grad_output: UOp): UOp => this.ret.mul(grad_output)
 }
-export class Sqrt extends CreateFunction() {
+class Sqrt extends CreateFunction() {
   ret!: UOp
   override forward = (x: UOp): UOp => {
     this.ret = x.sqrt()
@@ -161,7 +161,7 @@ export class Sqrt extends CreateFunction() {
   override backward = (grad_output: UOp): UOp => grad_output.div(this.ret.mul(2))
 }
 
-export class Sign extends CreateFunction() {
+class Sign extends CreateFunction() {
   // NOTE: the x*0 is to match torch behavior without function.py
   override forward = (x: UOp): UOp => x.ne(0).where((x.lt(0)).where(x.const_like(-1), x.const_like(1)), x.const_like(0)).add(x.mul(0))
   //   // backward always return 0 to match torch
@@ -169,33 +169,33 @@ export class Sign extends CreateFunction() {
 }
 // // ************* binary ops *************
 
-export class Less extends CreateFunction<[UOp, UOp]>() {
+class Less extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.lt(y)
   override backward = (_grad_output: UOp): [UOp | undefined, UOp | undefined] => [undefined, undefined]
 }
-export class Neq extends CreateFunction<[UOp, UOp]>() {
+class Neq extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.ne(y)
   override backward = (_grad_output: UOp): [UOp | undefined, UOp | undefined] => [undefined, undefined]
 }
-export class Xor extends CreateFunction<[UOp, UOp]>() {
+class Xor extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.xor(y)
 }
-export class BitwiseAnd extends CreateFunction<[UOp, UOp]>() {
+class BitwiseAnd extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.bitwise_and(y)
 }
-export class BitwiseOr extends CreateFunction<[UOp, UOp]>() {
+class BitwiseOr extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.bitwise_or(y)
 }
-export class Threefry extends CreateFunction<[UOp, UOp]>() {
+class Threefry extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, seed: UOp): UOp => x.threefry(seed)
 }
 
-export class Add extends CreateFunction<[UOp, UOp]>() {
+class Add extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.add(y)
 
   override backward = (grad_output: UOp): [UOp | undefined, UOp | undefined] => [this.needs_input_grad[0] ? grad_output : undefined, this.needs_input_grad[1] ? grad_output : undefined]
 }
-export class Mul extends CreateFunction<[UOp, UOp]>() {
+class Mul extends CreateFunction<[UOp, UOp]>() {
   x!: UOp
   y!: UOp
   override forward = (x: UOp, y: UOp): UOp => {
@@ -207,16 +207,16 @@ export class Mul extends CreateFunction<[UOp, UOp]>() {
     this.needs_input_grad[1] ? (this.x.mul(grad_output)) : undefined,
   ]
 }
-export class IDiv extends CreateFunction<[UOp, UOp]>() {
+class IDiv extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.idiv(y)
 }
 
-export class Mod extends CreateFunction<[UOp, UOp]>() {
+class Mod extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.mod(y)
 }
 // // ************* ternary ops *************
 
-export class Where extends CreateFunction<[UOp, UOp, UOp]>() {
+class Where extends CreateFunction<[UOp, UOp, UOp]>() {
   x!: UOp
   override forward = (x: UOp, y: UOp, z: UOp): UOp => {
     this.x = x
@@ -230,7 +230,7 @@ export class Where extends CreateFunction<[UOp, UOp, UOp]>() {
 }
 // // ************* reduce ops *************
 
-export class Sum extends CreateFunction<[UOp, number[]]>() {
+class Sum extends CreateFunction<[UOp, number[]]>() {
   input_shape!: sint[]
   override forward = (x: UOp, axis: number[]): UOp => {
     this.input_shape = x.shape
@@ -238,7 +238,7 @@ export class Sum extends CreateFunction<[UOp, number[]]>() {
   }
   override backward = (grad_output: UOp): UOp => grad_output.expand(this.input_shape)
 }
-export class Prod extends CreateFunction<[UOp, number[]]>() {
+class Prod extends CreateFunction<[UOp, number[]]>() {
   x!: UOp
   ret!: UOp
   override forward = (x: UOp, axis: number[]): UOp => {
@@ -249,7 +249,7 @@ export class Prod extends CreateFunction<[UOp, number[]]>() {
     return (grad_output.mul(this.ret)).expand(this.x.shape).div(this.x)
   }
 }
-export class Max extends CreateFunction<[UOp, number[]]>() {
+class Max extends CreateFunction<[UOp, number[]]>() {
   x!: UOp
   ret!: UOp
   axis!: number[]
@@ -267,7 +267,7 @@ export class Max extends CreateFunction<[UOp, number[]]>() {
 // // ************* movement ops *************
 
 // // NOTE: this === sum in reverse
-export class Expand extends CreateFunction<[UOp, sint[]]>() {
+class Expand extends CreateFunction<[UOp, sint[]]>() {
   expanded_axis!: number[]
   override forward = (x: UOp, shape: sint[]): UOp => {
     this.expanded_axis = [...zip(x.shape, shape).entries()].filter(([i, [si, so]]) => resolve(ne(si, so))).map(([i]) => i)
@@ -278,7 +278,7 @@ export class Expand extends CreateFunction<[UOp, sint[]]>() {
   }
 }
 
-export class Reshape extends CreateFunction<[UOp, sint[]]>() {
+class Reshape extends CreateFunction<[UOp, sint[]]>() {
   input_shape!: sint[]
   override forward = (x: UOp, shape: sint[]): UOp => {
     this.input_shape = x.shape
@@ -286,7 +286,7 @@ export class Reshape extends CreateFunction<[UOp, sint[]]>() {
   }
   override backward = (grad_output: UOp): UOp => grad_output.reshape(this.input_shape)
 }
-export class Permute extends CreateFunction<[UOp, number[]]>() {
+class Permute extends CreateFunction<[UOp, number[]]>() {
   input_order!: number[]
   override forward = (x: UOp, order: number[]): UOp => {
     this.input_order = order
@@ -294,7 +294,7 @@ export class Permute extends CreateFunction<[UOp, number[]]>() {
   }
   override backward = (grad_output: UOp): UOp => grad_output.permute(argsort(this.input_order))
 }
-export class Pad extends CreateFunction<[UOp, [number, number][]]>() {
+class Pad extends CreateFunction<[UOp, [number, number][]]>() {
   narg!: [sint, sint][]
   override forward = (x: UOp, arg: [number, number][]): UOp => {
     this.narg = zip(x.shape, arg).map(([s, p]) => [p[0], add(s, p[0])])
@@ -302,7 +302,7 @@ export class Pad extends CreateFunction<[UOp, [number, number][]]>() {
   }
   override backward = (grad_output: UOp): UOp => grad_output.shrink(this.narg)
 }
-export class Shrink extends CreateFunction<[UOp, [sint, sint][]]>() {
+class Shrink extends CreateFunction<[UOp, [sint, sint][]]>() {
   narg!: [sint, sint][]
   override forward = (x: UOp, arg: [sint, sint][]): UOp => {
     this.narg = zip(x.shape, arg).map(([s, p]) => [p[0], sub(s, p[1])])
@@ -310,7 +310,7 @@ export class Shrink extends CreateFunction<[UOp, [sint, sint][]]>() {
   }
   override backward = (grad_output: UOp): UOp => grad_output.pad(this.narg)
 }
-export class Flip extends CreateFunction<[UOp, number[]]>() {
+class Flip extends CreateFunction<[UOp, number[]]>() {
   arg!: number[]
   override forward = (x: UOp, axis: number[]): UOp => {
     this.arg = range(x.shape.length).map((i) => axis.includes(i) ? -1 : 1)
@@ -321,18 +321,18 @@ export class Flip extends CreateFunction<[UOp, number[]]>() {
 
 // ************* function.py end *************
 
-export const _metaop = (op: Ops, shape: sint[], dtype: DType, device: string | string[], arg?: any) => {
+const _metaop = (op: Ops, shape: sint[], dtype: DType, device: string | string[], arg?: any) => {
   if (typeof device === 'string') return UOp.metaop(op, shape, dtype, device, arg)
   return UOp.multi(device.map((d) => UOp.metaop(op, shape, dtype, d, arg)), undefined)
 }
-export const get_shape = (x: any): number[] => {
+const get_shape = (x: any): number[] => {
   //   // NOTE:string === special because __getitem__ on a string === still a string
   if (!Array.isArray(x) || typeof x === 'string') return []
   const subs = x.map((xi) => get_shape(xi))
   if (!all_same(subs)) throw new Error(`inhomogeneous shape from ${x}`)
   return [subs.length, ...(subs.length ? subs[0] : [])]
 }
-export const _frompy = (x: ConstType[] | Uint8Array, dtype: DType): UOp => {
+const _frompy = (x: ConstType[] | Uint8Array, dtype: DType): UOp => {
   let ret, data
   if (x instanceof Uint8Array) [ret, data] = [UOp.metaop(Ops.EMPTY, [idiv(x.length, dtype.itemsize)], dtype, 'JS'), x]
   else {
@@ -365,7 +365,7 @@ const _align_left = (...shapes: sint[][]): sint[][] => {
   const max_dim = max(shapes.map((shape) => shape.length))
   return shapes.map((shape) => [...range(max_dim - shape.length).map(() => 1), ...shape])
 }
-export const _broadcast_shape = (shapes: sint[][]): sint[] => {
+const _broadcast_shape = (shapes: sint[][]): sint[] => {
   return zip(..._align_left(...shapes)).map((nth_dim_sizes) => nth_dim_sizes.includes(0) ? 0 : smax(...nth_dim_sizes))
 }
 const _masked_setitem = (target: Tensor, values: Tensor, mask: Tensor, axes: number[]) => {
@@ -398,7 +398,7 @@ export type TensorIndice = number | boolean | Tensor | UOp | undefined | '...' |
 export type Layer = ((x: Tensor) => Tensor) | { call: (x: Tensor) => Tensor }
 export type LayerAsync = ((x: Tensor) => Tensor) | { call: (x: Tensor) => Tensor } | ((x: Tensor) => Promise<Tensor>) | { call: (x: Tensor) => Promise<Tensor> }
 /**
- * A `Tensor` === a multi-dimensional matrix containing elements of a single data type.
+ * A `Tensor` is a multi-dimensional matrix containing elements of a single data type.
  *
  * ```python exec="true" session="tensor"
  * from tinygrad import Tensor, dtypes, nn
@@ -483,13 +483,13 @@ export class Tensor extends MathTrait<Tensor> {
     const ld_repr = `<UOp ${ld.device} ${list_str(ld.shape)} ${ld.dtype.toString().slice(7)} ${ld.base !== ld ? ld.st : list_str([ld.op, uop_realized(ld)])}>`
     return `<Tensor ${ld_repr} on ${this.device} with grad ${this.grad?.lazydata}>`
   };
-  [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any) {
+  [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any): string {
     return this.toString()
   }
 
   //   // Python has a non moving GC, so this should be okay
   // const __hash__ = () =>  id(this)
-  get length() {
+  get length(): sint {
     if (!this.shape.length) throw new Error('len() of a 0-d tensor')
     return this.shape[0]
   }

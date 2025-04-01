@@ -1,7 +1,7 @@
 ---
 import Layout from "../components/Layout.astro";
 import { getExamples } from "../helpers";
-import { Code } from "../components/Code";
+import { CodeWithExamples } from "../components/Code";
 import { Install } from "../components/Install";
 
 const examples = await getExamples();
@@ -53,13 +53,13 @@ const runtimes = {
     </div>
     <div class="relative flex items-center justify-center py-20">
       <div class="hero-radial absolute w-full aspect-square my-auto"></div>
-      <Code examples={Object.fromEntries(examples.map((x) => [x.file, x.code]))} client:load />
+      <CodeWithExamples examples={Object.fromEntries(examples.map((x) => [x.file, x.code]))} client:load />
     </div>
   </div>
 
   {/* Installation */}
   <div class="section flex flex-col items-center gap-10 py-10">
-    <h3 class="text-4xl">Installation</h3>
+    <h3 class="text-4xl">Getting started</h3>
     <Install client:load />
   </div>
 
