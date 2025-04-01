@@ -1,4 +1,4 @@
-import type { ReactNode } from 'npm:react@19'
+import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
 export const Copy = ({ children, text, className }: { className?: string; text: string; children: ReactNode }) => {
