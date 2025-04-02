@@ -80,12 +80,12 @@ export const unravel = (shape: sint[], offset: sint): sint[] => {
 }
 
 export class View {
-  key: bigint
+  _id: bigint
   static cache = new WeakValueMap<bigint, View>()
   constructor(public shape: sint[], public strides: sint[], public offset: sint, public mask?: [sint, sint][], public contiguous?: boolean) {
-    this.key = id(shape, strides, offset, mask, contiguous)
+    this._id = id(shape, strides, offset, mask, contiguous)
     Object.freeze(this)
-    return View.cache.setDefault(this.key, this)
+    return View.cache.setDefault(this._id, this)
   }
 
   toString() {

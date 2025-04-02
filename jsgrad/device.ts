@@ -68,7 +68,7 @@ export class Buffer<Buf extends object = object> {
   _lb_refcount?: number
   _buf?: Buf
   allocator?: Allocator<Buf>
-  key: bigint
+  _id: bigint
   static register = new FinalizationRegistry((x: { allocator?: Allocator<any>; _buf: any; options?: BufferSpec; size: number }) => {
     x.allocator?.free(x._buf, x.size, x.options)
   })
@@ -85,7 +85,7 @@ export class Buffer<Buf extends object = object> {
     public offset = 0,
     preallocate = false,
   ) {
-    this.key = id(random_id())
+    this._id = id(random_id())
     if (dtype instanceof ImageDType) this.options = new BufferSpec(dtype) // TODO: image hack shouldn't be here. where should it be?
     else assert(dtype instanceof DType && !(dtype instanceof PtrDType))
     if (base === undefined) {

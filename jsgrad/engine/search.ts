@@ -145,7 +145,7 @@ export const export_beam = () => btoa(Object.entries(beams).map(([k, v]) => `${k
 export const import_beam = (data: string) => beams = new Map(atob(data).split('\n').map((x) => x.split(':')).map(([k, v]) => [BigInt(k), JSON.stringify(v.split('|').filter(Boolean).map((x) => x.split(',').map(Number)))]))
 
 export const beam_search = async (lin: Kernel, rawbufs: Buffer[], amt: number, allow_test_size = true, disable_cache = vars.get('IGNORE_BEAM_CACHE')): Promise<Kernel> => {
-  const key = id(lin.ast.key, amt, allow_test_size, lin.opts.device, lin.opts.suffix)
+  const key = id(lin.ast._id, amt, allow_test_size, lin.opts.device, lin.opts.suffix)
   if (!disable_cache && vars.CACHELEVEL >= 1) {
     const val = beams.get(key) ?? await env.disk_get('beam_search', key.toString())
     if (val !== undefined) {
@@ -240,7 +240,7 @@ export const optimize_local_size = async (_prg: Program, global_size: number[], 
   return min[1]
 }
 export const time_linearizer = async (lin: Kernel, rawbufs: Buffer[], allow_test_size = true, max_global_size = 65536, cnt = 3, disable_cache = false, clear_l2 = false): Promise<number> => {
-  const key = JSON.stringify({ 'ast': lin.ast.key, 'opts': String(lin.applied_opts), 'allow_test_size': allow_test_size, 'max_global_size': max_global_size, 'clear_l2': clear_l2, 'device': lin.opts.device, 'suffix': lin.opts.suffix })
+  const key = JSON.stringify({ 'ast': lin.ast._id, 'opts': String(lin.applied_opts), 'allow_test_size': allow_test_size, 'max_global_size': max_global_size, 'clear_l2': clear_l2, 'device': lin.opts.device, 'suffix': lin.opts.suffix })
   if (!disable_cache && vars.CACHELEVEL >= 2) {
     const val = await env.disk_get('time_linearizer', key)
     if (val !== undefined) return Math.min(...JSON.parse(val))

@@ -14,7 +14,7 @@ type TensorCoreArgs = {
   swizzle: [[number[], number[]] | undefined, [number[], number[]] | undefined]
 }
 export class TensorCore { // D = A * B + C, A is (M x K), B is (K x N), C and D are (M x N)
-  key: bigint
+  _id: bigint
   static cache = new WeakValueMap<bigint, TensorCore>()
 
   dims: [number, number, number]
@@ -26,8 +26,8 @@ export class TensorCore { // D = A * B + C, A is (M x K), B is (K x N), C and D 
   swizzle: [[number[], number[]] | undefined, [number[], number[]] | undefined] = [undefined, undefined]
   constructor(args: TensorCoreArgs) {
     this.dims = args.dims, this.threads = args.threads, this.elements_per_thread = args.elements_per_thread, this.dtype_in = args.dtype_in, this.dtype_out = args.dtype_out, this.opts = args.opts, this.swizzle = args.swizzle
-    this.key = id(this.dims, this.threads, this.elements_per_thread, this.dtype_in, this.dtype_out, this.opts, this.swizzle)
-    const cached = TensorCore.cache.get(this.key)
+    this._id = id(this.dims, this.threads, this.elements_per_thread, this.dtype_in, this.dtype_out, this.opts, this.swizzle)
+    const cached = TensorCore.cache.get(this._id)
     if (cached) return cached
 
     const local_axes = this.get_local_axes().length, upcast_axes = this.get_upcast_axes().length, reduce_axes = this.get_reduce_axes().length

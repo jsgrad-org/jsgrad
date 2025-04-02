@@ -7,7 +7,7 @@ import { env } from '../env/index.ts'
 // **************** Buffer + Allocators ****************
 export class BufferSpec {
   __name = 'BufferSpec'
-  key: bigint
+  _id: bigint
   static cache = new WeakValueMap<bigint, BufferSpec>()
   // TODO: move device, size, dtype here?
   constructor(
@@ -18,9 +18,9 @@ export class BufferSpec {
     public nolru = false,
     public external_ptr?: bigint,
   ) {
-    this.key = id(image, uncached, cpu_access, host, nolru, external_ptr)
+    this._id = id(image, uncached, cpu_access, host, nolru, external_ptr)
     Object.freeze(this)
-    return BufferSpec.cache.setDefault(this.key, this)
+    return BufferSpec.cache.setDefault(this._id, this)
   }
 }
 

@@ -13,10 +13,10 @@ import { full_graph_rewrite } from '../ops.ts'
 export class OptOps<Name extends string = string, Value extends number = number> extends Enum {
   private static VALUES: OptOps[] = []
   static values = () => [...OptOps.VALUES]
-  key: bigint
+  _id: bigint
   constructor(name: Name) {
     super('OptOps', name, OptOps.VALUES.length + 1)
-    this.key = id(name, this.value)
+    this._id = id(name, this.value)
     OptOps.VALUES.push(this)
   }
 
@@ -37,12 +37,12 @@ export const check = (cond: boolean, msg = '') => {
 }
 
 export class Opt {
-  key: bigint
+  _id: bigint
   static cache = new WeakValueMap<bigint, Opt>()
   constructor(public op: OptOps, public axis?: number, public amt?: number) {
-    this.key = id(op, axis, amt)
+    this._id = id(op, axis, amt)
     Object.freeze(this)
-    return Opt.cache.setDefault(this.key, this)
+    return Opt.cache.setDefault(this._id, this)
   }
   toString = () => `new Opt(${this.op}, ${this.axis}, ${this.amt})`;
   [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any) {

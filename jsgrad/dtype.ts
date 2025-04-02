@@ -9,11 +9,11 @@ export const bitcast = (data: (number | bigint | boolean)[], srcFmt: FmtStr, des
 }
 
 export class DType {
-  key: bigint
+  _id: bigint
   static cache = new WeakValueMap<bigint, DType>()
   constructor(public priority: number, public itemsize: number, public name: string, public fmt: undefined | FmtStr, public count: number, public _scalar?: DType, kwargs: any[] = []) {
-    this.key = id(priority, count, itemsize, name, _scalar, fmt, ...kwargs)
-    return DType.cache.setDefault(this.key, this)
+    this._id = id(priority, count, itemsize, name, _scalar, fmt, ...kwargs)
+    return DType.cache.setDefault(this._id, this)
   }
 
   static new = (priority: number, itemsize: number, name: string, fmt?: FmtStr): DType => new DType(priority, itemsize, name, fmt, 1, undefined)

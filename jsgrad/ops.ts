@@ -66,11 +66,11 @@ export class MathTrait<T extends MathTrait<any>> extends SimpleMathTrait<T> {
 export class Ops<Name extends string = string> extends Enum {
   private static VALUES: Ops[] = []
   static values = () => [...Ops.VALUES]
-  key: bigint
+  _id: bigint
   constructor(name: Name) {
     super('Ops', name, Ops.VALUES.length + 1)
     Ops.VALUES.push(this)
-    this.key = id(name, this.value)
+    this._id = id(name, this.value)
   }
   // uops that aren't rendered
   static readonly SINK = new Ops('SINK')
@@ -244,23 +244,23 @@ type UOpInput = { op: Ops; dtype?: DType; src?: UOp[]; arg?: any }
 
 export class UOp extends MathTrait<UOp> {
   static cache = new WeakValueMap<bigint, UOp>()
-  key: bigint
+  _id: bigint
   children = new WeakValueMap<bigint, UOp>()
   _buf?: Buffer
   _metadata?: Metadata
   constructor(public op: Ops, public dtype = dtypes.void, public src: UOp[] = [], public arg?: any, _buffer?: Buffer) {
     super()
-    this.key = id(this.op, this.dtype, this.arg, this.src)
-    const ret = UOp.cache.get(this.key)
+    this._id = id(this.op, this.dtype, this.arg, this.src)
+    const ret = UOp.cache.get(this._id)
     if (ret !== undefined) {
-      if (!is_eq(this.arg, ret.arg)) throw new Error(`Args fucked: \nthis=${this.arg}, ${this.arg?.key} \nret=${ret.arg}, ${ret.arg?.key}`)
+      if (!is_eq(this.arg, ret.arg)) throw new Error(`Args fucked: \nthis=${this.arg}, ${this.arg?._id} \nret=${ret.arg}, ${ret.arg?._id}`)
       if (this.op !== ret.op) throw new Error(`Op fucked: ${this.op} !== ${ret.op}`)
       if (this.dtype !== ret.dtype) throw new Error(`DType fucked: ${this.dtype} !== ${ret.dtype}`)
-      for (const [a, b] of zip(this.src, ret.src)) if (a !== b) throw new Error(`Src fucked: \na=${a}, ${a.key} \nb=${b}, ${b.key}`)
+      for (const [a, b] of zip(this.src, ret.src)) if (a !== b) throw new Error(`Src fucked: \na=${a}, ${a._id} \nb=${b}, ${b._id}`)
       return ret
     }
 
-    for (const s of src) s.children.set(this.key, this)
+    for (const s of src) s.children.set(this._id, this)
     // NOTE: this will soon be set by Tensor once we remove function.py
     const metadata = _METADATA.get()
     if (metadata !== undefined) this._metadata = metadata
@@ -269,7 +269,7 @@ export class UOp extends MathTrait<UOp> {
       if (op !== Ops.BUFFER) throw new Error(`trying to set Buffer ${_buffer} for ${op}`)
       this._buf = _buffer
     }
-    UOp.cache.set(this.key, this)
+    UOp.cache.set(this._id, this)
   }
   override toString(): string {
     const src = !this.src ? 'undefined' : this.src.length === 0 ? '[]' : `[\n${this.src.map((s) => s.toString()).join(',\n').split('\n').map((s) => '  ' + s).join('\n')}\n]`
@@ -708,16 +708,16 @@ export class UOp extends MathTrait<UOp> {
 }
 
 export class KernelInfo {
-  key: bigint
+  _id: bigint
   static cache = new WeakValueMap<bigint, KernelInfo>()
   constructor(
     public local_dims = 0, // number of local dimensions  (this is remapping RANGE to SPECIAL)
     public upcasted = 0, // count that are upcasted     (this is remapping RANGE to UNROLL)
     public dont_use_locals = false, // don't use local indexing
   ) {
-    this.key = id(local_dims, upcasted, dont_use_locals)
+    this._id = id(local_dims, upcasted, dont_use_locals)
     Object.freeze(this)
-    return KernelInfo.cache.setDefault(this.key, this)
+    return KernelInfo.cache.setDefault(this._id, this)
   }
   toString = () => `new KernelInfo(${this.local_dims}, ${this.upcasted}, ${this.dont_use_locals})`
 }

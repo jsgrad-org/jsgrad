@@ -131,10 +131,10 @@ export class BufferXfer extends BufferCopy {
 const method_cache = new Map<bigint, CompiledRunner>()
 export const get_runner = async (device: string, ast: UOp): Promise<CompiledRunner> => {
   await Device.get(device).init()
-  const ckey = id(device, ast.key, vars.BEAM, vars.NOOPT, false)
+  const ckey = id(device, ast._id, vars.BEAM, vars.NOOPT, false)
   const cret = method_cache.get(ckey)
   if (cret) return cret
-  const bkey = id(device.split(':')[0], ast.key, vars.BEAM, vars.NOOPT, true)
+  const bkey = id(device.split(':')[0], ast._id, vars.BEAM, vars.NOOPT, true)
   let ret
   const bret = method_cache.get(bkey)
   if (bret) {

@@ -13,8 +13,8 @@ function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
     for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
     return h
   } else if (type === 'object') {
-    if (typeof item.key === 'bigint') {
-      return fnv1a_64(fnv1a_64(h, 2n), item.key)
+    if (typeof item._id === 'bigint') {
+      return fnv1a_64(fnv1a_64(h, 2n), item._id)
     } else if (Array.isArray(item)) {
       h = fnv1a_64(h, 3n)
       for (let i = 0; i < item.length; i++) h = fnv1a_64(hashValue(item[i], h), 44n)
@@ -33,19 +33,16 @@ function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
     for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
     return h
   } else if (type === 'boolean') {
-    return fnv1a_64(fnv1a_64(h, 7n), item ? 1n : 0n)
+    return fnv1a_64(fnv1a_64(h, 7n), BigInt(item))
   } else if (type === 'bigint') {
     return fnv1a_64(fnv1a_64(h, 8n), item)
   }
   throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
 }
 
-export let time = 0
 export function id(...args: any[]): bigint {
-  const st = performance.now()
   let h = FNV_OFFSET_BASIS_64
   for (let i = 0; i < args.length; i++) h = hashValue(args[i], h)
-  time += performance.now() - st
   return h
 }
 // Python Map/Set implementations
@@ -75,8 +72,8 @@ export class DefaultMap<K, V> extends Map<K, V> {
   }
 }
 // in JS [1] !== [1], so this is for Maps where key needs to be array
-type WeakArrayKey = { key: bigint } | ArrayKey[]
-type ArrayKey = { key: bigint } | ArrayKey[] | string | ConstType | undefined
+type WeakArrayKey = { _id: bigint } | ArrayKey[]
+type ArrayKey = { _id: bigint } | ArrayKey[] | string | ConstType | undefined
 
 export class ArrayMap<K extends ArrayKey, V, Internal extends [any, any] = [K, V]> {
   map: Map<bigint, Internal>
@@ -483,12 +480,12 @@ export const to_function_name = (s: string) => ansistrip(s).split('').map((c) =>
 // TODO JIT should be automatic
 
 export class Metadata {
-  key: bigint
+  id: bigint
   static cache = new WeakValueMap<bigint, Metadata>()
   constructor(public name: string, public caller: string, public backward = false) {
-    this.key = id(name, caller, backward)
+    this.id = id(name, caller, backward)
     Object.freeze(this)
-    return Metadata.cache.setDefault(this.key, this)
+    return Metadata.cache.setDefault(this.id, this)
   }
   toString = () => `new Metadata(${this.name}, ${this.backward}, ${this.backward})`;
   [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any) {

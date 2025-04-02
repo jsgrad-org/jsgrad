@@ -126,14 +126,14 @@ export class GraphRunner extends Runner {
     const wait_nodes = []
 
     for (const [i, rawbuf] of rawbufs.entries()) {
-      if (this.w_dependency_map.has(rawbuf.base.key)) wait_nodes.push(this.w_dependency_map.get(rawbuf.base.key))
+      if (this.w_dependency_map.has(rawbuf.base._id)) wait_nodes.push(this.w_dependency_map.get(rawbuf.base._id))
       if (write.includes(i)) {
-        if (this.r_dependency_map.has(rawbuf.base.key)) {
-          wait_nodes.push(...this.r_dependency_map.get(rawbuf.base.key))
-          this.r_dependency_map.delete(rawbuf.base.key)
+        if (this.r_dependency_map.has(rawbuf.base._id)) {
+          wait_nodes.push(...this.r_dependency_map.get(rawbuf.base._id))
+          this.r_dependency_map.delete(rawbuf.base._id)
         }
-        this.w_dependency_map.set(rawbuf.base.key, new_dependency)
-      } else this.r_dependency_map.get(rawbuf.base.key).push(new_dependency)
+        this.w_dependency_map.set(rawbuf.base._id, new_dependency)
+      } else this.r_dependency_map.get(rawbuf.base._id).push(new_dependency)
     }
     // return  list({id(x):x for x in wait_nodes}.values())
     throw new Error('TODO: handle id(_buf)')

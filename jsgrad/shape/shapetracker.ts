@@ -58,12 +58,12 @@ const views_to_real_strides = cache_fn((views: View[], ignore_valid = false): (u
 })
 
 export class ShapeTracker {
-  key: bigint
+  _id: bigint
   static cache = new WeakValueMap<bigint, ShapeTracker>()
   constructor(public views: View[]) {
-    this.key = id(...views)
+    this._id = id(...views)
     Object.freeze(this)
-    const res = ShapeTracker.cache.setDefault(this.key, this)
+    const res = ShapeTracker.cache.setDefault(this._id, this)
     if (!is_eq(this.views, res.views)) throw new Error(`Views don't match: \nthis=${list_str(this.views)} \nres=${list_str(res.views)}`)
     return res
   }
