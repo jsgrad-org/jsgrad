@@ -78,8 +78,8 @@ export class GraphRunner extends Runner {
   symbolic_dims: ArrayMap<(number[] | undefined), number> // value is array index in python
 
   // used in MultiGraphRunner. the ints are id() of _bufs
-  w_dependency_map = new Map<string, any>()
-  r_dependency_map = new DefaultMap<string, any[]>(undefined, () => [])
+  w_dependency_map = new Map<bigint, any>()
+  r_dependency_map = new DefaultMap<bigint, any[]>(undefined, () => [])
   constructor(public jit_cache: ExecItem[], input_rawbuffers: Buffer[], var_vals: Map<Variable, number>) {
     super(colored(`<batched ${jit_cache.length}>`, 'cyan'), jit_cache[0].prg.device.split(':')[0], new Estimates())
     this.input_replace = get_input_replace(jit_cache, input_rawbuffers)

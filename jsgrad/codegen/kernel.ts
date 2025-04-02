@@ -1,6 +1,6 @@
 import { Device } from '../device.ts'
 import { ImageDType } from '../dtype.ts'
-import { all_int, all_same, ansilen, assert, cache, colored, dedup, DefaultMap, Enum, ge, get_key, gt, isInt, NotImplemented, num, product, range, round_up, set_default, sorted, sum, to_function_name, vars, WeakValueMap, zip } from '../helpers/helpers.ts'
+import { all_int, all_same, ansilen, assert, cache, colored, dedup, DefaultMap, Enum, ge, gt, id, isInt, NotImplemented, num, product, range, round_up, set_default, sorted, sum, to_function_name, vars, WeakValueMap, zip } from '../helpers/helpers.ts'
 import { can_pad, graph_rewrite, GroupOp, KernelInfo, Ops, print_uops, resolve, type sint, type_verify, UOp, type Variable, view_left } from '../ops.ts'
 import { idiv, le, mod, mul, ne, prod } from '../helpers/helpers.ts'
 import { ProgramSpec, type Renderer, type TensorCore } from '../renderer/index.ts'
@@ -13,10 +13,10 @@ import { full_graph_rewrite } from '../ops.ts'
 export class OptOps<Name extends string = string, Value extends number = number> extends Enum {
   private static VALUES: OptOps[] = []
   static values = () => [...OptOps.VALUES]
-  key: string
+  key: bigint
   constructor(name: Name) {
     super('OptOps', name, OptOps.VALUES.length + 1)
-    this.key = get_key(name, this.value)
+    this.key = id(name, this.value)
     OptOps.VALUES.push(this)
   }
 
@@ -37,10 +37,10 @@ export const check = (cond: boolean, msg = '') => {
 }
 
 export class Opt {
-  key: string
-  static cache = new WeakValueMap<string, Opt>()
+  key: bigint
+  static cache = new WeakValueMap<bigint, Opt>()
   constructor(public op: OptOps, public axis?: number, public amt?: number) {
-    this.key = get_key(op, axis, amt)
+    this.key = id(op, axis, amt)
     Object.freeze(this)
     return Opt.cache.setDefault(this.key, this)
   }

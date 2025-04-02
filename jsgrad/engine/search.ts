@@ -2,7 +2,7 @@ import { type Kernel, KernelOptError, Opt, OptOps } from '../codegen/kernel.ts'
 import { Buffer, type Compiler, Device, type Program } from '../device.ts'
 import { ImageDType, PtrDType } from '../dtype.ts'
 import { env } from '../env/index.ts'
-import { add, colored, type ConstType, DefaultMap, flatten, get_key, idiv, isInf, mod, mul, num, perf, prod, range, to_function_name, vars, zip } from '../helpers/helpers.ts'
+import { add, colored, type ConstType, DefaultMap, flatten, id, idiv, isInf, mod, mul, num, perf, prod, range, to_function_name, vars, zip } from '../helpers/helpers.ts'
 import { Ops, type sint, sym_infer, type UOp, type Variable } from '../ops.ts'
 import type { ProgramSpec } from '../renderer/index.ts'
 import { Tensor } from '../tensor.ts'
@@ -140,16 +140,16 @@ export const get_kernel_actions = (lin: Kernel, include_0 = true): Map<number, K
 
 export const BEAM_DEBUG = vars.get_num('BEAM_DEBUG')
 
-let beams: Record<string, string> = {}
+let beams = new Map<bigint, string>()
 export const export_beam = () => btoa(Object.entries(beams).map(([k, v]) => `${k}:${JSON.parse(v).join('|')}`).join('\n'))
-export const import_beam = (data: string) => beams = Object.fromEntries(atob(data).split('\n').map((x) => x.split(':')).map(([k, v]) => [k, JSON.stringify(v.split('|').filter(Boolean).map((x) => x.split(',').map(Number)))]))
+export const import_beam = (data: string) => beams = new Map(atob(data).split('\n').map((x) => x.split(':')).map(([k, v]) => [BigInt(k), JSON.stringify(v.split('|').filter(Boolean).map((x) => x.split(',').map(Number)))]))
 
 export const beam_search = async (lin: Kernel, rawbufs: Buffer[], amt: number, allow_test_size = true, disable_cache = vars.get('IGNORE_BEAM_CACHE')): Promise<Kernel> => {
-  const key = get_key(lin.ast.key, amt, allow_test_size, lin.opts.device, lin.opts.suffix)
+  const key = id(lin.ast.key, amt, allow_test_size, lin.opts.device, lin.opts.suffix)
   if (!disable_cache && vars.CACHELEVEL >= 1) {
-    const val = beams[key] ?? await env.disk_get('beam_search', key)
+    const val = beams.get(key) ?? await env.disk_get('beam_search', key.toString())
     if (val !== undefined) {
-      beams[key] = val
+      beams.set(key, val)
       const ret = lin.copy()
       const opts = JSON.parse(val).map(([op, axis, amt]: number[]) => new Opt(OptOps.values().find((x) => x.value === op)!, axis, amt))
       if (BEAM_DEBUG) console.log(`BEAM_CACHE: opts=${opts}`)
@@ -159,7 +159,7 @@ export const beam_search = async (lin: Kernel, rawbufs: Buffer[], amt: number, a
   }
 
   let beam: [Kernel, number][] = [[lin, Infinity]]
-  const seen_libs = new Set<string>()
+  const seen_libs = new Set<bigint>()
 
   const min_progress = vars.get_num('BEAM_MIN_PROGRESS', 0.01) / 1e6
   if (BEAM_DEBUG >= 2) console.log(`BEAM_SEARCH:\n${lin.ast}`)
@@ -179,12 +179,12 @@ export const beam_search = async (lin: Kernel, rawbufs: Buffer[], amt: number, a
         const [i, proc] = await _compile_fn(x)
         if (proc === undefined) continue
         const [p, lib, compile_et] = proc
-        if (seen_libs.has(get_key(lib))) continue
+        if (seen_libs.has(id(lib))) continue
         // filter out kernels that use 1000x more compute than the smallest
         const this_compute_ops = sym_infer(p.estimates.ops, var_vals)
         least_compute_ops = Math.min(this_compute_ops, least_compute_ops)
         if (least_compute_ops * 1000 < this_compute_ops) continue
-        seen_libs.add(get_key(lib))
+        seen_libs.add(id(lib))
         let tms: number[]
         try {
           tms = await _time_program(p, lib, var_vals, rawbufs, beam.length ? beam[0][1] * 3 : 1.0, undefined, 'invalidate_caches' in dev)
@@ -209,8 +209,8 @@ export const beam_search = async (lin: Kernel, rawbufs: Buffer[], amt: number, a
 
   if (vars.CACHELEVEL >= 1) {
     const data = JSON.stringify(beam[0][0].applied_opts.map((x) => [x.op.value, x.axis ?? -1, x.amt ?? -1]))
-    beams[key] = data
-    await env.disk_put('beam_search', key, data)
+    beams.set(key, data)
+    await env.disk_put('beam_search', key.toString(), data)
   }
   if (BEAM_DEBUG) console.log(`BEAM_SEARCH: final tm=${(beam[0][1] * 1e6).toFixed(2)} us, applied_opts=${beam[0][0].applied_opts}`)
   return beam[0][0]

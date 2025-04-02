@@ -1,5 +1,5 @@
 import type { DType } from '../dtype.ts'
-import { add, assert, cache, dedup, get_key, idiv, mul, prod, range, replace, sorted, WeakValueMap } from '../helpers/helpers.ts'
+import { add, assert, cache, dedup, id, idiv, mul, prod, range, replace, sorted, WeakValueMap } from '../helpers/helpers.ts'
 import { GroupOp, Ops, type sint, ssimplify, sym_infer, type UOp, type Variable } from '../ops.ts'
 
 export type TC = [number, number]
@@ -14,8 +14,8 @@ type TensorCoreArgs = {
   swizzle: [[number[], number[]] | undefined, [number[], number[]] | undefined]
 }
 export class TensorCore { // D = A * B + C, A is (M x K), B is (K x N), C and D are (M x N)
-  key: string
-  static cache = new WeakValueMap<string, TensorCore>()
+  key: bigint
+  static cache = new WeakValueMap<bigint, TensorCore>()
 
   dims: [number, number, number]
   threads: number
@@ -26,7 +26,7 @@ export class TensorCore { // D = A * B + C, A is (M x K), B is (K x N), C and D 
   swizzle: [[number[], number[]] | undefined, [number[], number[]] | undefined] = [undefined, undefined]
   constructor(args: TensorCoreArgs) {
     this.dims = args.dims, this.threads = args.threads, this.elements_per_thread = args.elements_per_thread, this.dtype_in = args.dtype_in, this.dtype_out = args.dtype_out, this.opts = args.opts, this.swizzle = args.swizzle
-    this.key = get_key(this.dims, this.threads, this.elements_per_thread, this.dtype_in, this.dtype_out, this.opts, this.swizzle)
+    this.key = id(this.dims, this.threads, this.elements_per_thread, this.dtype_in, this.dtype_out, this.opts, this.swizzle)
     const cached = TensorCore.cache.get(this.key)
     if (cached) return cached
 

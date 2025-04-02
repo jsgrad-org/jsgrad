@@ -1,5 +1,5 @@
 import { dtypes, PtrDType } from '../dtype.ts'
-import { ArrayMap, assert, dedup, DefaultMap, flatten, get_key, is_eq, is_less_than, min, partition, set_default, WeakValueMap } from '../helpers/helpers.ts'
+import { ArrayMap, assert, dedup, DefaultMap, flatten, id, is_eq, is_less_than, min, partition, set_default, WeakValueMap } from '../helpers/helpers.ts'
 import { graph_rewrite, GroupOp, Ops, PatternMatcher, type_verify, UOp, UPat } from '../ops.ts'
 
 const DONT_PLACE_IN_BLOCK = [Ops.DEFINE_GLOBAL, Ops.DEFINE_LOCAL, Ops.DEFINE_VAR, Ops.SPECIAL, Ops.CONST, ...GroupOp.Block]
@@ -12,10 +12,10 @@ export const disp = (y: UOp): string => {
 }
 
 export class BasicBlock {
-  key: string
-  static cache = new WeakValueMap<string, BasicBlock>()
+  key: bigint
+  static cache = new WeakValueMap<bigint, BasicBlock>()
   constructor(public ctx: UOp[], public lst: UOp[], public end?: UOp) {
-    this.key = get_key(ctx, lst, end)
+    this.key = id(ctx, lst, end)
     Object.freeze(this)
     return BasicBlock.cache.setDefault(this.key, this)
   }

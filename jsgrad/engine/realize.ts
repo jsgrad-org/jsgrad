@@ -1,6 +1,6 @@
 import { Kernel } from '../codegen/kernel.ts'
 import { type Buffer, Device, type Program } from '../device.ts'
-import { all_int, all_same, ansilen, colored, get_key, GlobalCounters, idiv, list_str, type Metadata, mod, perf, replace, to_function_name, vars, zip } from '../helpers/helpers.ts'
+import { all_int, all_same, ansilen, colored, GlobalCounters, id, idiv, list_str, type Metadata, mod, perf, replace, to_function_name, vars, zip } from '../helpers/helpers.ts'
 import { Ops, PatternMatcher, sym_infer, type UOp, UPat, type Variable } from '../ops.ts'
 import { Estimates, type ProgramSpec, type Renderer } from '../renderer/index.ts'
 import type { TinyJit } from './jit.ts'
@@ -128,23 +128,23 @@ export class BufferXfer extends BufferCopy {
 }
 // **************** method cache ****************
 
-const method_cache: Record<string, CompiledRunner> = {}
+const method_cache = new Map<bigint, CompiledRunner>()
 export const get_runner = async (device: string, ast: UOp): Promise<CompiledRunner> => {
   await Device.get(device).init()
-  const ckey = get_key(device, ast.key, vars.BEAM, vars.NOOPT, false)
-  const cret = method_cache[ckey]
+  const ckey = id(device, ast.key, vars.BEAM, vars.NOOPT, false)
+  const cret = method_cache.get(ckey)
   if (cret) return cret
-  const bkey = get_key(device.split(':')[0], ast.key, vars.BEAM, vars.NOOPT, true)
+  const bkey = id(device.split(':')[0], ast.key, vars.BEAM, vars.NOOPT, true)
   let ret
-  const bret = method_cache[bkey]
+  const bret = method_cache.get(bkey)
   if (bret) {
     ret = await CompiledRunner.init(replace(bret.p, { device: device }), bret.lib)
-    method_cache[ckey] = ret
+    method_cache.set(ckey, ret)
   } else {
     const prg: ProgramSpec = (await get_kernel(Device.get(device).renderer!, ast)).to_program()
     ret = await CompiledRunner.init(replace(prg, { device: device }))
-    method_cache[ckey] = ret
-    method_cache[bkey] = ret
+    method_cache.set(ckey, ret)
+    method_cache.set(bkey, ret)
   }
   return ret
 }

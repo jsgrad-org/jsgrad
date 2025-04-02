@@ -1,4 +1,4 @@
-import { cache, cache_fn, type ConstType, get_key, intersection, is_less_than, vars, WeakValueMap } from './helpers/helpers.ts'
+import { cache, cache_fn, type ConstType, id, intersection, is_less_than, vars, WeakValueMap } from './helpers/helpers.ts'
 import { type FmtStr, MemoryView } from './helpers/memoryview.ts'
 export type { FmtStr } from './helpers/memoryview.ts'
 export type { ConstType } from './helpers/helpers.ts'
@@ -9,10 +9,10 @@ export const bitcast = (data: (number | bigint | boolean)[], srcFmt: FmtStr, des
 }
 
 export class DType {
-  key: string
-  static cache = new WeakValueMap<string, DType>()
+  key: bigint
+  static cache = new WeakValueMap<bigint, DType>()
   constructor(public priority: number, public itemsize: number, public name: string, public fmt: undefined | FmtStr, public count: number, public _scalar?: DType, kwargs: any[] = []) {
-    this.key = get_key(priority, count, itemsize, name, _scalar, fmt, ...kwargs)
+    this.key = id(priority, count, itemsize, name, _scalar, fmt, ...kwargs)
     return DType.cache.setDefault(this.key, this)
   }
 

@@ -2,7 +2,7 @@
 import type { Buffer } from './device.ts'
 import { DType, dtypes, ImageDType, PtrDType, truncate } from './dtype.ts'
 import { accumulate, add, and, cache_fn, constToNumeric, type ConstType, dedup, DefaultMap, div, flatten, floatString, ge, idiv, is_less_than, isConst, lshift, lt, mod, mul, ne, neg, NotImplemented, num, or, pairwise, polyN, prod, product, rshift, slice, sorted, sub, sum, vars, xor } from './helpers/helpers.ts'
-import { _METADATA, abs, all_int, all_same, assert, cache, counter, divmod, Enum, get_key, is_eq, is_subset, isInf, list_str, math_gcd, max, type Metadata, min, partition, permutations, range, set_default, sin, sqrt, trunc, WeakValueMap, zip } from './helpers/helpers.ts'
+import { _METADATA, abs, all_int, all_same, assert, cache, counter, divmod, Enum, id, is_eq, is_subset, isInf, list_str, math_gcd, max, type Metadata, min, partition, permutations, range, set_default, sin, sqrt, trunc, WeakValueMap, zip } from './helpers/helpers.ts'
 import type { Renderer } from './renderer/index.ts'
 import { ShapeTracker } from './shape/shapetracker.ts'
 
@@ -66,11 +66,11 @@ export class MathTrait<T extends MathTrait<any>> extends SimpleMathTrait<T> {
 export class Ops<Name extends string = string> extends Enum {
   private static VALUES: Ops[] = []
   static values = () => [...Ops.VALUES]
-  key: string
+  key: bigint
   constructor(name: Name) {
     super('Ops', name, Ops.VALUES.length + 1)
     Ops.VALUES.push(this)
-    this.key = get_key(name, this.value)
+    this.key = id(name, this.value)
   }
   // uops that aren't rendered
   static readonly SINK = new Ops('SINK')
@@ -243,14 +243,14 @@ export const sym_infer = (uop: sint, varVals: Map<UOp, ConstType>): number => uo
 type UOpInput = { op: Ops; dtype?: DType; src?: UOp[]; arg?: any }
 
 export class UOp extends MathTrait<UOp> {
-  static cache = new WeakValueMap<string, UOp>()
-  key: string
-  children = new WeakValueMap<string, UOp>()
+  static cache = new WeakValueMap<bigint, UOp>()
+  key: bigint
+  children = new WeakValueMap<bigint, UOp>()
   _buf?: Buffer
   _metadata?: Metadata
   constructor(public op: Ops, public dtype = dtypes.void, public src: UOp[] = [], public arg?: any, _buffer?: Buffer) {
     super()
-    this.key = get_key(this.op, this.dtype, this.arg, this.src)
+    this.key = id(this.op, this.dtype, this.arg, this.src)
     const ret = UOp.cache.get(this.key)
     if (ret !== undefined) {
       if (!is_eq(this.arg, ret.arg)) throw new Error(`Args fucked: \nthis=${this.arg}, ${this.arg?.key} \nret=${ret.arg}, ${ret.arg?.key}`)
@@ -708,14 +708,14 @@ export class UOp extends MathTrait<UOp> {
 }
 
 export class KernelInfo {
-  key: string
-  static cache = new WeakValueMap<string, KernelInfo>()
+  key: bigint
+  static cache = new WeakValueMap<bigint, KernelInfo>()
   constructor(
     public local_dims = 0, // number of local dimensions  (this is remapping RANGE to SPECIAL)
     public upcasted = 0, // count that are upcasted     (this is remapping RANGE to UNROLL)
     public dont_use_locals = false, // don't use local indexing
   ) {
-    this.key = get_key(local_dims, upcasted, dont_use_locals)
+    this.key = id(local_dims, upcasted, dont_use_locals)
     Object.freeze(this)
     return KernelInfo.cache.setDefault(this.key, this)
   }

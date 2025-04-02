@@ -27,7 +27,7 @@ function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
 }
 
 export let time = 0
-export function get_key(...args: any[]): bigint {
+export function id(...args: any[]): bigint {
   const st = performance.now()
   let h = FNV_OFFSET_BASIS_64
   for (let i = 0; i < args.length; i++) h = hashValue(args[i], h)
@@ -61,24 +61,24 @@ export class DefaultMap<K, V> extends Map<K, V> {
   }
 }
 // in JS [1] !== [1], so this is for Maps where key needs to be array
-type WeakArrayKey = { key: string } | ArrayKey[]
-type ArrayKey = { key: string } | ArrayKey[] | string | ConstType | undefined
+type WeakArrayKey = { key: bigint } | ArrayKey[]
+type ArrayKey = { key: bigint } | ArrayKey[] | string | ConstType | undefined
 
 export class ArrayMap<K extends ArrayKey, V, Internal extends [any, any] = [K, V]> {
-  map: Map<string, Internal>
+  map: Map<bigint, Internal>
   constructor(values?: Internal[]) {
-    this.map = new Map(values?.map(([key, value]) => [get_key(key), [key, value] as Internal]))
+    this.map = new Map(values?.map(([key, value]) => [id(key), [key, value] as Internal]))
   }
   get size() {
     return this.map.size
   }
-  get = (key: K): V | undefined => this.map.get(get_key(key))?.[1]
-  set = (key: K, value: V): void => void this.map.set(get_key(key), [key, value] as Internal)
+  get = (key: K): V | undefined => this.map.get(id(key))?.[1]
+  set = (key: K, value: V): void => void this.map.set(id(key), [key, value] as Internal)
   has = (key: K): boolean => this.get(key) !== undefined
   entries = (): [K, V][] => [...this.map.values()]
   keys = () => this.entries().map((e) => e[0])
   values = () => this.entries().map((e) => e[1])
-  delete = (k: K) => this.map.delete(get_key(k))
+  delete = (k: K) => this.map.delete(id(k))
   clear = () => this.map.clear()
   setDefault = (key: K, defaultValue: V) => {
     const res = this.get(key)
@@ -90,21 +90,21 @@ export class ArrayMap<K extends ArrayKey, V, Internal extends [any, any] = [K, V
 
 // When key is garbage collected then the item is removed from the map
 export class WeakKeyMap<K extends WeakArrayKey, V extends any> extends ArrayMap<K, V, [WeakRef<K>, V]> {
-  private finalizationGroup = new FinalizationRegistry<string>((key) => this.map.delete(key))
+  private finalizationGroup = new FinalizationRegistry<bigint>((key) => this.map.delete(key))
   constructor() {
     super()
   }
   override get = (key: K): V | undefined => {
-    const res = this.map.get(get_key(key))
+    const res = this.map.get(id(key))
     if (res === undefined) return undefined
     if (res[0].deref() !== undefined) return res[1]
 
     // if key is gone then return undefined + delete from list
-    this.map.delete(get_key(key))
+    this.map.delete(id(key))
     return undefined
   }
   override set = (keyValue: K, value: V) => {
-    const key = get_key(keyValue)
+    const key = id(keyValue)
     this.map.set(key, [new WeakRef(keyValue), value])
     this.finalizationGroup.register(keyValue, key, keyValue)
   }
@@ -118,7 +118,7 @@ export class WeakKeyMap<K extends WeakArrayKey, V extends any> extends ArrayMap<
   }
   override delete = (k: K) => {
     this.finalizationGroup.unregister(k)
-    return this.map.delete(get_key(k))
+    return this.map.delete(id(k))
   }
   override clear = () => {
     for (const key of this.keys()) this.finalizationGroup.unregister(key)
@@ -134,20 +134,20 @@ export class WeakValueMap<K extends ArrayKey, V extends object> extends ArrayMap
     super()
   }
   override get = (key: K): V | undefined => {
-    const res = this.map.get(get_key(key))
+    const res = this.map.get(id(key))
     if (res === undefined) return undefined
     const derefed = res[1].deref()
     if (derefed !== undefined) return derefed
 
     // if value is gone, remove from map
-    this.map.delete(get_key(key))
+    this.map.delete(id(key))
     return undefined
   }
   override set = (key: K, value: V) => {
     // const oldValue = this.get(key)
     // if (oldValue) this.finalizationGroup.unregister(oldValue)
 
-    const stringKey = get_key(key)
+    const stringKey = id(key)
     this.map.set(stringKey, [key, new WeakRef(value)])
     // this.finalizationGroup.register(value, stringKey, value)
   }
@@ -162,7 +162,7 @@ export class WeakValueMap<K extends ArrayKey, V extends object> extends ArrayMap
   override delete = (k: K) => {
     const value = this.get(k)
     // if (value) this.finalizationGroup.unregister(value)
-    return this.map.delete(get_key(k))
+    return this.map.delete(id(k))
   }
   override clear = () => {
     // for (const value of this.values()) this.finalizationGroup.unregister(value)
@@ -469,10 +469,10 @@ export const to_function_name = (s: string) => ansistrip(s).split('').map((c) =>
 // TODO JIT should be automatic
 
 export class Metadata {
-  key: string
-  static cache = new WeakValueMap<string, Metadata>()
+  key: bigint
+  static cache = new WeakValueMap<bigint, Metadata>()
   constructor(public name: string, public caller: string, public backward = false) {
-    this.key = get_key(name, caller, backward)
+    this.key = id(name, caller, backward)
     Object.freeze(this)
     return Metadata.cache.setDefault(this.key, this)
   }
@@ -692,22 +692,22 @@ export function slice<T>(arr: T[], { start, stop, step }: Slice = {}): T[] {
 // DECORATORS
 
 export function cache<Args extends any[], Return>(fn: (...args: Args) => Return) {
-  const cache: Record<string, Return> = {}
+  const cache = new Map<bigint, Return>()
   return (...args: Args): Return => {
-    const key = get_key(args)
-    if (key in cache) return cache[key]
+    const key = id(args)
+    if (cache.has(key)) return cache.get(key)!
     const res = fn(...args)
-    cache[key] = res
+    cache.set(key, res)
     return res
   }
 }
 export function cache_fn<Args extends any[], Return>(fn: (...args: Args) => Return) {
-  const cache: Record<string, Return> = {}
+  const cache = new Map<bigint, Return>()
   return (...args: Args) => {
-    const key = get_key(args)
-    if (key in cache) return cache[key]
+    const key = id(args)
+    if (cache.has(key)) return cache.get(key)!
     const res = fn(...args)
-    cache[key] = res
+    cache.set(key, res)
     return res
   }
 }

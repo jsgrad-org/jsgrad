@@ -2,7 +2,7 @@ import { colored, Device, env, is_eq, Tensor } from '../jsgrad/node.ts'
 
 let result: string[] = [], error = false
 for (const device in env.DEVICES) {
-  if (['DISK', 'CLOUD'].includes(device)) continue
+  if (['DISK', 'CLOUD', 'NULL'].includes(device)) continue
   let res
   try {
     await new env.DEVICES[device](device).init()
