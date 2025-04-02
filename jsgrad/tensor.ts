@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-this-alias
 import { type ConstType, DType, type DTypeLike, dtypes, ImageDType, least_upper_dtype, least_upper_float, sum_acc_dtype, to_dtype } from './dtype.ts'
-import { _METADATA, all_int, all_same, assert, bytes_to_bigint, dedup, div, flatten, fully_flatten, int_to_bytes, is_eq, isConst, list_str, max, Metadata, min, mod, NotImplemented, num, product, random_id, range, type Slice, slice, sorted, vars, WeakValueMap, zip } from './helpers/helpers.ts'
+import { _METADATA, all_int, all_same, assert, bytes_to_bigint, dedup, div, flatten, fully_flatten, id, int_to_bytes, is_eq, isConst, list_str, max, Metadata, min, mod, NotImplemented, num, product, random_id, range, type Slice, slice, sorted, vars, WeakValueMap, zip } from './helpers/helpers.ts'
 import { identity_element, MathTrait, Ops, resolve, type sint, smax, smin, UOp, type Variable } from './ops.ts'
 import { add, ceildiv, ge, gt, idiv, le, mul, ne, polyN, prod, sub, sum } from './helpers/helpers.ts'
 import { BufferSpec, Device, uop_buffer, uop_is_realized, uop_realized } from './device.ts'
@@ -15,7 +15,7 @@ import { env } from './env/index.ts'
 import { compute_gradient } from './gradient.ts'
 import { get_multi_map } from './multi.ts'
 
-const all_tensors = new WeakValueMap<string, Tensor>()
+const all_tensors = new WeakValueMap<bigint, Tensor>()
 
 const _apply_map_to_tensors = (applied_map: Map<UOp, UOp>): undefined => {
   // get all children of keys in applied_map
@@ -408,9 +408,7 @@ export type LayerAsync = ((x: Tensor) => Tensor) | { call: (x: Tensor) => Tensor
  * ```
  */
 export class Tensor extends MathTrait<Tensor> {
-  static registry = new FinalizationRegistry((key: string) => {
-    all_tensors.delete(key)
-  })
+  static registry = new FinalizationRegistry((key: bigint) => all_tensors.delete(key))
   lazydata!: UOp
   requires_grad?: boolean
   // tensors can have gradients if you have called .backward
@@ -419,13 +417,13 @@ export class Tensor extends MathTrait<Tensor> {
   _ctx?: InstanceType<ReturnType<typeof CreateFunction>>
   static training = false
   static no_grad = false
-  key: string
+  _id: bigint
   // KAREL: TODO: this probably won't work correctly
   constructor(data?: ConstType | UOp | Uint8Array | any[] | UOp | Tensor | string, { device, dtype, requires_grad }: TensorOptions = {}, skip_constructor = false) {
     super()
-    this.key = random_id()
-    all_tensors.set(this.key, this)
-    Tensor.registry.register(this, this.key)
+    this._id = id(random_id())
+    all_tensors.set(this._id, this)
+    Tensor.registry.register(this, this._id)
     if (skip_constructor) return
     if (dtype !== undefined) dtype = to_dtype(dtype)
     if (dtype !== undefined && !(dtype instanceof DType)) throw new Error(`invalid dtype ${dtype}`)

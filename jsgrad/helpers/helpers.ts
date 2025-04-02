@@ -4,73 +4,49 @@ import type { MathTrait } from '../ops.ts'
 const FNV_OFFSET_BASIS_64 = 14695981039346656037n
 const FNV_PRIME_64 = 1099511628211n
 const MASK = 0xffffffffffffffffn
-function fnv1a_64(h: bigint, charCode: number) {
-  h ^= BigInt(charCode)
-  h = (h * FNV_PRIME_64) & MASK
-  return h
-}
+const fnv1a_64 = (h: bigint, add: bigint) => (h ^ add) * FNV_PRIME_64 & MASK
 
-function hashValue(item: any, h = FNV_OFFSET_BASIS_64) {
-  switch (typeof item) {
-    case 'string': {
-      for (let i = 0; i < item.length; i++) {
-        h = fnv1a_64(h, item.charCodeAt(i))
-      }
-      break
+function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
+  const type = typeof item
+  if (type === 'string') {
+    h = fnv1a_64(h, 1n)
+    for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
+    return h
+  } else if (type === 'object') {
+    if (typeof item._id === 'bigint') {
+      return fnv1a_64(fnv1a_64(h, 2n), item._id)
+    } else if (Array.isArray(item)) {
+      h = fnv1a_64(h, 3n)
+      for (let i = 0; i < item.length; i++) h = fnv1a_64(hashValue(item[i], h), 44n)
+      return fnv1a_64(h, 4n)
+    } else if (item instanceof Uint8Array) {
+      h = fnv1a_64(h, 55n)
+      for (const i of item) h = fnv1a_64(h, BigInt(i))
+      return fnv1a_64(h, 56n)
     }
-    case 'number': {
-      const str = String(item)
-      for (let i = 0; i < str.length; i++) {
-        h = fnv1a_64(h, str.charCodeAt(i))
-      }
-      break
-    }
-    case 'bigint': {
-      const str = item.toString() + 'n'
-      for (let i = 0; i < str.length; i++) {
-        h = fnv1a_64(h, str.charCodeAt(i))
-      }
-      break
-    }
-    case 'boolean': {
-      h = fnv1a_64(h, item ? 1 : 0)
-      break
-    }
-    case 'undefined': {
-      h = fnv1a_64(h, 85)
-      break
-    }
-    case 'object': {
-      if (item instanceof Uint8Array) {
-        for (const i of item) {
-          h = fnv1a_64(h, i)
-        }
-      } else if (Array.isArray(item)) {
-        h = fnv1a_64(h, 91)
-        for (let i = 0; i < item.length; i++) {
-          h = hashValue(item[i], h)
-          h = fnv1a_64(h, 44)
-        }
-        h = fnv1a_64(h, 93)
-      } else if ('key' in item && typeof item.key === 'string') {
-        for (let i = 0; i < item.key.length; i++) {
-          h = fnv1a_64(h, item.key.charCodeAt(i))
-        }
-      } else throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
-      break
-    }
-    default:
-      throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
+  } else if (type === 'undefined') {
+    return fnv1a_64(fnv1a_64(h, 5n), 85n)
+  } else if (type === 'number') {
+    // TODO: why does this cause collisions???
+    // const view = new DataView(new ArrayBuffer(8))
+    // view.setFloat64(0, item)
+    // return fnv1a_64(fnv1a_64(h, 6n), view.getBigInt64(0))
+    item = String(item)
+    h = fnv1a_64(h, 6n)
+    for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
+    return h
+  } else if (type === 'boolean') {
+    return fnv1a_64(fnv1a_64(h, 7n), BigInt(item))
+  } else if (type === 'bigint') {
+    return fnv1a_64(fnv1a_64(h, 8n), item)
   }
-  return h
+  throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
 }
 
-export function get_key(...args: any[]) {
+export function id(...args: any[]): bigint {
   let h = FNV_OFFSET_BASIS_64
-  for (let i = 0; i < args.length; i++) {
-    h = hashValue(args[i], h)
-  }
-  return h.toString(16)
+  for (let i = 0; i < args.length; i++) h = hashValue(args[i], h)
+  return h
 }
 // Python Map/Set implementations
 export const sorted = <T extends number[] | number[][]>(x: T): T =>
@@ -99,24 +75,24 @@ export class DefaultMap<K, V> extends Map<K, V> {
   }
 }
 // in JS [1] !== [1], so this is for Maps where key needs to be array
-type WeakArrayKey = { key: string } | ArrayKey[]
-type ArrayKey = { key: string } | ArrayKey[] | string | ConstType | undefined
+type WeakArrayKey = { _id: bigint } | ArrayKey[]
+type ArrayKey = { _id: bigint } | ArrayKey[] | string | ConstType | undefined
 
 export class ArrayMap<K extends ArrayKey, V, Internal extends [any, any] = [K, V]> {
-  map: Map<string, Internal>
+  map: Map<bigint, Internal>
   constructor(values?: Internal[]) {
-    this.map = new Map(values?.map(([key, value]) => [get_key(key), [key, value] as Internal]))
+    this.map = new Map(values?.map(([key, value]) => [id(key), [key, value] as Internal]))
   }
   get size() {
     return this.map.size
   }
-  get = (key: K): V | undefined => this.map.get(get_key(key))?.[1]
-  set = (key: K, value: V): void => void this.map.set(get_key(key), [key, value] as Internal)
+  get = (key: K): V | undefined => this.map.get(id(key))?.[1]
+  set = (key: K, value: V): void => void this.map.set(id(key), [key, value] as Internal)
   has = (key: K): boolean => this.get(key) !== undefined
   entries = (): [K, V][] => [...this.map.values()]
   keys = () => this.entries().map((e) => e[0])
   values = () => this.entries().map((e) => e[1])
-  delete = (k: K) => this.map.delete(get_key(k))
+  delete = (k: K) => this.map.delete(id(k))
   clear = () => this.map.clear()
   setDefault = (key: K, defaultValue: V) => {
     const res = this.get(key)
@@ -128,21 +104,21 @@ export class ArrayMap<K extends ArrayKey, V, Internal extends [any, any] = [K, V
 
 // When key is garbage collected then the item is removed from the map
 export class WeakKeyMap<K extends WeakArrayKey, V extends any> extends ArrayMap<K, V, [WeakRef<K>, V]> {
-  private finalizationGroup = new FinalizationRegistry<string>((key) => this.map.delete(key))
+  private finalizationGroup = new FinalizationRegistry<bigint>((key) => this.map.delete(key))
   constructor() {
     super()
   }
   override get = (key: K): V | undefined => {
-    const res = this.map.get(get_key(key))
+    const res = this.map.get(id(key))
     if (res === undefined) return undefined
     if (res[0].deref() !== undefined) return res[1]
 
     // if key is gone then return undefined + delete from list
-    this.map.delete(get_key(key))
+    this.map.delete(id(key))
     return undefined
   }
   override set = (keyValue: K, value: V) => {
-    const key = get_key(keyValue)
+    const key = id(keyValue)
     this.map.set(key, [new WeakRef(keyValue), value])
     this.finalizationGroup.register(keyValue, key, keyValue)
   }
@@ -156,7 +132,7 @@ export class WeakKeyMap<K extends WeakArrayKey, V extends any> extends ArrayMap<
   }
   override delete = (k: K) => {
     this.finalizationGroup.unregister(k)
-    return this.map.delete(get_key(k))
+    return this.map.delete(id(k))
   }
   override clear = () => {
     for (const key of this.keys()) this.finalizationGroup.unregister(key)
@@ -172,20 +148,20 @@ export class WeakValueMap<K extends ArrayKey, V extends object> extends ArrayMap
     super()
   }
   override get = (key: K): V | undefined => {
-    const res = this.map.get(get_key(key))
+    const res = this.map.get(id(key))
     if (res === undefined) return undefined
     const derefed = res[1].deref()
     if (derefed !== undefined) return derefed
 
     // if value is gone, remove from map
-    this.map.delete(get_key(key))
+    this.map.delete(id(key))
     return undefined
   }
   override set = (key: K, value: V) => {
     // const oldValue = this.get(key)
     // if (oldValue) this.finalizationGroup.unregister(oldValue)
 
-    const stringKey = get_key(key)
+    const stringKey = id(key)
     this.map.set(stringKey, [key, new WeakRef(value)])
     // this.finalizationGroup.register(value, stringKey, value)
   }
@@ -200,7 +176,7 @@ export class WeakValueMap<K extends ArrayKey, V extends object> extends ArrayMap
   override delete = (k: K) => {
     const value = this.get(k)
     // if (value) this.finalizationGroup.unregister(value)
-    return this.map.delete(get_key(k))
+    return this.map.delete(id(k))
   }
   override clear = () => {
     // for (const value of this.values()) this.finalizationGroup.unregister(value)
@@ -281,18 +257,6 @@ export abstract class Enum {
 }
 
 export const random_id = () => (Math.random() * 100000000).toFixed(0)
-export function hash(input: string): string {
-  const FNV_OFFSET_BASIS_64 = 14695981039346656037n
-  const FNV_PRIME_64 = 1099511628211n
-  const MASK = 0xffffffffffffffffn
-
-  let h = FNV_OFFSET_BASIS_64
-  for (let i = 0; i < input.length; i++) {
-    h ^= BigInt(input.charCodeAt(i))
-    h = (h * FNV_PRIME_64) & MASK
-  }
-  return h.toString(16).padStart(16, '0')
-}
 
 export const string_to_bytes = (text: string) => new TextEncoder().encode(text)
 export const bytes_to_string = (bytes: Uint8Array) => new TextDecoder().decode(bytes)
@@ -519,12 +483,12 @@ export const to_function_name = (s: string) => ansistrip(s).split('').map((c) =>
 // TODO JIT should be automatic
 
 export class Metadata {
-  key: string
-  static cache = new WeakValueMap<string, Metadata>()
+  id: bigint
+  static cache = new WeakValueMap<bigint, Metadata>()
   constructor(public name: string, public caller: string, public backward = false) {
-    this.key = get_key(name, caller, backward)
+    this.id = id(name, caller, backward)
     Object.freeze(this)
-    return Metadata.cache.setDefault(this.key, this)
+    return Metadata.cache.setDefault(this.id, this)
   }
   toString = () => `new Metadata(${this.name}, ${this.backward}, ${this.backward})`;
   [Symbol.for('nodejs.util.inspect.custom')](_depth: number, _options: any) {
@@ -742,22 +706,22 @@ export function slice<T>(arr: T[], { start, stop, step }: Slice = {}): T[] {
 // DECORATORS
 
 export function cache<Args extends any[], Return>(fn: (...args: Args) => Return) {
-  const cache: Record<string, Return> = {}
+  const cache = new Map<bigint, Return>()
   return (...args: Args): Return => {
-    const key = get_key(args)
-    if (key in cache) return cache[key]
+    const key = id(args)
+    if (cache.has(key)) return cache.get(key)!
     const res = fn(...args)
-    cache[key] = res
+    cache.set(key, res)
     return res
   }
 }
 export function cache_fn<Args extends any[], Return>(fn: (...args: Args) => Return) {
-  const cache: Record<string, Return> = {}
+  const cache = new Map<bigint, Return>()
   return (...args: Args) => {
-    const key = get_key(args)
-    if (key in cache) return cache[key]
+    const key = id(args)
+    if (cache.has(key)) return cache.get(key)!
     const res = fn(...args)
-    cache[key] = res
+    cache.set(key, res)
     return res
   }
 }
@@ -855,7 +819,7 @@ class _Vars {
   // @ts-ignore import.meta.env
   _env: Record<string, string | number> = (typeof import.meta?.env !== 'undefined' ? import.meta.env : (typeof process !== 'undefined' && process.env) ? process.env : {}) || {}
   get = (key: string, def?: string) => this._env[key] !== undefined ? this._env[key].toString() : def
-  get_num = (key: string, def?: number) => Number(this._env[key] || def)
+  get_num = (key: string, def?: number) => Number(this._env[key] ?? def)
   set = (key: string, value: string) => this._env[key] = value
   with = <Res>(
     overrides: Record<string, string | number>,
@@ -925,5 +889,6 @@ class _Vars {
   set CACHELEVEL(val) { this._env.CACHELEVEL = val }
   get CAPTURE_PROCESS_REPLAY (){ return this.get('RUN_PROCESS_REPLAY') || this.get('CAPTURE_PROCESS_REPLAY') }
   set CAPTURE_PROCESS_REPLAY(val) { this._env.CAPTURE_PROCESS_REPLAY = val! }
+  get TQDM (){ return this.get_num("TQDM", 1)}
 }
 export const vars = new _Vars()

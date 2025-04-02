@@ -1,23 +1,23 @@
 import { dtypes, PtrDType } from '../dtype.ts'
-import { ArrayMap, assert, dedup, DefaultMap, flatten, get_key, is_eq, is_less_than, min, partition, set_default, WeakValueMap } from '../helpers/helpers.ts'
+import { ArrayMap, assert, dedup, DefaultMap, flatten, id, is_eq, is_less_than, min, partition, set_default, WeakValueMap } from '../helpers/helpers.ts'
 import { graph_rewrite, GroupOp, Ops, PatternMatcher, type_verify, UOp, UPat } from '../ops.ts'
 
 const DONT_PLACE_IN_BLOCK = [Ops.DEFINE_GLOBAL, Ops.DEFINE_LOCAL, Ops.DEFINE_VAR, Ops.SPECIAL, Ops.CONST, ...GroupOp.Block]
 
 export const disp = (y: UOp): string => {
   if (y.op === Ops.BLOCKSTART) return 'w' + disp(y.src[0])
-  if (y.op === Ops.IF) return `IF${y.key}`
+  if (y.op === Ops.IF) return `IF${y._id}`
   if (y.op === Ops.RANGE) return y.arg.toString()
   return '<NONE>'
 }
 
 export class BasicBlock {
-  key: string
-  static cache = new WeakValueMap<string, BasicBlock>()
+  _id: bigint
+  static cache = new WeakValueMap<bigint, BasicBlock>()
   constructor(public ctx: UOp[], public lst: UOp[], public end?: UOp) {
-    this.key = get_key(ctx, lst, end)
+    this._id = id(ctx, lst, end)
     Object.freeze(this)
-    return BasicBlock.cache.setDefault(this.key, this)
+    return BasicBlock.cache.setDefault(this._id, this)
   }
   lt = (o: BasicBlock) => is_less_than([...this.ctx, ...this.lst].map((x) => x.tuplize), [...o.ctx, ...o.lst].map((x) => x.tuplize))
   toString = () => `${this.end !== undefined ? (disp(this.end) + ' ') : ''}` + `${this.ctx.map((y) => disp(y))} ${this.lst.length}` + '\n' + this.lst.map((x) => x.op.toString()).join('\n')

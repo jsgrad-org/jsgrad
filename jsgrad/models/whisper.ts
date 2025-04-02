@@ -1,5 +1,5 @@
 import { vars } from '../helpers/helpers.ts'
-import { add, ArrayMap, concat_bytes, Conv1d, type Conv2d, Device, dtypes, Embedding, env, get_key, idiv, type Layer, LayerNorm, Linear, load_state_dict, mod, num, range, replace_state_dict, safe_load, type sint, sub, Tensor, TinyJit, Tokenizer, UOp, type Variable, zip } from '../base.ts'
+import { add, ArrayMap, concat_bytes, Conv1d, type Conv2d, Device, dtypes, Embedding, env, id, idiv, type Layer, LayerNorm, Linear, load_state_dict, mod, num, range, replace_state_dict, safe_load, type sint, sub, Tensor, TinyJit, Tokenizer, UOp, type Variable, zip } from '../base.ts'
 
 // deno-fmt-ignore
 export const LANGUAGES = {
@@ -411,7 +411,7 @@ export const prep_audio = async (_waveforms: Float32Array[], batch_size: number,
 
 const get_encoding = async (is_multilingual: boolean) => {
   const url = `https://raw.githubusercontent.com/openai/whisper/main/whisper/assets/${is_multilingual ? 'multilingual' : 'gpt2'}.tiktoken`
-  const path = await env.fetchSave(url, get_key(url), env.CACHE_DIR)
+  const path = await env.fetchSave(url, id(url).toString(), env.CACHE_DIR)
   const data = await env.readTextFile(path)
   const ranks = data.split('\n').filter((line) => line).map((line) => line.split(' ')).map(([token, rank]) => [token === '=' ? '<THIS_IS_EXTRA_TOKEN_FOR_MULTILANG_MODELS>' : atob(token), Number(rank)])
   let n_vocab = ranks.length
@@ -532,7 +532,7 @@ export const load_file_waveform = async (filename: string): Promise<Float32Array
 }
 
 export const transcribe_file = async (model: any, enc: Tokenizer, filename: string, language?: string) => {
-  if (filename.startsWith('http')) filename = await env.fetchSave(filename, get_key(filename), env.CACHE_DIR)
+  if (filename.startsWith('http')) filename = await env.fetchSave(filename, id(filename).toString(), env.CACHE_DIR)
   const waveforms = await load_file_waveform(filename)
   return await transcribe_waveform(model, enc, waveforms, false, language)
 }

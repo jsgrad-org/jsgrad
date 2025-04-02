@@ -1,7 +1,7 @@
 // // **************** memory planning ****************
 
 import { Buffer, Device } from '../device.ts'
-import { dedup, DefaultMap, get_key, vars } from '../helpers/helpers.ts'
+import { dedup, DefaultMap, id, vars } from '../helpers/helpers.ts'
 import { Ops } from '../ops.ts'
 import { ScheduleItem } from './schedule.ts'
 
@@ -18,9 +18,9 @@ export const _internal_memory_planner = (buffers: Buffer[][], noopt_buffers?: Bu
   //   // Sort buffers by size in descending order, prioritizing largest buffers for allocation first.
   //   // Track free segments, each containing (start, stop, && buffer that could be reused on this segment).
   type Seg = [number, number, Buffer]
-  const free_segs = new DefaultMap<string, Seg[]>(undefined, () => []) // Map<buffer key, [start, end, buffer to reuse on the seg>]
+  const free_segs = new DefaultMap<bigint, Seg[]>(undefined, () => []) // Map<buffer key, [start, end, buffer to reuse on the seg>]
   const find_replace_buffer = (buf: Buffer, st: number, en: number) => {
-    const key = get_key(buf.device, buf.dtype, buf.options, ...(!('offset' in Device.get(buf.device).allocator!) ? [buf.nbytes] : []))
+    const key = id(buf.device, buf.dtype, buf.options, ...(!('offset' in Device.get(buf.device).allocator!) ? [buf.nbytes] : []))
 
     const default_buf: Seg = [0, buffers.length - 1, buf] // will return the buffer itthis if the replace one !== found.
     const next = free_segs.get(key)?.entries()?.filter(([i, [sst, sen]]) => sst <= st && en <= sen).next().value

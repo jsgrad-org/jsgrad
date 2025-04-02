@@ -1,5 +1,5 @@
 import { dtypes } from '../dtype.ts'
-import { cache_fn, get_key, gt, is_eq, list_str, lt, range, vars, WeakValueMap } from '../helpers/helpers.ts'
+import { cache_fn, gt, id, is_eq, list_str, lt, range, vars, WeakValueMap } from '../helpers/helpers.ts'
 import { merge_maps, zip } from '../helpers/helpers.ts'
 import { graph_rewrite, Ops, simplify_valid, type sint, sint_to_uop, split_uop, sym, symbolic_flat, UOp, uop_given_valid, type Variable } from '../ops.ts'
 import { strides_for_shape, unravel, View } from './view.ts'
@@ -58,12 +58,12 @@ const views_to_real_strides = cache_fn((views: View[], ignore_valid = false): (u
 })
 
 export class ShapeTracker {
-  key: string
-  static cache = new WeakValueMap<string, ShapeTracker>()
+  _id: bigint
+  static cache = new WeakValueMap<bigint, ShapeTracker>()
   constructor(public views: View[]) {
-    this.key = get_key(...views)
+    this._id = id(...views)
     Object.freeze(this)
-    const res = ShapeTracker.cache.setDefault(this.key, this)
+    const res = ShapeTracker.cache.setDefault(this._id, this)
     if (!is_eq(this.views, res.views)) throw new Error(`Views don't match: \nthis=${list_str(this.views)} \nres=${list_str(res.views)}`)
     return res
   }

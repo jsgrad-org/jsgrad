@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-this-alias
 import { dtypes } from '../dtype.ts'
-import { all_int, argsort, assert, cache, cache_fn, flatten, get_key, is_eq, isInt, list_str, next, num, range, sorted, WeakValueMap, zip } from '../helpers/helpers.ts'
+import { all_int, argsort, assert, cache, cache_fn, flatten, id, is_eq, isInt, list_str, next, num, range, sorted, WeakValueMap, zip } from '../helpers/helpers.ts'
 import { resolve, type sint, sint_to_uop, smax, smin, sym_infer, UOp, type Variable } from '../ops.ts'
 import { add, and, ceildiv, ge, gt, idiv, le, lt, mod, mul, ne, neg, prod, sub, sum } from '../helpers/helpers.ts'
 
@@ -80,12 +80,12 @@ export const unravel = (shape: sint[], offset: sint): sint[] => {
 }
 
 export class View {
-  key: string
-  static cache = new WeakValueMap<string, View>()
+  _id: bigint
+  static cache = new WeakValueMap<bigint, View>()
   constructor(public shape: sint[], public strides: sint[], public offset: sint, public mask?: [sint, sint][], public contiguous?: boolean) {
-    this.key = get_key(shape, strides, offset, mask, contiguous)
+    this._id = id(shape, strides, offset, mask, contiguous)
     Object.freeze(this)
-    return View.cache.setDefault(this.key, this)
+    return View.cache.setDefault(this._id, this)
   }
 
   toString() {

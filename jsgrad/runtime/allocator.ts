@@ -1,5 +1,5 @@
 import type { ImageDType } from '../dtype.ts'
-import { ArrayMap, get_key, NotImplemented, string_to_bytes, vars, WeakValueMap } from '../helpers/helpers.ts'
+import { ArrayMap, id, NotImplemented, string_to_bytes, vars, WeakValueMap } from '../helpers/helpers.ts'
 import type { Renderer } from '../renderer/index.ts'
 import { MemoryView } from '../helpers/memoryview.ts'
 import { env } from '../env/index.ts'
@@ -7,8 +7,8 @@ import { env } from '../env/index.ts'
 // **************** Buffer + Allocators ****************
 export class BufferSpec {
   __name = 'BufferSpec'
-  key: string
-  static cache = new WeakValueMap<string, BufferSpec>()
+  _id: bigint
+  static cache = new WeakValueMap<bigint, BufferSpec>()
   // TODO: move device, size, dtype here?
   constructor(
     public image?: ImageDType,
@@ -18,9 +18,9 @@ export class BufferSpec {
     public nolru = false,
     public external_ptr?: bigint,
   ) {
-    this.key = get_key(image, uncached, cpu_access, host, nolru, external_ptr)
+    this._id = id(image, uncached, cpu_access, host, nolru, external_ptr)
     Object.freeze(this)
-    return BufferSpec.cache.setDefault(this.key, this)
+    return BufferSpec.cache.setDefault(this._id, this)
   }
 }
 

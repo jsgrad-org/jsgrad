@@ -4,7 +4,7 @@ import esbuild from 'npm:esbuild'
 import process from 'node:process'
 import { string_to_bytes } from '../jsgrad/helpers/helpers.ts'
 
-const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL']
+const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL', 'TQDM']
 
 const [entry, ...args] = Deno.args
 const build = await esbuild.build({
