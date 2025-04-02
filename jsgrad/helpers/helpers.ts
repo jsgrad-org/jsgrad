@@ -4,73 +4,37 @@ import type { MathTrait } from '../ops.ts'
 const FNV_OFFSET_BASIS_64 = 14695981039346656037n
 const FNV_PRIME_64 = 1099511628211n
 const MASK = 0xffffffffffffffffn
-function fnv1a_64(h: bigint, charCode: number) {
-  h ^= BigInt(charCode)
-  h = (h * FNV_PRIME_64) & MASK
-  return h
+const fnv1a_64 = (h: bigint, add: bigint) => (h ^ add) * FNV_PRIME_64 & MASK
+
+function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
+  const type = typeof item
+  if (type === 'string' || type === 'number') {
+    item = String(item)
+    for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
+    return h
+  } else if (type === 'object') {
+    if (typeof item.key === 'bigint') return fnv1a_64(h, item.key)
+    else if (Array.isArray(item)) {
+      h = fnv1a_64(h, 91n)
+      for (let i = 0; i < item.length; i++) h = fnv1a_64(hashValue(item[i], h), 44n)
+      return fnv1a_64(h, 93n)
+    }
+  } else if (type === 'undefined') return fnv1a_64(h, 85n)
+  else if (type === 'boolean') return fnv1a_64(h, item ? 1n : 0n)
+  else if (type === 'bigint') return fnv1a_64(h, item)
+  throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
 }
 
-function hashValue(item: any, h = FNV_OFFSET_BASIS_64) {
-  switch (typeof item) {
-    case 'string': {
-      for (let i = 0; i < item.length; i++) {
-        h = fnv1a_64(h, item.charCodeAt(i))
-      }
-      break
-    }
-    case 'number': {
-      const str = String(item)
-      for (let i = 0; i < str.length; i++) {
-        h = fnv1a_64(h, str.charCodeAt(i))
-      }
-      break
-    }
-    case 'bigint': {
-      const str = item.toString() + 'n'
-      for (let i = 0; i < str.length; i++) {
-        h = fnv1a_64(h, str.charCodeAt(i))
-      }
-      break
-    }
-    case 'boolean': {
-      h = fnv1a_64(h, item ? 1 : 0)
-      break
-    }
-    case 'undefined': {
-      h = fnv1a_64(h, 85)
-      break
-    }
-    case 'object': {
-      if (item instanceof Uint8Array) {
-        for (const i of item) {
-          h = fnv1a_64(h, i)
-        }
-      } else if (Array.isArray(item)) {
-        h = fnv1a_64(h, 91)
-        for (let i = 0; i < item.length; i++) {
-          h = hashValue(item[i], h)
-          h = fnv1a_64(h, 44)
-        }
-        h = fnv1a_64(h, 93)
-      } else if ('key' in item && typeof item.key === 'string') {
-        for (let i = 0; i < item.key.length; i++) {
-          h = fnv1a_64(h, item.key.charCodeAt(i))
-        }
-      } else throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
-      break
-    }
-    default:
-      throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
-  }
-  return h
-}
-
-export function get_key(...args: any[]) {
+export let time = 0
+export function get_key(...args: any[]): bigint {
+  const st = performance.now()
   let h = FNV_OFFSET_BASIS_64
   for (let i = 0; i < args.length; i++) {
     h = hashValue(args[i], h)
+    // h = fnv1a_64(h, 44n)
   }
-  return h.toString(16)
+  time += performance.now() - st
+  return h
 }
 // Python Map/Set implementations
 export const sorted = <T extends number[] | number[][]>(x: T): T =>
@@ -281,18 +245,6 @@ export abstract class Enum {
 }
 
 export const random_id = () => (Math.random() * 100000000).toFixed(0)
-export function hash(input: string): string {
-  const FNV_OFFSET_BASIS_64 = 14695981039346656037n
-  const FNV_PRIME_64 = 1099511628211n
-  const MASK = 0xffffffffffffffffn
-
-  let h = FNV_OFFSET_BASIS_64
-  for (let i = 0; i < input.length; i++) {
-    h ^= BigInt(input.charCodeAt(i))
-    h = (h * FNV_PRIME_64) & MASK
-  }
-  return h.toString(16).padStart(16, '0')
-}
 
 export const string_to_bytes = (text: string) => new TextEncoder().encode(text)
 export const bytes_to_string = (bytes: Uint8Array) => new TextDecoder().decode(bytes)

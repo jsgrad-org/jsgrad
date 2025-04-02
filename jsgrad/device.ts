@@ -1,5 +1,5 @@
 import { DType, dtypes, ImageDType, PtrDType } from './dtype.ts'
-import { assert, cache, GlobalCounters, NotImplemented, random_id, vars } from './helpers/helpers.ts'
+import { assert, cache, get_key, GlobalCounters, NotImplemented, random_id, vars } from './helpers/helpers.ts'
 import { type Allocator, BufferSpec, type Compiled } from './runtime/allocator.ts'
 import { MemoryView } from './helpers/memoryview.ts'
 import { env } from './env/index.ts'
@@ -85,7 +85,7 @@ export class Buffer<Buf extends object = object> {
     public offset = 0,
     preallocate = false,
   ) {
-    this.key = random_id()
+    this.key = get_key(random_id())
     if (dtype instanceof ImageDType) this.options = new BufferSpec(dtype) // TODO: image hack shouldn't be here. where should it be?
     else assert(dtype instanceof DType && !(dtype instanceof PtrDType))
     if (base === undefined) {

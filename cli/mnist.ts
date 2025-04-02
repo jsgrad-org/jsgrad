@@ -1,4 +1,4 @@
-import { Adam, get_parameters, GlobalCounters, MNIST, mnist, Tensor, TinyJit, Tqdm } from '../jsgrad/node.ts'
+import { Adam, get_parameters, GlobalCounters, MNIST, mnist, Tensor, time, TinyJit, Tqdm } from '../jsgrad/node.ts'
 import { parseArgs, z } from './parse.ts'
 
 const args = parseArgs({
@@ -37,3 +37,4 @@ for (const i of t) {
   )
 }
 // await model.save('./mnist.safetensors')
+console.log(time)
