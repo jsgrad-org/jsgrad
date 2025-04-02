@@ -80,7 +80,6 @@ export class WebEnv {
         const { done, value } = await reader.read()
         if (done) break
         if (value) {
-          console.log(i)
           data.set(value, i)
           i += value.length
           t.render(i)
