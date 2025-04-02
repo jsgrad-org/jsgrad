@@ -1,36 +1,6 @@
 // deno-lint-ignore-file no-explicit-any no-control-regex camelcase no-process-global
 import type { MathTrait } from '../ops.ts'
 
-// Python Map/Set implementations
-export const sorted = <T extends number[] | number[][]>(x: T): T =>
-  x.toSorted((a, b) => {
-    if (typeof a === 'number' && typeof b === 'number') return a - b
-    if (Array.isArray(a) && Array.isArray(b)) {
-      for (const [x, y] of zip(a, b)) {
-        if (x === y) continue
-        return x - y
-      }
-      return 0
-    }
-    throw new Error("Can't mix numbers and arrays")
-  }) as T
-export class DefaultMap<K, V> extends Map<K, V> {
-  constructor(values: [K, V][] | undefined, private defaultFn: () => V) {
-    super(values)
-  }
-  override get(key: K): V {
-    let res = super.get(key)
-    if (res !== undefined) return res
-
-    res = this.defaultFn()
-    this.set(key, res)
-    return res
-  }
-}
-// in JS [1] !== [1], so this is for Maps where key needs to be array
-type WeakArrayKey = { key: string } | ArrayKey[]
-type ArrayKey = { key: string } | ArrayKey[] | string | ConstType | undefined
-
 const FNV_OFFSET_BASIS_64 = 14695981039346656037n
 const FNV_PRIME_64 = 1099511628211n
 const MASK = 0xffffffffffffffffn
@@ -102,6 +72,35 @@ export function get_key(...args: any[]) {
   }
   return h.toString(16)
 }
+// Python Map/Set implementations
+export const sorted = <T extends number[] | number[][]>(x: T): T =>
+  x.toSorted((a, b) => {
+    if (typeof a === 'number' && typeof b === 'number') return a - b
+    if (Array.isArray(a) && Array.isArray(b)) {
+      for (const [x, y] of zip(a, b)) {
+        if (x === y) continue
+        return x - y
+      }
+      return 0
+    }
+    throw new Error("Can't mix numbers and arrays")
+  }) as T
+export class DefaultMap<K, V> extends Map<K, V> {
+  constructor(values: [K, V][] | undefined, private defaultFn: () => V) {
+    super(values)
+  }
+  override get(key: K): V {
+    let res = super.get(key)
+    if (res !== undefined) return res
+
+    res = this.defaultFn()
+    this.set(key, res)
+    return res
+  }
+}
+// in JS [1] !== [1], so this is for Maps where key needs to be array
+type WeakArrayKey = { key: string } | ArrayKey[]
+type ArrayKey = { key: string } | ArrayKey[] | string | ConstType | undefined
 
 export class ArrayMap<K extends ArrayKey, V, Internal extends [any, any] = [K, V]> {
   map: Map<string, Internal>

@@ -3750,6 +3750,7 @@
     "https://esm.sh/node:sqlite?target=denonext": "https://esm.sh/node@18.20.8?target=denonext"
   },
   "remote": {
+    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js": "e7b88bddc6c757b2fc8cb113e2469801ab14a78ec1a8fada4d6391e3573f5f9f",
     "https://esm.sh/@jsgrad/jsgrad@0.0.15": "381c6a7116da2583d80752ebfc6a119c36171299ef4f59a1af8b8b5065849e62",
     "https://esm.sh/@jsgrad/jsgrad@0.0.15/denonext/bun-WV5EGXGI.mjs": "62e7f897de7a5abdfc47476712ba58899dd5137407fbab5a29814c74790a56a1",
     "https://esm.sh/@jsgrad/jsgrad@0.0.15/denonext/deno-TJUTOL7N.mjs": "c91d8ab4fc4ac19ae60471f71acb4ecfd4be589b6337f51ba1239ba4b6925fbf",
