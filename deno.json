@@ -4,7 +4,7 @@
     "test": "deno -A npm:vitest run --testTimeout 0",
     "bench": "deno bench -A",
     "format": "deno fmt",
-    "check": "deno check . ",
+    "check": "deno check --allow-import .",
     "lint": "deno lint",
     "update": "deno -A scripts/update.ts",
     "build": "deno -A cli/build.ts",
@@ -58,7 +58,8 @@
     "website/.astro*",
     "dawn/bindings.ts",
     "dawn/webgpu.json",
-    "dist"
+    "dist",
+    "website/src/content.config.ts"
   ],
   "compilerOptions": {
     "lib": [
