@@ -141,7 +141,7 @@ export const get_kernel_actions = (lin: Kernel, include_0 = true): Map<number, K
 export const BEAM_DEBUG = vars.get_num('BEAM_DEBUG')
 
 let beams = new Map<bigint, string>()
-export const export_beam = () => btoa(Object.entries(beams).map(([k, v]) => `${k}:${JSON.parse(v).join('|')}`).join('\n'))
+export const export_beam = () => btoa([...beams.entries()].map(([k, v]) => `${k}:${JSON.parse(v).join('|')}`).join('\n'))
 export const import_beam = (data: string) => beams = new Map(atob(data).split('\n').map((x) => x.split(':')).map(([k, v]) => [BigInt(k), JSON.stringify(v.split('|').filter(Boolean).map((x) => x.split(',').map(Number)))]))
 
 export const beam_search = async (lin: Kernel, rawbufs: Buffer[], amt: number, allow_test_size = true, disable_cache = vars.get('IGNORE_BEAM_CACHE')): Promise<Kernel> => {

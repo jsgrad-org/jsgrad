@@ -1,7 +1,7 @@
 // https://github.com/thesephist/tsqdm/blob/main/src/tqdm.ts
 
 import { env } from '../env/index.ts'
-import { round } from './helpers.ts'
+import { round, vars } from './helpers.ts'
 
 export type RenderBarOptions = {
   i: number
@@ -85,7 +85,9 @@ export class Tqdm<T> implements IterableIterator<T> {
     this.onProgress = onProgress
   }
 
-  private print = (s: string) => env.writeStdout(s)
+  private print = (s: string) => {
+    if (vars.TQDM) env.writeStdout(s)
+  }
 
   set_description = (label: string) => this.label = label
 

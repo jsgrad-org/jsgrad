@@ -18,8 +18,11 @@ function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
     } else if (Array.isArray(item)) {
       h = fnv1a_64(h, 3n)
       for (let i = 0; i < item.length; i++) h = fnv1a_64(hashValue(item[i], h), 44n)
-      h = fnv1a_64(h, 4n)
-      return h
+      return fnv1a_64(h, 4n)
+    } else if (item instanceof Uint8Array) {
+      h = fnv1a_64(h, 55n)
+      for (const i of item) h = fnv1a_64(h, BigInt(i))
+      return fnv1a_64(h, 56n)
     }
   } else if (type === 'undefined') {
     return fnv1a_64(fnv1a_64(h, 5n), 85n)
@@ -816,7 +819,7 @@ class _Vars {
   // @ts-ignore import.meta.env
   _env: Record<string, string | number> = (typeof import.meta?.env !== 'undefined' ? import.meta.env : (typeof process !== 'undefined' && process.env) ? process.env : {}) || {}
   get = (key: string, def?: string) => this._env[key] !== undefined ? this._env[key].toString() : def
-  get_num = (key: string, def?: number) => Number(this._env[key] || def)
+  get_num = (key: string, def?: number) => Number(this._env[key] ?? def)
   set = (key: string, value: string) => this._env[key] = value
   with = <Res>(
     overrides: Record<string, string | number>,
@@ -886,5 +889,6 @@ class _Vars {
   set CACHELEVEL(val) { this._env.CACHELEVEL = val }
   get CAPTURE_PROCESS_REPLAY (){ return this.get('RUN_PROCESS_REPLAY') || this.get('CAPTURE_PROCESS_REPLAY') }
   set CAPTURE_PROCESS_REPLAY(val) { this._env.CAPTURE_PROCESS_REPLAY = val! }
+  get TQDM (){ return this.get_num("TQDM", 1)}
 }
 export const vars = new _Vars()
