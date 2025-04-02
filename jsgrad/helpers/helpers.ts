@@ -4,25 +4,39 @@ import type { MathTrait } from '../ops.ts'
 const FNV_OFFSET_BASIS_64 = 14695981039346656037n
 const FNV_PRIME_64 = 1099511628211n
 const MASK = 0xffffffffffffffffn
-const fnv1a_64 = (h: bigint, add: bigint) => (h ^ add) * FNV_PRIME_64 & MASK, prefix = fnv1a_64
+const fnv1a_64 = (h: bigint, add: bigint) => (h ^ add) * FNV_PRIME_64 & MASK
 
 function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
   const type = typeof item
-  if (type === 'string' || type === 'number') {
-    item = String(item)
-    h = prefix(h, type === 'string' ? 100000000n : 100000001n)
+  if (type === 'string') {
+    h = fnv1a_64(h, 1n)
     for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
     return h
   } else if (type === 'object') {
-    if (typeof item.key === 'bigint') return fnv1a_64(prefix(h, 100000002n), item.key)
-    else if (Array.isArray(item)) {
-      h = prefix(h, 100000003n)
+    if (typeof item.key === 'bigint') {
+      return fnv1a_64(fnv1a_64(h, 2n), item.key)
+    } else if (Array.isArray(item)) {
+      h = fnv1a_64(h, 3n)
       for (let i = 0; i < item.length; i++) h = fnv1a_64(hashValue(item[i], h), 44n)
+      h = fnv1a_64(h, 4n)
       return h
     }
-  } else if (type === 'undefined') return fnv1a_64(prefix(h, 100000004n), 85n)
-  else if (type === 'boolean') return fnv1a_64(prefix(h, 100000005n), item ? 1n : 0n)
-  else if (type === 'bigint') return fnv1a_64(prefix(h, 100000006n), item)
+  } else if (type === 'undefined') {
+    return fnv1a_64(fnv1a_64(h, 5n), 85n)
+  } else if (type === 'number') {
+    // TODO: why does this cause collisions???
+    // const view = new DataView(new ArrayBuffer(8))
+    // view.setFloat64(0, item)
+    // return fnv1a_64(fnv1a_64(h, 6n), view.getBigInt64(0))
+    item = String(item)
+    h = fnv1a_64(h, 6n)
+    for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
+    return h
+  } else if (type === 'boolean') {
+    return fnv1a_64(fnv1a_64(h, 7n), item ? 1n : 0n)
+  } else if (type === 'bigint') {
+    return fnv1a_64(fnv1a_64(h, 8n), item)
+  }
   throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
 }
 
