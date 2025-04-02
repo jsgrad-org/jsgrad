@@ -4,24 +4,25 @@ import type { MathTrait } from '../ops.ts'
 const FNV_OFFSET_BASIS_64 = 14695981039346656037n
 const FNV_PRIME_64 = 1099511628211n
 const MASK = 0xffffffffffffffffn
-const fnv1a_64 = (h: bigint, add: bigint) => (h ^ add) * FNV_PRIME_64 & MASK
+const fnv1a_64 = (h: bigint, add: bigint) => (h ^ add) * FNV_PRIME_64 & MASK, prefix = fnv1a_64
 
 function hashValue(item: any, h = FNV_OFFSET_BASIS_64): bigint {
   const type = typeof item
   if (type === 'string' || type === 'number') {
     item = String(item)
+    h = prefix(h, type === 'string' ? 100000000n : 100000001n)
     for (let i = 0; i < item.length; i++) h = fnv1a_64(h, BigInt(item.charCodeAt(i)))
     return h
   } else if (type === 'object') {
-    if (typeof item.key === 'bigint') return fnv1a_64(h, item.key)
+    if (typeof item.key === 'bigint') return fnv1a_64(prefix(h, 100000002n), item.key)
     else if (Array.isArray(item)) {
-      h = fnv1a_64(h, 91n)
+      h = prefix(h, 100000003n)
       for (let i = 0; i < item.length; i++) h = fnv1a_64(hashValue(item[i], h), 44n)
-      return fnv1a_64(h, 93n)
+      return h
     }
-  } else if (type === 'undefined') return fnv1a_64(h, 85n)
-  else if (type === 'boolean') return fnv1a_64(h, item ? 1n : 0n)
-  else if (type === 'bigint') return fnv1a_64(h, item)
+  } else if (type === 'undefined') return fnv1a_64(prefix(h, 100000004n), 85n)
+  else if (type === 'boolean') return fnv1a_64(prefix(h, 100000005n), item ? 1n : 0n)
+  else if (type === 'bigint') return fnv1a_64(prefix(h, 100000006n), item)
   throw new Error(`No stringifier for ${item}, typeof ${typeof item}`)
 }
 
@@ -29,10 +30,7 @@ export let time = 0
 export function get_key(...args: any[]): bigint {
   const st = performance.now()
   let h = FNV_OFFSET_BASIS_64
-  for (let i = 0; i < args.length; i++) {
-    h = hashValue(args[i], h)
-    // h = fnv1a_64(h, 44n)
-  }
+  for (let i = 0; i < args.length; i++) h = hashValue(args[i], h)
   time += performance.now() - st
   return h
 }
