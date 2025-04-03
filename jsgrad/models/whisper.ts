@@ -350,7 +350,7 @@ class TextDecoder {
   output_tok = async (x: Tensor) => await this.ln.call(x).matmul(this.token_embedding.weight.T).realize()
 }
 
-class Whisper {
+export class Whisper {
   encoder!: AudioEncoder
   decoder!: TextDecoder
   is_multilingual!: boolean
@@ -566,7 +566,7 @@ export const transcribe_file = async (model: any, enc: Tokenizer, filename: stri
  * Returns the transcribed text if a single waveform is provided, or an array of transcriptions if multiple are provided
  */
 const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Float32Array[], truncate = false, language?: string) => {
-  // maybe is better merge the channels
+  // maybe it's better merge the channels
   const mono_waveform = [waveforms[0]];
   const log_spec = await vars.withAsync({ DEVICE: env.CPU_DEVICE }, async () => await prep_audio(mono_waveform, model.batch_size, truncate));
 
