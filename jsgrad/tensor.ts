@@ -543,11 +543,11 @@ export class Tensor extends MathTrait<Tensor> {
   //   /**
   //    * Triggers the computation needed to create these Tensor(s).
   //    */
-  realize = async (lst: Tensor[] = [], do_update_stats = true): Promise<Tensor> => {
-    await run_schedule(...this.schedule_with_vars(lst), do_update_stats)
+  realize = async (lst: Tensor[] = [], do_update_stats = true, onProgress?: (current: number, total: number) => void): Promise<Tensor> => {
+    await run_schedule(...this.schedule_with_vars(lst), do_update_stats, onProgress)
     return this
   }
-  static realize = async (lst: Tensor[], do_update_stats = true) => await lst[0].realize(lst.slice(1), do_update_stats)
+  static realize = async (lst: Tensor[], do_update_stats = true, onProgress?: (current: number, total: number) => void) => await lst[0].realize(lst.slice(1), do_update_stats, onProgress)
   /**
    * Replaces the data of this tensor with the data of another tensor. Only the shape of the tensors must match.
    */
