@@ -1,10 +1,11 @@
 import { env } from './jsgrad/node.ts'
+import { dlopen, ptr } from 'bun:ffi'
 
 const PATH = env.OSX ? `${env.CACHE_DIR}/libwebgpu_dawn.dylib` : '/usr/lib/libwebgpu_dawn.so'
 
-const lib = Deno.dlopen(PATH, {
-  wgpuCreateInstance: { parameters: ['pointer'], result: 'pointer' },
-  wgpuInstanceRequestAdapterF: { parameters: ['pointer', 'pointer', 'buffer'], result: 'pointer' },
+const lib = dlopen(PATH, {
+  wgpuCreateInstance: { args: ['pointer'], returns: 'pointer' },
+  wgpuInstanceRequestAdapterF: { args: ['pointer', 'pointer', 'buffer'], returns: 'pointer' },
 })
 
 // typedef uint32_t WGPUBool;
@@ -27,8 +28,8 @@ desc.set([0, 0, 0, 0, 0, 0, 0, 0], 0) //nextInChain
 desc.set(features, 8) // features
 
 // WGPU_EXPORT WGPUInstance wgpuCreateInstance(WGPU_NULLABLE WGPUInstanceDescriptor const * descriptor) WGPU_FUNCTION_ATTRIBUTE;
-const instance = lib.symbols.wgpuCreateInstance(Deno.UnsafePointer.of(desc))
-console.log(Deno.UnsafePointer.value(instance))
+const instance = lib.symbols.wgpuCreateInstance(ptr(desc))
+console.log(instance)
 // typedef enum WGPUFeatureLevel {
 //     WGPUFeatureLevel_Undefined = 0x00000000,
 //     WGPUFeatureLevel_Compatibility = 0x00000001,
@@ -90,6 +91,6 @@ cb.set([0, 0, 0, 0, 0, 0, 0, 0], 16) // callback
 cb.set([0, 0, 0, 0, 0, 0, 0, 0], 24) // userdata
 
 //WGPU_EXPORT WGPUFuture wgpuInstanceRequestAdapterF(WGPUInstance instance, WGPU_NULLABLE WGPURequestAdapterOptions const * options, WGPURequestAdapterCallbackInfo callbackInfo) WGPU_FUNCTION_ATTRIBUTE;
-const future = lib.symbols.wgpuInstanceRequestAdapterF(instance, Deno.UnsafePointer.of(opts), cb)
+const future = lib.symbols.wgpuInstanceRequestAdapterF(instance, ptr(opts), cb)
 
-console.log(future, Deno.UnsafePointer.value(future))
+console.log(future)
