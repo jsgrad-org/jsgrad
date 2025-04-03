@@ -1,255 +1,284 @@
-// from tinygrad import Tensor, dtypes
-// from tinygrad.nn import Linear, Conv2d, GroupNorm, LayerNorm
-// from tinygrad.device import is_dtype_supported
-// from typing import Optional, Union, List, Any, Tuple
-// import math
+import { Conv2d, dtypes, GroupNorm, idiv, is_dtype_supported, type Layer, LayerNorm, Linear, mul, range, Tensor } from '../base.ts'
 
-// # https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/diffusionmodules/util.py#L207
-// def timestep_embedding(timesteps:Tensor, dim:int, max_period=10000):
-//   half = dim // 2
-//   freqs = (-math.log(max_period) * Tensor.arange(half, device=timesteps.device) / half).exp()
-//   args = timesteps.unsqueeze(1) * freqs.unsqueeze(0)
-//   out = Tensor.cat(args.cos(), args.sin(), dim=-1)
-//   return out.cast(dtypes.float16) if is_dtype_supported(dtypes.float16) else out
+// https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/diffusionmodules/util.py#L207
+const timestep_embedding = (timesteps: Tensor, dim: number, max_period = 10000) => {
+  const half = idiv(dim, 2)
+  const freqs = Tensor.arange(half, undefined, undefined, { device: timesteps.device }).mul(-Math.log(max_period), true).div(half).exp()
+  const args = timesteps.unsqueeze(1).mul(freqs.unsqueeze(0))
+  const out = Tensor.cat([args.cos(), args.sin()], -1)
+  return is_dtype_supported(dtypes.float16) ? out.cast(dtypes.float16) : out
+}
 
-// class ResBlock:
-//   def __init__(self, channels:int, emb_channels:int, out_channels:int):
-//     self.in_layers = [
-//       GroupNorm(32, channels),
-//       Tensor.silu,
-//       Conv2d(channels, out_channels, 3, padding=1),
-//     ]
-//     self.emb_layers = [
-//       Tensor.silu,
-//       Linear(emb_channels, out_channels),
-//     ]
-//     self.out_layers = [
-//       GroupNorm(32, out_channels),
-//       Tensor.silu,
-//       lambda x: x,  # needed for weights loading code to work
-//       Conv2d(out_channels, out_channels, 3, padding=1),
-//     ]
-//     self.skip_connection = Conv2d(channels, out_channels, 1) if channels != out_channels else (lambda x: x)
+class ResBlock {
+  in_layers: Layer[]
+  emb_layers: Layer[]
+  out_layers: Layer[]
+  skip_connection?: Conv2d
+  constructor(channels: number, emb_channels: number, out_channels: number) {
+    this.in_layers = [new GroupNorm(32, channels), Tensor.silu, new Conv2d(channels, out_channels, 3, undefined, 1)]
+    this.emb_layers = [Tensor.silu, new Linear(emb_channels, out_channels)]
+    this.out_layers = [
+      new GroupNorm(32, out_channels),
+      Tensor.silu,
+      (x: Tensor) => x, // needed for weights loading code to work
+      new Conv2d(out_channels, out_channels, 3, undefined, 1),
+    ]
+    if (channels !== out_channels) this.skip_connection = new Conv2d(channels, out_channels, 1)
+  }
+  call = (x: Tensor, emb: Tensor): Tensor => {
+    let h = x.sequential(this.in_layers)
+    let emb_out = emb.sequential(this.emb_layers)
+    h = h.add(emb_out.reshape([...emb_out.shape, 1, 1]))
+    h = h.sequential(this.out_layers)
+    return (this.skip_connection ? this.skip_connection.call(x) : x).add(h)
+  }
+}
+class CrossAttention {
+  to_q: Linear
+  to_k: Linear
+  to_v: Linear
+  to_out: [Linear]
+  constructor(query_dim: number, ctx_dim: number, public n_heads: number, public d_head: number) {
+    this.to_q = new Linear(query_dim, n_heads * d_head, false)
+    this.to_k = new Linear(ctx_dim, n_heads * d_head, false)
+    this.to_v = new Linear(ctx_dim, n_heads * d_head, false)
+    this.to_out = [new Linear(n_heads * d_head, query_dim)]
+  }
 
-//   def __call__(self, x:Tensor, emb:Tensor) -> Tensor:
-//     h = x.sequential(self.in_layers)
-//     emb_out = emb.sequential(self.emb_layers)
-//     h = h + emb_out.reshape(*emb_out.shape, 1, 1)
-//     h = h.sequential(self.out_layers)
-//     return self.skip_connection(x) + h
+  call = (x: Tensor, ctx?: Tensor): Tensor => {
+    ctx = ctx === undefined ? x : ctx
+    let q = this.to_q.call(x), k = this.to_k.call(ctx), v = this.to_v.call(ctx)
+    ;[q, k, v] = [q, k, v].map((y) => y.reshape([x.shape[0], -1, this.n_heads, this.d_head]).transpose(1, 2))
+    let attention = q.scaled_dot_product_attention(k, v).transpose(1, 2)
+    const h_ = attention.reshape([x.shape[0], -1, this.n_heads * this.d_head])
+    return h_.sequential(this.to_out)
+  }
+}
+class GEGLU {
+  proj: Linear
+  constructor(dim_in: number, public dim_out: number) {
+    this.proj = new Linear(dim_in, dim_out * 2)
+  }
 
-// class CrossAttention:
-//   def __init__(self, query_dim:int, ctx_dim:int, n_heads:int, d_head:int):
-//     self.to_q = Linear(query_dim, n_heads*d_head, bias=False)
-//     self.to_k = Linear(ctx_dim,   n_heads*d_head, bias=False)
-//     self.to_v = Linear(ctx_dim,   n_heads*d_head, bias=False)
-//     self.num_heads = n_heads
-//     self.head_size = d_head
-//     self.to_out = [Linear(n_heads*d_head, query_dim)]
+  call = (x: Tensor) => {
+    let [x2, gate] = this.proj.call(x).chunk(2, -1)
+    return x2.mul(gate.gelu())
+  }
+}
+class FeedForward {
+  net: Layer[]
+  constructor(dim: number, mult: number = 4) {
+    this.net = [
+      new GEGLU(dim, dim * mult),
+      (x: Tensor) => x, // needed for weights loading code to work
+      new Linear(dim * mult, dim),
+    ]
+  }
+  call = (x: Tensor) => x.sequential(this.net)
+}
 
-//   def __call__(self, x:Tensor, ctx:Optional[Tensor]=None) -> Tensor:
-//     ctx = x if ctx is None else ctx
-//     q,k,v = self.to_q(x), self.to_k(ctx), self.to_v(ctx)
-//     q,k,v = [y.reshape(x.shape[0], -1, self.num_heads, self.head_size).transpose(1,2) for y in (q,k,v)]
-//     attention = Tensor.scaled_dot_product_attention(q, k, v).transpose(1,2)
-//     h_ = attention.reshape(x.shape[0], -1, self.num_heads * self.head_size)
-//     return h_.sequential(self.to_out)
+class BasicTransformerBlock {
+  attn1: CrossAttention
+  ff: FeedForward
+  attn2: CrossAttention
+  norm1: LayerNorm
+  norm2: LayerNorm
+  norm3: LayerNorm
+  constructor(dim: number, ctx_dim: number, n_heads: number, d_head: number) {
+    this.attn1 = new CrossAttention(dim, dim, n_heads, d_head)
+    this.ff = new FeedForward(dim)
+    this.attn2 = new CrossAttention(dim, ctx_dim, n_heads, d_head)
+    this.norm1 = new LayerNorm(dim)
+    this.norm2 = new LayerNorm(dim)
+    this.norm3 = new LayerNorm(dim)
+  }
+  call = (x: Tensor, ctx?: Tensor) => {
+    x = x.add(this.attn1.call(this.norm1.call(x)))
+    x = x.add(this.attn2.call(this.norm2.call(x), ctx))
+    x = x.add(this.ff.call(this.norm3.call(x)))
+    return x
+  }
+}
+// https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/attention.py#L619
+class SpatialTransformer {
+  norm: GroupNorm
+  proj_in: Linear | Conv2d
+  transformer_blocks: BasicTransformerBlock[]
+  proj_out: Linear | Conv2d
+  constructor(channels: number, n_heads: number, d_head: number, ctx_dim: number | number[], public use_linear: boolean, depth: number = 1) {
+    if (typeof ctx_dim === 'number') ctx_dim = range(depth).map(() => ctx_dim as number)
+    else if (!Array.isArray(ctx_dim) || depth !== ctx_dim.length) throw new Error()
+    this.norm = new GroupNorm(32, channels)
+    if (channels !== n_heads * d_head) throw new Error()
+    this.proj_in = use_linear ? new Linear(channels, channels) : new Conv2d(channels, channels, 1)
+    this.transformer_blocks = range(depth).map((d) => new BasicTransformerBlock(channels, ctx_dim[d], n_heads, d_head))
+    this.proj_out = use_linear ? new Linear(channels, channels) : new Conv2d(channels, channels, 1)
+  }
 
-// class GEGLU:
-//   def __init__(self, dim_in:int, dim_out:int):
-//     self.proj = Linear(dim_in, dim_out * 2)
-//     self.dim_out = dim_out
+  call = (x: Tensor, ctx?: Tensor) => {
+    let [b, c, h, w] = x.shape
+    let x_in = x
+    x = this.norm.call(x)
+    let ops = [(z: Tensor) => z.reshape([b, c, mul(h, w)]).permute(0, 2, 1), (z: Tensor) => this.proj_in.call(z)]
+    x = x.sequential(this.use_linear ? ops : ops.toReversed())
+    for (const block of this.transformer_blocks) x = block.call(x, ctx)
+    ops = [(z: Tensor) => this.proj_out.call(z), (z: Tensor) => z.permute(0, 2, 1).reshape([b, c, h, w])]
+    x = x.sequential(this.use_linear ? ops : ops.toReversed())
+    return x.add(x_in)
+  }
+}
+class Downsample {
+  op: Conv2d
+  constructor(channels: number) {
+    this.op = new Conv2d(channels, channels, 3, 2, 1)
+  }
+  call = (x: Tensor) => this.op.call(x)
+}
+class Upsample {
+  conv: Conv2d
+  constructor(channels: number) {
+    this.conv = new Conv2d(channels, channels, 3, undefined, 1)
+  }
+  call = (x: Tensor) => {
+    let [bs, c, py, px] = x.shape
+    let z = x.reshape([bs, c, py, 1, px, 1]).expand([bs, c, py, 2, px, 2]).reshape([bs, c, mul(py, 2), mul(px, 2)])
+    return this.conv.call(z)
+  }
+}
 
-//   def __call__(self, x:Tensor) -> Tensor:
-//     x, gate = self.proj(x).chunk(2, dim=-1)
-//     return x * gate.gelu()
+type BB = ResBlock | SpatialTransformer | Conv2d | Downsample | Upsample
+// https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/diffusionmodules/openaimodel.py#L472
+export class UNetModel {
+  num_res_blocks: number[]
+  time_embed: Layer[]
+  label_emb?: Layer[][]
+  input_blocks: BB[][]
+  middle_block: BB[]
+  output_blocks: BB[][]
+  out: Layer[]
+  constructor(
+    adm_in_ch: number | undefined,
+    in_ch: number,
+    out_ch: number,
+    public model_ch: number,
+    public attention_resolutions: number[],
+    num_res_blocks: number,
+    channel_mult: number[],
+    transformer_depth: number[],
+    ctx_dim: number | number[],
+    use_linear = false,
+    public d_head?: number,
+    public n_heads?: number,
+  ) {
+    this.num_res_blocks = range(channel_mult.length).map(() => num_res_blocks)
 
-// class FeedForward:
-//   def __init__(self, dim:int, mult:int=4):
-//     self.net = [
-//       GEGLU(dim, dim*mult),
-//       lambda x: x,  # needed for weights loading code to work
-//       Linear(dim*mult, dim)
-//     ]
+    const get_d_and_n_heads = (dims: number): [number, number] => {
+      if (this.d_head === undefined) {
+        if (this.n_heads === undefined) throw new Error('d_head and n_heads cannot both be None')
+        return [idiv(dims, this.n_heads), this.n_heads]
+      } else {
+        if (this.n_heads !== undefined) throw new Error('d_head and n_heads cannot both be non-None')
+        return [this.d_head, idiv(dims, this.d_head)]
+      }
+    }
 
-//   def __call__(self, x:Tensor) -> Tensor:
-//     return x.sequential(self.net)
+    const time_embed_dim = model_ch * 4
+    this.time_embed = [new Linear(model_ch, time_embed_dim), Tensor.silu, new Linear(time_embed_dim, time_embed_dim)]
 
-// class BasicTransformerBlock:
-//   def __init__(self, dim:int, ctx_dim:int, n_heads:int, d_head:int):
-//     self.attn1 = CrossAttention(dim, dim, n_heads, d_head)
-//     self.ff    = FeedForward(dim)
-//     self.attn2 = CrossAttention(dim, ctx_dim, n_heads, d_head)
-//     self.norm1 = LayerNorm(dim)
-//     self.norm2 = LayerNorm(dim)
-//     self.norm3 = LayerNorm(dim)
+    if (adm_in_ch !== undefined) {
+      this.label_emb = [
+        [
+          new Linear(adm_in_ch, time_embed_dim),
+          Tensor.silu,
+          new Linear(time_embed_dim, time_embed_dim),
+        ],
+      ]
+    }
+    this.input_blocks = [[new Conv2d(in_ch, model_ch, 3, undefined, 1)]]
+    const input_block_channels = [model_ch]
+    let ch = model_ch
+    let ds = 1
+    for (const [idx, mult] of channel_mult.entries()) {
+      for (const _ of range(this.num_res_blocks[idx])) {
+        const layers: BB[] = [new ResBlock(ch, time_embed_dim, model_ch * mult)]
+        ch = mult * model_ch
+        if (attention_resolutions.includes(ds)) {
+          ;[d_head, n_heads] = get_d_and_n_heads(ch)
+          layers.push(new SpatialTransformer(ch, n_heads, d_head, ctx_dim, use_linear, transformer_depth[idx]))
+        }
 
-//   def __call__(self, x:Tensor, ctx:Optional[Tensor]=None) -> Tensor:
-//     x = x + self.attn1(self.norm1(x))
-//     x = x + self.attn2(self.norm2(x), ctx=ctx)
-//     x = x + self.ff(self.norm3(x))
-//     return x
+        this.input_blocks.push(layers)
+        input_block_channels.push(ch)
+      }
+      if (idx !== channel_mult.length - 1) {
+        this.input_blocks.push([new Downsample(ch)])
+        input_block_channels.push(ch)
+        ds *= 2
+      }
+    }
+    ;[d_head, n_heads] = get_d_and_n_heads(ch)
+    this.middle_block = [
+      new ResBlock(ch, time_embed_dim, ch),
+      new SpatialTransformer(ch, n_heads, d_head, ctx_dim, use_linear, transformer_depth.at(-1)),
+      new ResBlock(ch, time_embed_dim, ch),
+    ]
 
-// # https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/attention.py#L619
-// class SpatialTransformer:
-//   def __init__(self, channels:int, n_heads:int, d_head:int, ctx_dim:Union[int,List[int]], use_linear:bool, depth:int=1):
-//     if isinstance(ctx_dim, int):
-//       ctx_dim = [ctx_dim]*depth
-//     else:
-//       assert isinstance(ctx_dim, list) and depth == len(ctx_dim)
-//     self.norm = GroupNorm(32, channels)
-//     assert channels == n_heads * d_head
-//     self.proj_in  = Linear(channels, channels) if use_linear else Conv2d(channels, channels, 1)
-//     self.transformer_blocks = [BasicTransformerBlock(channels, ctx_dim[d], n_heads, d_head) for d in range(depth)]
-//     self.proj_out = Linear(channels, channels) if use_linear else Conv2d(channels, channels, 1)
-//     self.use_linear = use_linear
+    this.output_blocks = []
+    for (const [idx, mult] of [...channel_mult.entries()].toReversed()) {
+      for (const i of range(this.num_res_blocks[idx] + 1)) {
+        const ich = input_block_channels.pop()!
+        const layers: BB[] = [new ResBlock(ch + ich, time_embed_dim, model_ch * mult)]
+        ch = model_ch * mult
 
-//   def __call__(self, x:Tensor, ctx:Optional[Tensor]=None) -> Tensor:
-//     b, c, h, w = x.shape
-//     x_in = x
-//     x = self.norm(x)
-//     ops = [ (lambda z: z.reshape(b, c, h*w).permute(0,2,1)), (lambda z: self.proj_in(z)) ]
-//     x = x.sequential(ops if self.use_linear else ops[::-1])
-//     for block in self.transformer_blocks:
-//       x = block(x, ctx=ctx)
-//     ops = [ (lambda z: self.proj_out(z)), (lambda z: z.permute(0,2,1).reshape(b, c, h, w)) ]
-//     x = x.sequential(ops if self.use_linear else ops[::-1])
-//     return x + x_in
+        if (attention_resolutions.includes(ds)) {
+          ;[d_head, n_heads] = get_d_and_n_heads(ch)
+          layers.push(new SpatialTransformer(ch, n_heads, d_head, ctx_dim, use_linear, transformer_depth[idx]))
+        }
 
-// class Downsample:
-//   def __init__(self, channels:int):
-//     self.op = Conv2d(channels, channels, 3, stride=2, padding=1)
+        if (idx > 0 && i === this.num_res_blocks[idx]) {
+          layers.push(new Upsample(ch))
+          ds = idiv(ds, 2)
+        }
+        this.output_blocks.push(layers)
+      }
+    }
+    this.out = [
+      new GroupNorm(32, ch),
+      Tensor.silu,
+      new Conv2d(model_ch, out_ch, 3, undefined, 1),
+    ]
+  }
+  call = (x: Tensor, tms: Tensor, ctx: Tensor, y?: Tensor) => {
+    let t_emb = timestep_embedding(tms, this.model_ch)
+    let emb = t_emb.sequential(this.time_embed)
 
-//   def __call__(self, x:Tensor) -> Tensor:
-//     return self.op(x)
+    if (y !== undefined) {
+      if (y.shape[0] !== x.shape[0]) throw new Error()
+      emb = emb.add(y.sequential(this.label_emb![0]))
+    }
 
-// class Upsample:
-//   def __init__(self, channels:int):
-//     self.conv = Conv2d(channels, channels, 3, padding=1)
+    if (is_dtype_supported(dtypes.float16)) {
+      emb = emb.cast(dtypes.float16)
+      ctx = ctx.cast(dtypes.float16)
+      x = x.cast(dtypes.float16)
+    }
+    const run = (x: Tensor, bb: BB) => {
+      if (bb instanceof ResBlock) x = bb.call(x, emb)
+      else if (bb instanceof SpatialTransformer) x = bb.call(x, ctx)
+      else x = bb.call(x)
+      return x
+    }
 
-//   def __call__(self, x:Tensor) -> Tensor:
-//     bs,c,py,px = x.shape
-//     z = x.reshape(bs, c, py, 1, px, 1).expand(bs, c, py, 2, px, 2).reshape(bs, c, py*2, px*2)
-//     return self.conv(z)
-
-// # https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/diffusionmodules/openaimodel.py#L472
-// class UNetModel:
-//   def __init__(self, adm_in_ch:Optional[int], in_ch:int, out_ch:int, model_ch:int, attention_resolutions:List[int], num_res_blocks:int, channel_mult:List[int], transformer_depth:List[int], ctx_dim:Union[int,List[int]], use_linear:bool=False, d_head:Optional[int]=None, n_heads:Optional[int]=None):
-//     self.model_ch = model_ch
-//     self.num_res_blocks = [num_res_blocks] * len(channel_mult)
-
-//     self.attention_resolutions = attention_resolutions
-//     self.d_head  = d_head
-//     self.n_heads = n_heads
-//     def get_d_and_n_heads(dims:int) -> Tuple[int,int]:
-//       if self.d_head is None:
-//         assert self.n_heads is not None, f"d_head and n_heads cannot both be None"
-//         return dims // self.n_heads, self.n_heads
-//       else:
-//         assert self.n_heads is None, f"d_head and n_heads cannot both be non-None"
-//         return self.d_head, dims // self.d_head
-
-//     time_embed_dim = model_ch * 4
-//     self.time_embed = [
-//       Linear(model_ch, time_embed_dim),
-//       Tensor.silu,
-//       Linear(time_embed_dim, time_embed_dim),
-//     ]
-
-//     if adm_in_ch is not None:
-//       self.label_emb = [
-//         [
-//           Linear(adm_in_ch, time_embed_dim),
-//           Tensor.silu,
-//           Linear(time_embed_dim, time_embed_dim),
-//         ]
-//       ]
-
-//     self.input_blocks: List[Any] = [
-//       [Conv2d(in_ch, model_ch, 3, padding=1)]
-//     ]
-//     input_block_channels = [model_ch]
-//     ch = model_ch
-//     ds = 1
-//     for idx, mult in enumerate(channel_mult):
-//       for _ in range(self.num_res_blocks[idx]):
-//         layers: List[Any] = [
-//           ResBlock(ch, time_embed_dim, model_ch*mult),
-//         ]
-//         ch = mult * model_ch
-//         if ds in attention_resolutions:
-//           d_head, n_heads = get_d_and_n_heads(ch)
-//           layers.append(SpatialTransformer(ch, n_heads, d_head, ctx_dim, use_linear, depth=transformer_depth[idx]))
-
-//         self.input_blocks.append(layers)
-//         input_block_channels.append(ch)
-
-//       if idx != len(channel_mult) - 1:
-//         self.input_blocks.append([
-//           Downsample(ch),
-//         ])
-//         input_block_channels.append(ch)
-//         ds *= 2
-
-//     d_head, n_heads = get_d_and_n_heads(ch)
-//     self.middle_block: List = [
-//       ResBlock(ch, time_embed_dim, ch),
-//       SpatialTransformer(ch, n_heads, d_head, ctx_dim, use_linear, depth=transformer_depth[-1]),
-//       ResBlock(ch, time_embed_dim, ch),
-//     ]
-
-//     self.output_blocks = []
-//     for idx, mult in list(enumerate(channel_mult))[::-1]:
-//       for i in range(self.num_res_blocks[idx] + 1):
-//         ich = input_block_channels.pop()
-//         layers = [
-//           ResBlock(ch + ich, time_embed_dim, model_ch*mult),
-//         ]
-//         ch = model_ch * mult
-
-//         if ds in attention_resolutions:
-//           d_head, n_heads = get_d_and_n_heads(ch)
-//           layers.append(SpatialTransformer(ch, n_heads, d_head, ctx_dim, use_linear, depth=transformer_depth[idx]))
-
-//         if idx > 0 and i == self.num_res_blocks[idx]:
-//           layers.append(Upsample(ch))
-//           ds //= 2
-//         self.output_blocks.append(layers)
-
-//     self.out = [
-//       GroupNorm(32, ch),
-//       Tensor.silu,
-//       Conv2d(model_ch, out_ch, 3, padding=1),
-//     ]
-
-//   def __call__(self, x:Tensor, tms:Tensor, ctx:Tensor, y:Optional[Tensor]=None) -> Tensor:
-//     t_emb = timestep_embedding(tms, self.model_ch)
-//     emb   = t_emb.sequential(self.time_embed)
-
-//     if y is not None:
-//       assert y.shape[0] == x.shape[0]
-//       emb = emb + y.sequential(self.label_emb[0])
-
-//     if is_dtype_supported(dtypes.float16):
-//       emb = emb.cast(dtypes.float16)
-//       ctx = ctx.cast(dtypes.float16)
-//       x   = x  .cast(dtypes.float16)
-
-//     def run(x:Tensor, bb) -> Tensor:
-//       if isinstance(bb, ResBlock): x = bb(x, emb)
-//       elif isinstance(bb, SpatialTransformer): x = bb(x, ctx)
-//       else: x = bb(x)
-//       return x
-
-//     saved_inputs = []
-//     for b in self.input_blocks:
-//       for bb in b:
-//         x = run(x, bb)
-//       saved_inputs.append(x)
-//     for bb in self.middle_block:
-//       x = run(x, bb)
-//     for b in self.output_blocks:
-//       x = x.cat(saved_inputs.pop(), dim=1)
-//       for bb in b:
-//         x = run(x, bb)
-//     return x.sequential(self.out)
+    const saved_inputs = []
+    for (const b of this.input_blocks) {
+      for (const bb of b) x = run(x, bb)
+      saved_inputs.push(x)
+    }
+    for (const bb of this.middle_block) x = run(x, bb)
+    for (const b of this.output_blocks) {
+      x = x.cat([saved_inputs.pop()!], 1)
+      for (const bb of b) x = run(x, bb)
+    }
+    return x.sequential(this.out)
+  }
+}

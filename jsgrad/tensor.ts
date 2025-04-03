@@ -3222,6 +3222,7 @@ export class Tensor extends MathTrait<Tensor> {
   silu = () => {
     return this.swish() // The SiLU function === also known as the swish function.
   }
+  static silu = (x: Tensor) => x.silu()
 
   /**
    * Applies the ReLU6 function element-wise.
