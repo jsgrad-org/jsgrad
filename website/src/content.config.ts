@@ -17,4 +17,11 @@ const api = defineCollection({
   }),
 })
 
-export const collections = { docs, api }
+const course = defineCollection({
+  loader: glob({ base: './src/course', pattern: '**/*.(md|mdx)', generateId: ({ entry }) => entry.split('.md')[0] }),
+  schema: z.object({
+    title: z.string(),
+  }),
+})
+
+export const collections = { docs, api, course }

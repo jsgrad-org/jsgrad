@@ -1,0 +1,26 @@
+---
+import { getCollection } from "astro:content";
+
+export const getStaticPaths = async () => {
+  const posts = await getCollection("course");
+  return posts.map((post) => ({ params: { id: post.id }, props: post }));
+};
+---
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{Astro.props.data.title}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/starboard-notebook.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script is:inline data-body={Astro.props.body}>
+      window.initialNotebookContent = document.querySelector("[data-body]").dataset.body;
+      window.starboardArtifactsUrl = `https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/`;
+    </script>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/starboard-notebook.js"></script>
+  </body>
+</html>
