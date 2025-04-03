@@ -42,6 +42,7 @@ jobs:
         run: TQDM=0 CACHE_DB=":memory:" ${{ matrix.runtime }} deno task test
 
       - name: Train mnist
+        if: "!contains(matrix.runtime, 'DEVICE=WEBGPU')" # Buffer binding 1 range 737280000 exceeds `max_*_buffer_binding_size` limit 134217728
         run: TQDM=0 CACHE_DB=":memory:" ${{ matrix.runtime }} deno -A cli/mnist.ts --steps 10 --bs 2
   envs:
     strategy:
