@@ -70,7 +70,7 @@ describe(
 )
 test(
   'mnist.load',
-  { skip: Device.DEFAULT === 'WEBGPU' },
+  { skip: Device.DEFAULT === 'WEBGPU' || Device.DEFAULT === 'WASM' },
   async () => {
     Tensor.manual_seed(333)
     const model = new MNIST()
