@@ -1,11 +1,10 @@
 import { env } from './jsgrad/node.ts'
 
-const FILE = env.OSX ? 'libwebgpu_dawn.dylib' : 'libwebgpu_dawn.so'
-const PATH = `${env.CACHE_DIR}/${FILE}`
+const PATH = env.OSX ? `${env.CACHE_DIR}/libwebgpu_dawn.dylib` : '/usr/lib/libwebgpu_dawn.so'
 
 const lib = Deno.dlopen(PATH, {
   wgpuCreateInstance: { parameters: ['pointer'], result: 'pointer' },
-  wgpuInstanceRequestAdapterF: { parameters: ['pointer', 'pointer', 'pointer'], result: 'pointer' },
+  wgpuInstanceRequestAdapterF: { parameters: ['pointer', 'pointer', 'buffer'], result: 'pointer' },
 })
 
 // typedef uint32_t WGPUBool;
@@ -91,6 +90,6 @@ cb.set([0, 0, 0, 0, 0, 0, 0, 0], 16) // callback
 cb.set([0, 0, 0, 0, 0, 0, 0, 0], 24) // userdata
 
 //WGPU_EXPORT WGPUFuture wgpuInstanceRequestAdapterF(WGPUInstance instance, WGPU_NULLABLE WGPURequestAdapterOptions const * options, WGPURequestAdapterCallbackInfo callbackInfo) WGPU_FUNCTION_ATTRIBUTE;
-const future = lib.symbols.wgpuInstanceRequestAdapterF(instance, Deno.UnsafePointer.of(opts), Deno.UnsafePointer.of(cb))
+const future = lib.symbols.wgpuInstanceRequestAdapterF(instance, Deno.UnsafePointer.of(opts), cb)
 
 console.log(future, Deno.UnsafePointer.value(future))
