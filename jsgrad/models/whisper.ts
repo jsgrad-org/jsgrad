@@ -155,7 +155,7 @@ const get_mel = async (sr: number, n_fft: number, n_mels = 128, fmin = 0.0, fmax
   const fdiff = mel_f.get({ start: 1 }).sub(mel_f.get({ stop: -1 }))
   const ramps = mel_f.reshape([-1, 1]).sub(fftfreqs.reshape([1, -1]))
 
-  const t = []
+  const t: Tensor[] = []
   for (const i of range(n_mels)) {
     const lower = ramps.get(i).neg().div(fdiff.get(i))
     const upper = ramps.get(i + 2).div(fdiff.get(i + 1))
@@ -481,7 +481,7 @@ const wav = (bytes: Uint8Array) => {
     throw new Error('Not a valid WAV file')
   }
 
-  let offset = 12, sampleRate = 0, numChannels = 0, bitsPerSample = 0, audioData = null
+  let offset = 12, sampleRate = 0, numChannels = 0, bitsPerSample = 0, audioData: null | Uint8Array = null
 
   while (offset < bytes.length) {
     const chunkId = String.fromCharCode(...bytes.slice(offset, offset + 4))
@@ -542,6 +542,7 @@ export const transcribe_file = async (model: any, enc: Tokenizer, filename: stri
  * Returns the transcribed text if a single waveform is provided, or an array of transcriptions if multiple are provided
  */
 const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Float32Array[], truncate = false, language?: string) => {
+  // maybe is better merge the channels
   const mono_waveform = [waveforms[0]];
   const log_spec = await vars.withAsync({ DEVICE: env.CPU_DEVICE }, async () => await prep_audio(mono_waveform, model.batch_size, truncate));
 
