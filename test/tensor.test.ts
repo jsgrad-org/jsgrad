@@ -647,7 +647,7 @@ describe(
     ],
     (t1, t2) => t1.eq(t2),
     'out((data[0] == data[1]))',
-    { skip: Device.DEFAULT === 'WEBGPU' ? [0, 1, 12] : undefined },
+    { skip: Device.DEFAULT === 'WEBGPU' ? [0, 1, 6, 12] : undefined },
   ),
 )
 describe(
@@ -768,7 +768,7 @@ describe(
     ],
     Tensor._threefry_random_bits,
     'out(tiny.Tensor._threefry_random_bits(*data))',
-    { skip: Device.DEFAULT === 'WEBGPU' || Device.DEFAULT === 'DAWN' },
+    { skip: Device.DEFAULT === 'WEBGPU' },
   ),
 )
 

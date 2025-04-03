@@ -130,8 +130,7 @@ describe(
       'out(loss)',
     ],
     {
-      skip: Device.DEFAULT === 'WASM' || Device.DEFAULT === 'WEBGPU' ||
-        Device.DEFAULT === 'DAWN',
+      skip: Device.DEFAULT === 'WASM' || Device.DEFAULT === 'WEBGPU',
     },
   ),
 )

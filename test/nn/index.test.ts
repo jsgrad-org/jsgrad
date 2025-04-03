@@ -112,7 +112,7 @@ describe(
       'bn = BatchNorm(*data)',
       'out([bn.weight, bn.bias, getattr(bn,"running_mean",None), getattr(bn,"running_var",None), bn.num_batches_tracked])',
     ],
-    { skip: Device.DEFAULT === 'WEBGPU' || Device.DEFAULT === 'DAWN' },
+    { skip: Device.DEFAULT === 'WEBGPU' },
   ),
 )
 
