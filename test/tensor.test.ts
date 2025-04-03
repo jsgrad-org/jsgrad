@@ -388,11 +388,11 @@ const ops = (): [Tensor, keyof Tensor, boolean?][] => [
 for (const [i, [tensor, op, skip]] of ops().entries()) {
   describe(
     `Tensor.ops.${op}.${i}`,
-    { skip },
     compare(
       [[tensor, op]],
       (t: Tensor, op: keyof Tensor) => (t[op] as any)(),
       'out(getattr(data[0],data[1])())',
+      { skip },
     ),
   )
 }
