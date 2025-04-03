@@ -4,6 +4,7 @@ import { bytes_to_string, idiv, is_eq, NotImplemented, prod, range, round_up, st
 import { MemoryView } from '../helpers/memoryview.ts'
 import { Tensor } from '../tensor.ts'
 import { Tqdm, type TqdmOnProgress } from '../helpers/tqdm.ts'
+import { Device } from '../device.ts'
 
 class TensorIO {
   // TODO: if mmap working for disk device, then it should use tensor
@@ -46,12 +47,6 @@ export const safe_load_metadata = async (t: Tensor | string): Promise<[Tensor, n
   return [t, data_start, JSON.parse(bytes_to_string((await t.get({ start: 8, stop: data_start }).data()).bytes))]
 }
 
-const accept_filename = async (fn: Tensor | string): Promise<Tensor> => {
-  if (typeof fn === 'string') {
-    fn = (fn.startsWith('http://') || fn.startsWith('https://')) ? await Tensor.from_url(fn, { device: env.CPU_DEVICE }) : await Tensor.from_file(fn)
-  }
-  return fn
-}
 /**
  * Loads a .safetensor file from disk, returning the state_dict.
  *
@@ -59,15 +54,61 @@ const accept_filename = async (fn: Tensor | string): Promise<Tensor> => {
  * state_dict = nn.state.safe_load("test.safetensor")
  * ```
  */
-export const safe_load = async (fn: Tensor | string): Promise<Record<string, Tensor>> => {
-  fn = await accept_filename(fn)
-  const [t, data_start, metadata] = await safe_load_metadata(fn)
-  const data = t.get({ start: data_start })
-  return Object.fromEntries(
-    Object.entries(metadata)
-      .filter(([k]) => k !== '__metadata__')
-      .map(([k, v]) => [k, data.get({ start: v.data_offsets[0], stop: v.data_offsets[1] }).bitcast(safe_dtypes[v.dtype as SafeDType]).reshape(v.shape)]),
-  )
+export const safe_load = async (
+  fn: string | Tensor,
+  target_device: string = Device.DEFAULT,
+): Promise<Record<string, Tensor>> => {
+  let file_bytes: Uint8Array
+  let source_device: string // Keep track of original device if input is Tensor
+
+  if (fn instanceof Tensor) {
+    const realized_fn = await fn.realize()
+    const mem_view = await realized_fn.data()
+    file_bytes = mem_view.bytes
+    source_device = realized_fn.device as string
+  } else if (fn.startsWith('http://') || fn.startsWith('https://')) {
+    const response = await fetch(fn)
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    file_bytes = new Uint8Array(await response.arrayBuffer())
+    source_device = env.CPU_DEVICE
+  } else {
+    file_bytes = await env.readFile(fn)
+    source_device = `DISK:${fn}`
+  }
+
+  target_device = Device.canonicalize(target_device)
+
+  const metadata_len_bytes = file_bytes.slice(0, 8)
+  const metadata_len_view = new DataView(metadata_len_bytes.buffer, metadata_len_bytes.byteOffset, metadata_len_bytes.byteLength)
+  const metadata_len = Number(metadata_len_view.getBigUint64(0, true))
+  const data_start = 8 + metadata_len
+
+  const metadata_bytes = file_bytes.slice(8, data_start)
+  const metadata = JSON.parse(bytes_to_string(metadata_bytes))
+
+  const data_bytes = file_bytes.slice(data_start)
+
+  const state_dict: Record<string, Tensor> = {}
+  for (const [k, v] of Object.entries(metadata as Record<string, any>)) {
+    if (k === '__metadata__') continue
+
+    const dtype_str = v.dtype as SafeDType
+    const dtype = safe_dtypes[dtype_str]
+    if (!dtype) {
+      console.warn(`Warning: Skipping tensor '${k}' due to unsupported dtype '${dtype_str}'`)
+      continue
+    }
+
+    const shape = v.shape as number[]
+    const [offset, end_offset] = v.data_offsets as [number, number]
+    const tensor_bytes = data_bytes.slice(offset, end_offset)
+
+    const tensor_1d = new Tensor(tensor_bytes, { dtype, device: target_device })
+
+    state_dict[k] = tensor_1d.reshape(shape)
+  }
+
+  return state_dict
 }
 
 /**
