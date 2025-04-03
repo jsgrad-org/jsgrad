@@ -14,10 +14,10 @@ const lib = dlopen(PATH, {
 //     WGPUBool timedWaitAnyEnable;
 //     size_t timedWaitAnyMaxCount;
 // } WGPUInstanceFeatures WGPU_STRUCTURE_ATTRIBUTE;
-const features = new Uint8Array(20)
+const features = new Uint8Array(24)
 features.set([0, 0, 0, 0, 0, 0, 0, 0], 0) //nextInChain
 features.set([1, 0, 0, 0], 8) //timedWaitAnyEnable
-features.set([1, 0, 0, 0, 0, 0, 0, 0], 12) //timedWaitAnyMaxCount
+features.set([1, 0, 0, 0, 0, 0, 0, 0], 16) //timedWaitAnyMaxCount
 
 // typedef struct WGPUInstanceDescriptor {
 //     WGPUChainedStruct const * nextInChain;
@@ -89,7 +89,9 @@ cb.set([0, 0, 0, 0, 0, 0, 0, 0], 0) // nextInChain
 cb.set([1, 0, 0, 0], 8) // mode
 cb.set([0, 0, 0, 0, 0, 0, 0, 0], 16) // callback
 cb.set([0, 0, 0, 0, 0, 0, 0, 0], 24) // userdata
-
+console.log([...desc], desc.length)
+console.log([...opts], opts.length)
+console.log([...cb], cb.length)
 //WGPU_EXPORT WGPUFuture wgpuInstanceRequestAdapterF(WGPUInstance instance, WGPU_NULLABLE WGPURequestAdapterOptions const * options, WGPURequestAdapterCallbackInfo callbackInfo) WGPU_FUNCTION_ATTRIBUTE;
 const future = lib.symbols.wgpuInstanceRequestAdapterF(instance, ptr(opts), cb)
 
