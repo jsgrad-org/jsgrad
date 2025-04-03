@@ -524,10 +524,34 @@ const wav = (bytes: Uint8Array) => {
   return { sampleRate, numChannels, bitsPerSample, channelData }
 }
 
+function linearInterpolate(data: Float32Array, inputRate: number, outputRate: number): Float32Array {
+  const inputLength = data.length;
+  const outputLength = Math.floor(inputLength * (outputRate / inputRate));
+  const outputData = new Float32Array(outputLength);
+  const rateRatio = inputRate / outputRate;
+
+  for (let i = 0; i < outputLength; i++) {
+    const inputIndex = i * rateRatio;
+    const indexPrev = Math.floor(inputIndex);
+    const indexNext = Math.min(indexPrev + 1, inputLength - 1);
+    const fraction = inputIndex - indexPrev;
+
+    const samplePrev = data[indexPrev];
+    const sampleNext = data[indexNext];
+
+    outputData[i] = samplePrev + (sampleNext - samplePrev) * fraction;
+  }
+  return outputData;
+}
+
 export const load_file_waveform = async (filename: string): Promise<Float32Array[]> => {
   const data = await env.readFile(filename)
   const res = wav(data)
-  if (res.sampleRate !== RATE) throw new Error()
+  if (res.sampleRate !== RATE) {
+    const newSampleRate = RATE
+    const newData = linearInterpolate(res.channelData[0], res.sampleRate, newSampleRate)
+    return [newData]
+  }
   return res.channelData
 }
 
