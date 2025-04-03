@@ -9,12 +9,13 @@ import { NodeEnv } from './node.ts'
 import { DAWN } from '../runtime/ops_dawn.ts'
 import type { FFICallback } from './web.ts'
 import { NULL } from '../runtime/ops_null.ts'
+import { vars } from '../helpers/helpers.ts'
 
 export class DenoEnv extends NodeEnv {
   override NAME = 'deno'
   override CPU_DEVICE = 'CLANG'
   override PLATFORM = process.platform
-  override DEVICES = { CLANG, WEBGPU: DAWN, WGPU: WEBGPU, WASM, JS, DISK, CLOUD, NULL }
+  override DEVICES = { CLANG, WEBGPU: vars.get_num('WGPU') ? WEBGPU : DAWN, WASM, JS, DISK, CLOUD, NULL }
   override dlopen = Deno.dlopen
   override ptr = (buffer: ArrayBuffer, offset?: number) => offset ? Deno.UnsafePointer.offset(Deno.UnsafePointer.of(buffer) as any, offset) : Deno.UnsafePointer.of(buffer)
   override ptrToU64 = (ptr: any) => Deno.UnsafePointer.value(ptr)

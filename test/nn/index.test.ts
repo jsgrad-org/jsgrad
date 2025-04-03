@@ -112,7 +112,7 @@ describe(
       'bn = BatchNorm(*data)',
       'out([bn.weight, bn.bias, getattr(bn,"running_mean",None), getattr(bn,"running_var",None), bn.num_batches_tracked])',
     ],
-    { skip: Device.DEFAULT === 'WEBGPU' || Device.DEFAULT === 'DAWN' },
+    { skip: Device.DEFAULT === 'WEBGPU' },
   ),
 )
 
@@ -164,7 +164,6 @@ describe(
 
 describe(
   'Linear.call',
-  { skip: Device.DEFAULT === 'WASM' },
   compare(
     [
       [1, 1, [4, 1]], // shape: (4, 1) => 4 samples, each of size 1
@@ -183,5 +182,6 @@ describe(
       't = tiny.Tensor.rand(*data[2])',
       'out(linear(t))',
     ],
+    { skip: Device.DEFAULT === 'WASM' },
   ),
 )

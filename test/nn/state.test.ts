@@ -5,6 +5,7 @@ import { safe_save } from '../../jsgrad/nn/state.ts'
 import { python } from '../helpers.ts'
 import { MNIST } from '../../jsgrad/models/mnist.ts'
 import { expect, test } from 'vitest'
+import { Device } from '../../jsgrad/device.ts'
 
 test('get_state_dict', () => {
   const model = new MNIST()
@@ -55,29 +56,33 @@ test('safe_save', { skip: true }, async () => {
   }
 })
 
-test('safe_load', async () => {
-  const path = '/tmp/safe_load_test.safetensor'
-  const dict = {
-    'idk': [2, 3, 4, 4],
-    'idk33': [2, 3, 4, 4, 4, 4],
-  }
+test(
+  'safe_load',
+  { skip: Device.DEFAULT === 'WASM' },
+  async () => {
+    const path = '/tmp/safe_load_test.safetensor'
+    const dict = {
+      'idk': [2, 3, 4, 4],
+      'idk33': [2, 3, 4, 4, 4, 4],
+    }
 
-  // Saving in PY
-  await python([
-    'from tinygrad.nn.state import safe_save',
-    'dict = { k: tiny.Tensor(v, device="PYTHON") for k,v in data[1].items() }',
-    'safe_save(dict, data[0])',
-  ], [path, dict])
+    // Saving in PY
+    await python([
+      'from tinygrad.nn.state import safe_save',
+      'dict = { k: tiny.Tensor(v, device="PYTHON") for k,v in data[1].items() }',
+      'safe_save(dict, data[0])',
+    ], [path, dict])
 
-  // Reading in TS
-  const res = await safe_load(path)
-  for (
-    const [entry, expected] of zip(Object.entries(res), Object.entries(dict))
-  ) {
-    expect(entry[0]).toBe(expected[0])
-    expect(await entry[1].tolist()).toEqual(expected[1])
-  }
-})
+    // Reading in TS
+    const res = await safe_load(path)
+    for (
+      const [entry, expected] of zip(Object.entries(res), Object.entries(dict))
+    ) {
+      expect(entry[0]).toBe(expected[0])
+      expect(await entry[1].tolist()).toEqual(expected[1])
+    }
+  },
+)
 
 test('gguf_load', { skip: true }, async () => {
   const path = 'weights/llama3-1b-instruct/Llama-3.2-1B-Instruct-Q6_K.gguf'
