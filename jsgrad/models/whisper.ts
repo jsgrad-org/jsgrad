@@ -294,8 +294,8 @@ export class AudioEncoder {
   positional_embedding: Tensor
   encode: TinyJit<[x: Tensor], Tensor>
   constructor({ n_mels, n_audio_ctx, n_audio_state, n_audio_head, n_audio_layer }: Dims) {
-    this.conv1 = Conv1d(n_mels, n_audio_state, 3, undefined, 1)
-    this.conv2 = Conv1d(n_audio_state, n_audio_state, 3, 2, 1)
+    this.conv1 = new Conv1d(n_mels, n_audio_state, 3, undefined, 1)
+    this.conv2 = new Conv1d(n_audio_state, n_audio_state, 3, 2, 1)
     this.blocks = range(n_audio_layer).map((x) => new ResidualAttentionBlock(n_audio_state, n_audio_head))
     this.ln_post = new LayerNorm(n_audio_state)
     this.positional_embedding = Tensor.empty([n_audio_ctx, n_audio_state])

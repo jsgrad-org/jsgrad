@@ -176,45 +176,8 @@ export class BatchNorm {
     )
   }
 }
-export const BatchNorm2d: typeof BatchNorm = BatchNorm
-export const BatchNorm3d: typeof BatchNorm = BatchNorm
-
-/**
- * Applies a 1D convolution over an input signal composed of several input planes.
- *
- * See: https://pytorch.org/docs/stable/generated/torch.nn.Conv1d
- *
- * ```python exec="true" source="above" session="tensor" result="python"
- * conv = nn.Conv1d(1, 1, 3)
- * t = Tensor.rand(1, 1, 4)
- * console.log(t.numpy())
- * ```
- * ```python exec="true" source="above" session="tensor" result="python"
- * t = conv(t)
- * console.log(t.numpy())
- * ```
- */
-export const Conv1d = (
-  in_channels: number,
-  out_channels: number,
-  kernel_size: number,
-  stride = 1,
-  padding: number | string = 0,
-  dilation = 1,
-  groups = 1,
-  bias = true,
-): Conv2d => {
-  return new Conv2d(
-    in_channels,
-    out_channels,
-    [kernel_size],
-    stride,
-    padding,
-    dilation,
-    groups,
-    bias,
-  )
-}
+export class BatchNorm2d extends BatchNorm {}
+export class BatchNorm3d extends BatchNorm {}
 
 /**
  * Applies a 2D convolution over an input signal composed of several input planes.
@@ -278,57 +241,38 @@ export class Conv2d {
     )
     this.bias = bias ? Tensor.uniform([out_channels], -scale, scale) : undefined
   }
-  call = (x: Tensor): Tensor =>
-    x.conv2d(
-      this.weight,
-      this.bias,
-      this.groups,
-      this.stride,
-      this.dilation,
-      this.padding,
-    )
+  call = (x: Tensor): Tensor => x.conv2d(this.weight, this.bias, this.groups, this.stride, this.dilation, this.padding)
 }
 
 /**
+ * Applies a 1D convolution over an input signal composed of several input planes.
  *
- * Applies a 1D transposed convolution operator over an input signal composed of several input planes.
-
- * See: https://pytorch.org/docs/stable/generated/torch.nn.ConvTranspose1d
-
+ * See: https://pytorch.org/docs/stable/generated/torch.nn.Conv1d
+ *
  * ```python exec="true" source="above" session="tensor" result="python"
- * conv = nn.ConvTranspose1d(1, 1, 3)
+ * conv = nn.Conv1d(1, 1, 3)
  * t = Tensor.rand(1, 1, 4)
- * print(t.numpy())
+ * console.log(t.numpy())
  * ```
  * ```python exec="true" source="above" session="tensor" result="python"
  * t = conv(t)
- * print(t.numpy())
+ * console.log(t.numpy())
  * ```
  */
-export const ConvTranspose1d = (
-  in_channels: number,
-  out_channels: number,
-  kernel_size: number,
-  stride = 1,
-  padding = 0,
-  output_padding = 0,
-  dilation = 1,
-  groups = 1,
-  bias = true,
-): ConvTranspose2d => {
-  return new ConvTranspose2d(
-    in_channels,
-    out_channels,
-    [kernel_size],
-    stride,
-    padding,
-    output_padding,
-    dilation,
-    groups,
-    bias,
-  )
+export class Conv1d extends Conv2d {
+  constructor(
+    in_channels: number,
+    out_channels: number,
+    kernel_size: number,
+    stride = 1,
+    padding: number | string = 0,
+    dilation = 1,
+    groups = 1,
+    bias = true,
+  ) {
+    super(in_channels, out_channels, [kernel_size], stride, padding, dilation, groups, bias)
+  }
 }
-
 /**
  * Applies a 2D transposed convolution operator over an input image.
  *
@@ -356,16 +300,7 @@ export class ConvTranspose2d extends Conv2d {
     groups = 1,
     bias = true,
   ) {
-    super(
-      in_channels,
-      out_channels,
-      kernel_size,
-      stride,
-      padding,
-      dilation,
-      groups,
-      bias,
-    )
+    super(in_channels, out_channels, kernel_size, stride, padding, dilation, groups, bias)
     const scale = 1 / Math.sqrt(in_channels * prod(this.kernel_size))
     this.weight = Tensor.uniform(
       [in_channels, idiv(out_channels, groups), ...this.kernel_size],
@@ -374,17 +309,42 @@ export class ConvTranspose2d extends Conv2d {
     )
   }
   override call = (x: Tensor): Tensor => {
-    return x.conv_transpose2d(
-      this.weight,
-      this.bias,
-      this.groups,
-      this.stride,
-      this.dilation,
-      this.padding,
-      this.output_padding,
-    )
+    return x.conv_transpose2d(this.weight, this.bias, this.groups, this.stride, this.dilation, this.padding, this.output_padding)
   }
 }
+
+/**
+ *
+ * Applies a 1D transposed convolution operator over an input signal composed of several input planes.
+
+ * See: https://pytorch.org/docs/stable/generated/torch.nn.ConvTranspose1d
+
+ * ```python exec="true" source="above" session="tensor" result="python"
+ * conv = nn.ConvTranspose1d(1, 1, 3)
+ * t = Tensor.rand(1, 1, 4)
+ * print(t.numpy())
+ * ```
+ * ```python exec="true" source="above" session="tensor" result="python"
+ * t = conv(t)
+ * print(t.numpy())
+ * ```
+ */
+export class ConvTranspose1d extends ConvTranspose2d {
+  constructor(
+    in_channels: number,
+    out_channels: number,
+    kernel_size: number,
+    stride = 1,
+    padding = 0,
+    output_padding = 0,
+    dilation = 1,
+    groups = 1,
+    bias = true,
+  ) {
+    super(in_channels, out_channels, [kernel_size], stride, padding, output_padding, dilation, groups, bias)
+  }
+}
+
 /**
  * Applies a linear transformation to the incoming data.
  *
