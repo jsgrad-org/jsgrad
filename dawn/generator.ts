@@ -1,35 +1,5 @@
+import { range } from '../jsgrad/node.ts'
 import data from './webgpu.json' with { type: 'json' }
-
-let content = `import * as c from './ctypes.ts'\nexport * from './ctypes.ts'\n\n`
-
-const libTypeMap = {
-  ':void': 'void',
-  ':pointer': 'pointer',
-  'size_t': 'usize',
-  'uint8_t': 'u8',
-  'uint32_t': 'u32',
-  'uint64_t': 'u64',
-  'int32_t': 'i32',
-  'int64_t': 'i64',
-  ':float': 'f32',
-  ':double': 'f64',
-  ':struct': 'buffer',
-  ':enum': 'u32',
-  ':function-pointer': 'function',
-}
-const getLibType = (type: Type): string => {
-  if (type.tag in libTypeMap) return `'${libTypeMap[type.tag as keyof typeof libTypeMap]}'`
-
-  const lines = data.filter((x) => x.name === type.tag && x.tag === 'typedef')
-  if (lines.length !== 1) throw new Error(`Can't find ${type.tag}`)
-  return getLibType(lines[0].type)
-}
-
-content += `let lib!: ReturnType<typeof _init>
-export const init = (path: string)=> lib = _init(path)
-const _init = (path: string)=> Deno.dlopen(path, {
-  ${data.filter((x) => x.tag === 'function').map((x) => `${x.name}: { parameters: [${x.parameters.map((x: any) => getLibType(x.type)).join(', ')}], result: ${getLibType(x['return-type'])} },`).join('\n  ')}
-})\n\n`
 
 const rename = (name: string) => {
   if (name.startsWith('WGPU')) return name.slice(4)
@@ -75,9 +45,11 @@ const getType = (type: Type): string => {
   throw new Error(`Invalid type ${JSON.stringify(type)}`)
 }
 const structs: Record<string, string> = {}
+const byteSizes: Record<string, number> = {}
 for (const line of data) {
   if (line.tag !== 'struct') continue
   const byteLength = line['bit-size'] / 8
+  byteSizes[line.name] = byteLength
   const alignment = line['bit-alignment'] / 8
   const type = line.fields.length ? `{ ${line.fields.map((x: any) => `${x.name}: ${getType(x.type)}`).join('; ')} }` : `{}`
   const fields = line.fields.map((x: any) => `get $${rename(x.name)}(){ return new ${getType(x.type)}(this.buffer, this.offset + ${x['bit-offset'] / 8}) }`).join('\n  ')
@@ -90,6 +62,46 @@ for (const line of data) {
   ${[fields, _valueFn, newFn].filter(Boolean).join('\n  ')}
 }`
 }
+
+const libTypeMap = {
+  ':void': 'void',
+  ':pointer': 'pointer',
+  'size_t': 'usize',
+  'uint8_t': 'u8',
+  'uint32_t': 'u32',
+  'uint64_t': 'u64',
+  'int32_t': 'i32',
+  'int64_t': 'i64',
+  ':float': 'f32',
+  ':double': 'f64',
+  ':enum': 'u32',
+  ':function-pointer': 'function',
+}
+const getLibType = (type: Type): string => {
+  if (type.tag === ':struct') {
+    const byteSize = byteSizes[type.name!]
+    if (!byteSize) throw new Error(`No byteSise ${type}`)
+    return `{ struct: [${range(Math.ceil(byteSize / 8)).map(() => "'u64'")}] }`
+  }
+  if (type.tag in libTypeMap) return `'${libTypeMap[type.tag as keyof typeof libTypeMap]}'`
+
+  const lines = data.filter((x) => x.name === type.tag && x.tag === 'typedef')
+  if (lines.length !== 1) throw new Error(`Can't find ${type.tag}`)
+  return getLibType(lines[0].type)
+}
+
+let content = `
+import * as c from './ctypes.ts'
+import { env } from '../jsgrad/env/index.ts'
+
+export * from './ctypes.ts'
+
+let lib!: Awaited<ReturnType<typeof _init>>
+export const init = async (path: string) => lib = await _init(path)
+const _init = async (path: string) =>
+  await env.dlopen(path, {
+  ${data.filter((x) => x.tag === 'function').map((x) => `${x.name}: { parameters: [${x.parameters.map((x: any) => getLibType(x.type)).join(', ')}], result: ${getLibType(x['return-type'])} },`).join('\n  ')}
+})\n\n`
 
 const types: string[] = []
 for (const line of data) {

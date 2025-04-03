@@ -183,8 +183,8 @@ export class Struct<Value extends Record<string, Type<any>>> extends Type<
   }
   protected override _native = () => this.buffer
   protected override _setNative = (val: ArrayBuffer | Deno.PointerValue) => {
-    if (val instanceof ArrayBuffer) this.buffer = val
-    else this.replaceWithPtr(new Pointer().setNative(val))
+    if (val instanceof Uint8Array) this.buffer = val.buffer as ArrayBuffer
+    else throw new Error(`Invalid input ${val}`)
   }
 }
 

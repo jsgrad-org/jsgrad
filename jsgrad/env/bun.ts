@@ -13,8 +13,9 @@ import { NULL } from '../runtime/ops_null.ts'
 const ffiType = (type: Deno.NativeResultType): FFITypeOrString => {
   if (type === 'isize') return 'i64'
   if (type === 'usize') return 'u64'
-  if (typeof type === 'object') return 'pointer'
   if (type === 'buffer') return 'pointer'
+  // structs, should be changed when bun supports structs
+  if (typeof type === 'object') return 'pointer'
   return type
 }
 
