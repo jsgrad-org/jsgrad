@@ -860,12 +860,12 @@ export class UPat extends MathTrait<UPat> {
     for (const vp of this.src) {
       let stores = [new Map(store)]
       let new_stores: typeof stores = []
-      for (const [uu, vv] of zip(uop.src, vp)) {
-        for (const s of stores) new_stores = [...new_stores, ...vv.match(uu, s)]
+      for (let i = 0; i < Math.min(uop.src.length, vp.length); i++) {
+        for (const s of stores) new_stores.push(...vp[i].match(uop.src[i], s))
         stores = new_stores
         new_stores = []
       }
-      res = [...res, ...stores]
+      res.push(...stores)
     }
     return res
   }
@@ -880,12 +880,12 @@ export class UPatAny extends UPat {
 
 export class PatternMatcher<Ctx = unknown, Res = UOp | undefined> {
   patterns: [UPat, UPatFn<Ctx, Res>][]
-  pdict = new Map<Ops, ([UPat, UPatFn<Ctx, Res>, Set<Ops>, boolean][])>()
+  pdict = new Map<Ops, ([UPat, UPatFn<Ctx, Res>, Set<Ops>][])>()
   constructor(patterns: [UPat, UPatFn<Ctx, Res>][]) {
     this.patterns = patterns
     for (const [p, fxn] of this.patterns) {
-      assert(p.op !== undefined)
-      for (const uop of p.op || []) set_default(this.pdict, uop, []).push([p, fxn, new Set(p.early_reject), fxn.toString().includes('ctx')])
+      if (p.op === undefined) throw new Error()
+      for (const uop of p.op || []) set_default(this.pdict, uop, []).push([p, fxn, new Set(p.early_reject)])
     }
   }
 
@@ -893,10 +893,10 @@ export class PatternMatcher<Ctx = unknown, Res = UOp | undefined> {
 
   rewrite = (uop: UOp, ctx?: any): Res | undefined => {
     const ler = new Set(uop.src.map((u) => u.op))
-    for (const [p, fxn, early_reject, hasCtx] of this.pdict.get(uop.op) || []) {
+    for (const [p, fxn, early_reject] of this.pdict.get(uop.op) || []) {
       if (!is_subset(ler, early_reject)) continue
       for (const match of p.match(uop, new Map())) {
-        const ret = hasCtx ? fxn({ ctx, ...Object.fromEntries(match) } as any) : fxn(Object.fromEntries(match) as any)
+        const ret = fxn({ ctx, ...Object.fromEntries(match) } as any)
         if (ret !== undefined) return ret
       }
     }
