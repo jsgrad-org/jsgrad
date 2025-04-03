@@ -1,4 +1,4 @@
-import { createPointer, DataType, load, open, unwrapPointer } from 'ffi-rs'
+import { arrayConstructor, createPointer, DataType, FFITypeTag, load, open, unwrapPointer } from 'ffi-rs'
 
 const PATH = '/usr/lib/libwebgpu_dawn.so'
 const library = 'dawn'
@@ -12,16 +12,12 @@ features.set([1, 0, 0, 0, 0, 0, 0, 0], 16)
 const desc = new Uint8Array(32)
 desc.set([0, 0, 0, 0, 0, 0, 0, 0], 0)
 desc.set(features, 8)
-const descPtr = createPointer({
-  paramsType: [DataType.U8Array],
-  paramsValue: [desc],
-})
 const instance = load({
   library,
   funcName: 'wgpuCreateInstance',
   retType: DataType.External,
-  paramsType: [DataType.External],
-  paramsValue: [unwrapPointer(descPtr)[0]],
+  paramsType: [DataType.U8Array],
+  paramsValue: [desc],
 })
 console.log(instance)
 
@@ -43,15 +39,23 @@ cb.set([0, 0, 0, 0, 0, 0, 0, 0], 24)
 console.log([...desc], desc.length)
 console.log([...opts], opts.length)
 console.log([...cb], cb.length)
+
+const cbType = {
+  nextInChain: DataType.U64,
+  mode: DataType.U64,
+  callback: DataType.U64,
+  userdata: DataType.U64,
+  ffiTypeTag: DataType.StackStruct,
+}
 const optsPtr = createPointer({
   paramsType: [DataType.U8Array],
-  paramsValue: [desc],
+  paramsValue: [opts],
 })
 const future = load({
   library,
   funcName: 'wgpuInstanceRequestAdapterF',
-  retType: DataType.BigInt,
-  paramsType: [DataType.External, DataType.External, DataType.U8Array],
-  paramsValue: [instance, unwrapPointer(optsPtr)[0], cb],
+  retType: DataType.U64,
+  paramsType: [DataType.External, DataType.External, cbType],
+  paramsValue: [instance, unwrapPointer(optsPtr)[0], { nextInChain: 0, mode: 1, callback: 0, userdata: 0 }],
 })
 console.log(future)
