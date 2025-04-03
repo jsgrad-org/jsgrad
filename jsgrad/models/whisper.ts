@@ -378,7 +378,7 @@ const FRAMES_PER_SEGMENT = SAMPLES_PER_SEGMENT / HOP_LENGTH // 3000
  * param truncate: If true, truncates (or pads) audio to exactly 30s for a single encoder pass
  * return: mel spectrogram of the given waveforms
  */
-export const prep_audio = async (_waveforms: Float32Array[], batch_size: number, truncate = false) => {
+export const prep_audio = async (_waveform: Float32Array, batch_size: number, truncate = false) => {
   const pad_or_trim = (arr: Float32Array, target_len: number) => {
     const curr_len = arr.length
     if (curr_len === target_len) return arr
@@ -389,14 +389,15 @@ export const prep_audio = async (_waveforms: Float32Array[], batch_size: number,
     } else return arr.slice(0, target_len)
   }
 
-  let max_len = truncate ? SAMPLES_PER_SEGMENT : Math.max(..._waveforms.map((x) => x.length))
-  const r = mod(max_len, SAMPLES_PER_SEGMENT)
-  if (r > 0) max_len += SAMPLES_PER_SEGMENT - r
-  let waveforms = new Tensor(concat_bytes(..._waveforms.map((w) => new Uint8Array(pad_or_trim(w, max_len).buffer))), { dtype: dtypes.float32 }).reshape([_waveforms.length, max_len])
-  if (num(waveforms.shape[0]) > batch_size) throw new Error()
-  if (num(waveforms.shape[0]) < batch_size) {
-    // we could have a symbolic batch_size dim instead of manually padding here if conv/layernorm supported symbolic shapes
-    waveforms = waveforms.pad([[0, batch_size - num(waveforms.shape[0])], [0, 0]])
+  let target_len = truncate ? SAMPLES_PER_SEGMENT : _waveform.length
+  const r = mod(target_len, SAMPLES_PER_SEGMENT)
+  if (r > 0 && !truncate) target_len += SAMPLES_PER_SEGMENT - r
+  else if (truncate) target_len = SAMPLES_PER_SEGMENT
+
+  const padded_waveform = pad_or_trim(_waveform, target_len)
+  let waveforms = new Tensor(new Uint8Array(padded_waveform.buffer), { dtype: dtypes.float32 }).reshape([1, target_len])
+  if (batch_size > 1) {
+    waveforms = waveforms.pad([[0, batch_size - 1], [0, 0]])
   }
   const stft = new STFT(N_FFT, undefined, undefined, HOP_LENGTH).call(waveforms)
   const magnitudes = stft.get('...', 0).pow(2).add(stft.get('...', 1).pow(2)).get('...', { stop: -1 })
@@ -525,34 +526,44 @@ const wav = (bytes: Uint8Array) => {
 }
 
 function linearInterpolate(data: Float32Array, inputRate: number, outputRate: number): Float32Array {
-  const inputLength = data.length;
-  const outputLength = Math.floor(inputLength * (outputRate / inputRate));
-  const outputData = new Float32Array(outputLength);
-  const rateRatio = inputRate / outputRate;
+  const inputLength = data.length
+  const outputLength = Math.floor(inputLength * (outputRate / inputRate))
+  const outputData = new Float32Array(outputLength)
+  const rateRatio = inputRate / outputRate
 
   for (let i = 0; i < outputLength; i++) {
-    const inputIndex = i * rateRatio;
-    const indexPrev = Math.floor(inputIndex);
-    const indexNext = Math.min(indexPrev + 1, inputLength - 1);
-    const fraction = inputIndex - indexPrev;
+    const inputIndex = i * rateRatio
+    const indexPrev = Math.floor(inputIndex)
+    const indexNext = Math.min(indexPrev + 1, inputLength - 1)
+    const fraction = inputIndex - indexPrev
 
-    const samplePrev = data[indexPrev];
-    const sampleNext = data[indexNext];
+    const samplePrev = data[indexPrev]
+    const sampleNext = data[indexNext]
 
-    outputData[i] = samplePrev + (sampleNext - samplePrev) * fraction;
+    outputData[i] = samplePrev + (sampleNext - samplePrev) * fraction
   }
-  return outputData;
+  return outputData
 }
 
-export const load_file_waveform = async (filename: string): Promise<Float32Array[]> => {
+function mergeChannels(channels: Float32Array[]): Float32Array {
+  const length = channels[0].length
+  const merged = new Float32Array(length)
+  for (let i = 0; i < length; i++) {
+    merged[i] = channels.reduce((sum, channel) => sum + channel[i], 0) / channels.length
+  }
+  return merged
+}
+
+export const load_file_waveform = async (filename: string): Promise<Float32Array> => {
   const data = await env.readFile(filename)
   const res = wav(data)
+  const channelData = res.numChannels > 1 ? mergeChannels(res.channelData) : res.channelData[0]
   if (res.sampleRate !== RATE) {
     const newSampleRate = RATE
-    const newData = linearInterpolate(res.channelData[0], res.sampleRate, newSampleRate)
-    return [newData]
+    const newData = linearInterpolate(channelData, res.sampleRate, newSampleRate)
+    return newData
   }
-  return res.channelData
+  return channelData
 }
 
 export const transcribe_file = async (model: any, enc: Tokenizer, filename: string, language?: string) => {
@@ -565,10 +576,8 @@ export const transcribe_file = async (model: any, enc: Tokenizer, filename: stri
  * Expects an array of shape (N,S) where N is the number waveforms to transcribe in parallel and S is number of 16000Hz samples
  * Returns the transcribed text if a single waveform is provided, or an array of transcriptions if multiple are provided
  */
-const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Float32Array[], truncate = false, language?: string) => {
-  // maybe it's better merge the channels
-  const mono_waveform = [waveforms[0]];
-  const log_spec = await vars.withAsync({ DEVICE: env.CPU_DEVICE }, async () => await prep_audio(mono_waveform, model.batch_size, truncate));
+const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Float32Array, truncate = false, language?: string) => {
+  const log_spec = await vars.withAsync({ DEVICE: env.CPU_DEVICE }, async () => await prep_audio(waveforms, model.batch_size, truncate))
 
   const nsample = model.decoder.max_tokens_to_sample
 
@@ -597,7 +606,7 @@ const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Fl
   const eot = enc.special_tokens['<|endoftext|>']
 
   let ctx = new Tensor(start_tokens).reshape([1, -1]).expand([model.batch_size, start_tokens.length])
-  let transcriptions: number[][] = mono_waveform.map(() => [])
+  let transcription: number[] = []
 
   for (const curr_frame of range(0, log_spec.shape_num.at(-1), FRAMES_PER_SEGMENT)) {
     const encoded_audio = await model.encoder.encode.call(log_spec.get({}, {}, { start: curr_frame, stop: curr_frame + FRAMES_PER_SEGMENT }))
@@ -608,14 +617,13 @@ const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Fl
       // ctx = await Promise.all((await ctx.tolist()).map(async (c, i) => (await inferloop(new Tensor(range(model.batch_size).map(() => c)), encoded_audio)).get(i)))
     }
 
-    for (const [i, [res, arr]] of zip(transcriptions, await ctx.tolist<number[][]>()).entries()) {
-      if (curr_frame * HOP_LENGTH <= mono_waveform[i].length) {
-        const start = arr.indexOf(start_tokens.at(-1)!) + 1
-        res.push(...arr.slice(start, arr.indexOf(eot, start)))
-      }
+    const result_tokens = (await ctx.tolist<number[][]>())[0]
+    if (curr_frame * HOP_LENGTH <= waveforms.length) {
+      const start = result_tokens.indexOf(start_tokens.at(-1)!) + 1
+      transcription.push(...result_tokens.slice(start, result_tokens.indexOf(eot, start)))
     }
-    ctx = new Tensor((await ctx.tolist<number[][]>()).map((cs) => [enc.special_tokens['<|startofprev|>'], ...gettexttoks(cs), ...start_tokens]))
+    const current_ctx_tokens = (await ctx.tolist<number[][]>())[0]
+    ctx = new Tensor([[enc.special_tokens['<|startofprev|>'], ...gettexttoks(current_ctx_tokens), ...start_tokens]])
   }
-  const out = transcriptions.map((tokens) => enc.decode(tokens).trim())
-  return out.length > 1 ? out : out[0]
+  return enc.decode(transcription).trim()
 }
