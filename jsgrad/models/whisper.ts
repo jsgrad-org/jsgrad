@@ -350,7 +350,7 @@ class TextDecoder {
   output_tok = async (x: Tensor) => await this.ln.call(x).matmul(this.token_embedding.weight.T).realize()
 }
 
-class Whisper {
+export class Whisper {
   encoder!: AudioEncoder
   decoder!: TextDecoder
   is_multilingual!: boolean
