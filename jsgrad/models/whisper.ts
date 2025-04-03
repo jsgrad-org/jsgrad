@@ -542,8 +542,8 @@ export const transcribe_file = async (model: any, enc: Tokenizer, filename: stri
  * Returns the transcribed text if a single waveform is provided, or an array of transcriptions if multiple are provided
  */
 const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Float32Array[], truncate = false, language?: string) => {
-  let log_spec = await vars.withAsync({ DEVICE: env.CPU_DEVICE }, async () => await prep_audio(waveforms, model.batch_size, truncate))
-  log_spec = log_spec.to(Device.DEFAULT)
+  const mono_waveform = [waveforms[0]];
+  const log_spec = await vars.withAsync({ DEVICE: env.CPU_DEVICE }, async () => await prep_audio(mono_waveform, model.batch_size, truncate));
 
   const nsample = model.decoder.max_tokens_to_sample
 
