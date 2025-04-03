@@ -211,9 +211,15 @@ export const lower_schedule = async function* (schedule: ScheduleItem[]): AsyncG
 
 export const capturing: TinyJit<any, any>[] = [] // put classes with an add method in here
 
-export const run_schedule = async (schedule: ScheduleItem[], var_vals?: Map<Variable, number>, do_update_stats = true) => {
+export const run_schedule = async (schedule: ScheduleItem[], var_vals?: Map<Variable, number>, do_update_stats = true, onProgress?: (current: number, total: number) => void) => {
+  const total_items = schedule.length
+  let processed_items = 0
+
   for await (const ei of lower_schedule(schedule)) {
     if (capturing.length && vars.CAPTURING) capturing[0].add(ei)
     await ei.run(var_vals, undefined, undefined, do_update_stats)
+
+    processed_items++
+    onProgress?.(processed_items, total_items)
   }
 }

@@ -62,7 +62,7 @@ export class Tqdm<T> implements IterableIterator<T> {
   private i: number
   private start: number
   private label: string | undefined
-  private size: number | undefined
+  public size: number | undefined
   private width: number
   private format?: (val: number) => string
   private onProgress?: TqdmOnProgress
