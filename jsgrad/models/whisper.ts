@@ -597,7 +597,7 @@ const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Fl
   const eot = enc.special_tokens['<|endoftext|>']
 
   let ctx = new Tensor(start_tokens).reshape([1, -1]).expand([model.batch_size, start_tokens.length])
-  let transcriptions: number[][] = waveforms.map(() => [])
+  let transcriptions: number[][] = mono_waveform.map(() => [])
 
   for (const curr_frame of range(0, log_spec.shape_num.at(-1), FRAMES_PER_SEGMENT)) {
     const encoded_audio = await model.encoder.encode.call(log_spec.get({}, {}, { start: curr_frame, stop: curr_frame + FRAMES_PER_SEGMENT }))
@@ -609,7 +609,7 @@ const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Fl
     }
 
     for (const [i, [res, arr]] of zip(transcriptions, await ctx.tolist<number[][]>()).entries()) {
-      if (curr_frame * HOP_LENGTH <= waveforms[i].length) {
+      if (curr_frame * HOP_LENGTH <= mono_waveform[i].length) {
         const start = arr.indexOf(start_tokens.at(-1)!) + 1
         res.push(...arr.slice(start, arr.indexOf(eot, start)))
       }
