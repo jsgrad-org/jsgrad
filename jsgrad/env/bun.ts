@@ -6,7 +6,6 @@ import { CLOUD } from '../runtime/ops_cloud.ts'
 import { NodeEnv } from './node.ts'
 import { CString, dlopen, type FFITypeOrString, JSCallback, ptr, toArrayBuffer } from 'bun:ffi'
 import { DISK } from '../runtime/ops_disk.ts'
-import { DAWN } from '../runtime/ops_dawn.ts'
 import type { Dlopen, FFICallback } from './web.ts'
 import { NULL } from '../runtime/ops_null.ts'
 
@@ -21,7 +20,7 @@ const ffiType = (type: Deno.NativeResultType): FFITypeOrString => {
 
 export class BunEnv extends NodeEnv {
   override NAME = 'bun'
-  override DEVICES = { CLANG, WEBGPU: DAWN, WASM, JS, CLOUD, DISK, NULL }
+  override DEVICES = { CLANG, WASM, JS, CLOUD, DISK, NULL }
   override args = () => Bun.argv.slice(2)
   override dlopen: Dlopen = (file, args) => {
     return dlopen(
