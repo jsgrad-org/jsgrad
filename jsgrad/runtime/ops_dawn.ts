@@ -267,8 +267,8 @@ export class DAWN extends Compiled {
     const FILE = env.OSX ? 'libwebgpu_dawn.dylib' : 'libwebgpu_dawn.so'
     const URL = `https://github.com/wpmed92/pydawn/releases/download/v0.1.6/${FILE}`
     const PATH = `${env.CACHE_DIR}/${FILE}`
-
-    await env.fetchSave(URL, PATH)
+    console.log(PATH)
+    // await env.fetchSave(URL, PATH)
     await c.init(PATH)
 
     const desc = new c.InstanceDescriptor()
