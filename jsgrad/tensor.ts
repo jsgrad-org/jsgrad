@@ -1712,8 +1712,8 @@ export class Tensor extends MathTrait<Tensor> {
     if (!all_int(this.shape)) throw new Error(`does not support symbolic shape ${this.shape}`)
     dim = this._resolve_dim(dim)
     if (typeof sizes === 'number') sizes = range(0, max([1, this.shape[dim]]), max([1, sizes])).map((i) => min([num(sizes), this.shape_num[dim] - i]))
-    if (sum(sizes) !== this.shape[dim]) throw new Error(`expect sizes to sum exactly to {self.shape[dim]}, but got {sum(sizes)}`)
-    return range(sizes.length).map((i) => [...range(dim).map(() => ({})), { start: sum(sizes.slice(0, i)), stop: sum(sizes.slice(0, i + 1)) }]).map((sl) => this.get(sl))
+    if (sum(sizes) !== this.shape[dim]) throw new Error(`expect sizes to sum exactly to ${this.shape[dim]}, but got ${sum(sizes)}`)
+    return range(sizes.length).map((i) => [...range(dim).map(() => ({})), { start: sum(sizes.slice(0, i)), stop: sum(sizes.slice(0, i + 1)) }]).map((sl) => this.get(...sl))
   }
 
   /**

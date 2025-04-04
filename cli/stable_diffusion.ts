@@ -3,6 +3,7 @@ import { parseArgs, z } from './parse.ts'
 import { StableDiffusion } from '../jsgrad/models/stable_diffusion.ts'
 import { Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '../jsgrad/base.ts'
 import { ClipTokenizer } from '../jsgrad/models/clip.ts'
+import sharp from 'npm:sharp'
 
 const args = parseArgs({
   steps: z.number().default(6).describe('Number of steps in diffusion'),
@@ -50,7 +51,7 @@ const alphas_prev = new Tensor([1.0]).cat([alphas.get({ stop: -1 })])
 if (args.seed !== undefined) Tensor.manual_seed(args.seed)
 let latent = Tensor.randn([1, 4, 64, 64])
 
-const jit = new TinyJit(async (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, alphas: Tensor, alphas_prev: Tensor, guidance: Tensor) => await (await model.call(unconditional_context, context, latent, timestep, alphas, alphas_prev, guidance)).realize())
+const jit = new TinyJit(model.call)
 
 // this is diffusion
 await vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
@@ -69,11 +70,7 @@ await vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
 let x = await model.decode(latent)
 console.log(x.shape)
 
-// save image
-// im = Image.fromarray(x.numpy())
-// im = new Uint8Array()
 console.log(`saving ${args.out}`)
-await env.writeFile(args.out, (await x.data()).bytes)
-//   im.save(args.out)
-//   # Open image.
-//   if not args.noshow: im.show()
+await sharp((await x.data()).bytes, { raw: { width: 512, height: 512, channels: 3 } }).toFormat('png').toFile(args.out)
+
+console.log(`saved ${args.out}`)
