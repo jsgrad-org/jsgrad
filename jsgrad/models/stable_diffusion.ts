@@ -159,19 +159,6 @@ const get_alphas_cumprod = (beta_start = 0.00085, beta_end = 0.0120, n_training_
   const alphas = betas.sub(1.0, true)
   return alphas.log().cumsum(0).exp()
 }
-const unet_params = {
-  'adm_in_ch': undefined,
-  'in_ch': 4,
-  'out_ch': 4,
-  'model_ch': 320,
-  'attention_resolutions': [4, 2, 1],
-  'num_res_blocks': 2,
-  'channel_mult': [1, 2, 4, 4],
-  'n_heads': 8,
-  'transformer_depth': [1, 1, 1, 1],
-  'ctx_dim': 768,
-  'use_linear': false,
-}
 
 export class StableDiffusion {
   alphas_cumprod: Tensor
