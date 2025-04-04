@@ -350,7 +350,7 @@ class TextDecoder {
   output_tok = async (x: Tensor) => await this.ln.call(x).matmul(this.token_embedding.weight.T).realize()
 }
 
-class Whisper {
+export class Whisper {
   encoder!: AudioEncoder
   decoder!: TextDecoder
   is_multilingual!: boolean
@@ -541,8 +541,8 @@ export const transcribe_file = async (model: any, enc: Tokenizer, filename: stri
  * Expects an array of shape (N,S) where N is the number waveforms to transcribe in parallel and S is number of 16000Hz samples
  * Returns the transcribed text if a single waveform is provided, or an array of transcriptions if multiple are provided
  */
-const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Float32Array[], truncate = false, language?: string) => {
-  let log_spec = await vars.withAsync({ DEVICE: env.CPU_DEVICE }, async () => await prep_audio(waveforms, model.batch_size, truncate))
+export const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Float32Array[], truncate = false, language?: string) => {
+  let log_spec = await vars.withAsync({ DEVICE: Device.DEFAULT }, async () => await prep_audio(waveforms, model.batch_size, truncate))
   log_spec = log_spec.to(Device.DEFAULT)
 
   const nsample = model.decoder.max_tokens_to_sample

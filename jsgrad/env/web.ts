@@ -62,32 +62,53 @@ export class WebEnv {
   tempFile = async (): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}`
   mkdir = async (path:string): Promise<void> => {}
   fetchSave = async (url: string, path: string, dir?: string, onProgress?: TqdmOnProgress) => {
-    path = this.realPath(dir || "", path)
+    path = this.realPath(dir || '', path)
     const cache = await this._cache()
-    const cached  = await cache.match(path)
-    if (cached) return path
+    const cached = await cache.match(path)
+    if (cached) {
+      if (vars.DEBUG >= 2) console.log(`Cache hit for ${path}`)
+      onProgress?.({ label: `Loading ${path} from cache`, i: 1, size: 1 });
+      return path
+    }
+     if (vars.DEBUG >= 1) console.log(`Cache miss for ${path}, fetching ${url}`)
+
+    const t = new Tqdm(1, { onProgress, label: `Downloading ${path}`, format: (v) => '' });
+    t.render(0); // Indicate start
 
     const res = await fetch(url)
-    if (!res.ok) throw new Error(`Error ${res.status}`)
-    let size = Number(res.headers.get('content-length')), i = 0
-    let data:Uint8Array
-    if (size) {
-      const reader = res.body?.getReader()
-      if (!reader) throw new Error('Response body not readable!')
-      data = new Uint8Array(size)
-      const  t = new Tqdm(size, { onProgress, label: `Downloading ${path}`, format: memsize_to_str })
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        if (value) {
-          data.set(value, i)
-          i += value.length
-          t.render(i)
-        }
-      }
-      this.writeStdout("\n")
-    } else data = new Uint8Array(await res.arrayBuffer())
-    await this.writeFile(path, data)
+    if (!res.ok) {
+        t.render(1); // Ensure progress visually completes on error
+        this.writeStdout("\n");
+        throw new Error(`Error fetching ${url}: ${res.status} ${res.statusText}`)
+    }
+
+    // --- Read the entire response into an ArrayBuffer ---
+    // This is more reliable in browsers where Content-Length might be inaccurate (e.g., for gzipped content)
+    let data: Uint8Array;
+    try {
+        const buffer = await res.arrayBuffer();
+        data = new Uint8Array(buffer);
+    } catch (e) {
+        t.render(1); // Ensure progress visually completes on error
+        this.writeStdout("\n");
+        console.error(`Error reading arrayBuffer for ${url}:`, e);
+        throw new Error(`Failed to read response body for ${url}`);
+    }
+    // --- End of modification ---
+
+    t.render(1); // Mark progress as complete
+    this.writeStdout("\n");
+
+    // Write the complete data to cache
+    try {
+        await this.writeFile(path, data);
+        if (vars.DEBUG >= 1) console.log(`Successfully fetched and saved ${path}`);
+    } catch(e) {
+         console.error(`Error writing file ${path} to cache:`, e);
+         // Decide if you want to re-throw or just warn
+         // throw new Error(`Failed to write downloaded file to cache: ${path}`);
+    }
+
     return path
   }
 
