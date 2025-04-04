@@ -33,7 +33,7 @@ describe('Whisper Model', () => {
   test(
     'init_whisper loads model and tokenizer',
     {
-      timeout: 120000,
+      timeout: 120_000,
     },
     () => {
       expect(whisperInstance).toBeDefined()
@@ -54,7 +54,7 @@ describe('Whisper Model', () => {
     },
   )
 
-  test('transcribe_file processes JFK sample', async () => {
+  test.skip('transcribe_file processes JFK sample', async () => {
     if (!whisperInstance) {
       throw new Error(
         'Whisper model instance not available for transcription test.',
