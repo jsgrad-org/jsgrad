@@ -29,7 +29,7 @@ if (args.fp16) {
 }
 
 // run through CLIP to get context
-const tokenizer = new ClipTokenizer()
+const tokenizer = await ClipTokenizer.init()
 let prompt = new Tensor([tokenizer.encode(args.prompt)])
 const context = await model.cond_stage_model.transformer.text_model.call(prompt).realize()
 console.log('got CLIP context', context.shape)
@@ -53,7 +53,7 @@ let latent = Tensor.randn([1, 4, 64, 64])
 const jit = new TinyJit(async (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, alphas: Tensor, alphas_prev: Tensor, guidance: Tensor) => await (await model.call(unconditional_context, context, latent, timestep, alphas, alphas_prev, guidance)).realize())
 
 // this is diffusion
-vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
+await vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
   const t = new Tqdm([...timesteps.entries()].toReversed())
   for (const [index, timestep] of t) {
     GlobalCounters.reset()
@@ -73,6 +73,7 @@ console.log(x.shape)
 // im = Image.fromarray(x.numpy())
 // im = new Uint8Array()
 console.log(`saving ${args.out}`)
+await env.writeFile(args.out, (await x.data()).bytes)
 //   im.save(args.out)
 //   # Open image.
 //   if not args.noshow: im.show()

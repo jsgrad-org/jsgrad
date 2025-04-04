@@ -1,7 +1,7 @@
 import { ArrayMap, bytes_to_string, Embedding, env, idiv, LayerNorm, Linear, num, range, string_to_bytes, Tensor, zip } from '../base.ts'
 
 // Clip tokenizer, taken from https://github.com/openai/CLIP/blob/main/clip/simple_tokenizer.py (MIT license)
-const default_bpe = () => env.fetchSave('https://github.com/openai/CLIP/raw/main/clip/bpe_simple_vocab_16e6.txt.gz', 'bpe_simple_vocab_16e6.txt.gz')
+const default_bpe = () => env.fetchSave('https://github.com/openai/CLIP/raw/main/clip/bpe_simple_vocab_16e6.txt.gz', 'weights/bpe_simple_vocab_16e6.txt.gz')
 
 /**
  * Namespace for CLIP Text Tokenizer components.
@@ -59,7 +59,8 @@ export class ClipTokenizer {
     res.encoder = Object.fromEntries(zip(vocab, range(vocab.length)))
     res.bpe_ranks = new ArrayMap(zip(merges, range(merges.length)))
     res.cache = { '<|startoftext|>': '<|startoftext|>', '<|endoftext|>': '<|endoftext|>' }
-    res.pat = /<\|startoftext\>|<\|endoftext\>|'s|'t|'re|'ve|'m|'ll|'d|[^\s]+/i
+    res.pat = /<\|startoftext\>|<\|endoftext\>|'s|'t|'re|'ve|'m|'ll|'d|[^\s]+/gi
+    return res
   }
   bpe = (token: string) => {
     if (token in this.cache) return this.cache[token]
