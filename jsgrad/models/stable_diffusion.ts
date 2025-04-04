@@ -1,7 +1,9 @@
 // https://arxiv.org/pdf/2112.10752.pdf
 // https://github.com/ekagra-ranjan/huggingface-blog/blob/main/stable_diffusion.md
 
-import { Conv2d, GroupNorm, mul, Tensor } from '../base.ts'
+import { Conv2d, dtypes, GroupNorm, mul, Tensor } from '../base.ts'
+import { ClipTextTransformer } from './clip.ts'
+import { UNetModel } from './unet.ts'
 
 class AttnBlock {
   norm: GroupNorm
@@ -171,142 +173,72 @@ const unet_params = {
   'use_linear': false,
 }
 
-class StableDiffusion {
+export class StableDiffusion {
+  alphas_cumprod: Tensor
+  model: { diffusion_model: UNetModel }
+  first_stage_model: AutoencoderKL
+  cond_stage_model: { transformer: { text_model: ClipTextTransformer } }
   constructor() {
-    // this.alphas_cumprod = get_alphas_cumprod()
-    // this.model = namedtuple("DiffusionModel", ["diffusion_model"])(diffusion_model = UNetModel(**unet_params))
-    //     this.first_stage_model = AutoencoderKL()
-    //     this.cond_stage_model = namedtuple("CondStageModel", ["transformer"])(transformer = namedtuple("Transformer", ["text_model"])(text_model = Closed.ClipTextTransformer()))
+    this.alphas_cumprod = get_alphas_cumprod()
+    this.model = { diffusion_model: new UNetModel(undefined, 4, 4, 320, [4, 2, 1], 2, [1, 2, 4, 4], [1, 1, 1, 1], 768, false, undefined, 8) }
+    this.first_stage_model = new AutoencoderKL()
+    this.cond_stage_model = {
+      transformer: { text_model: new ClipTextTransformer() },
+    }
   }
-  //   def get_x_prev_and_pred_x0(self, x, e_t, a_t, a_prev):
-  //     temperature = 1
-  //     sigma_t = 0
-  //     sqrt_one_minus_at = (1-a_t).sqrt()
-  //     #print(a_t, a_prev, sigma_t, sqrt_one_minus_at)
+  get_x_prev_and_pred_x0 = (x: Tensor, e_t: Tensor, a_t: Tensor, a_prev: Tensor) => {
+    const sigma_t = 0
+    const sqrt_one_minus_at = a_t.sub(1, true).sqrt()
+    //print(a_t, a_prev, sigma_t, sqrt_one_minus_at)
 
-  //     pred_x0 = (x - sqrt_one_minus_at * e_t) / a_t.sqrt()
+    const pred_x0 = x.sub(sqrt_one_minus_at.mul(e_t)).div(a_t.sqrt())
 
-  //     # direction pointing to x_t
-  //     dir_xt = (1. - a_prev - sigma_t**2).sqrt() * e_t
+    // direction pointing to x_t
+    const dir_xt = a_prev.sub(1, true).sub(sigma_t ** 2).sqrt().mul(e_t)
 
-  //     x_prev = a_prev.sqrt() * pred_x0 + dir_xt
-  //     return x_prev, pred_x0
+    const x_prev = a_prev.sqrt().mul(pred_x0).add(dir_xt)
+    return [x_prev, pred_x0]
+  }
 
-  //   def get_model_output(self, unconditional_context, context, latent, timestep, unconditional_guidance_scale):
-  //     # put into diffuser
-  //     latents = this.model.diffusion_model(latent.expand(2, *latent.shape[1:]), timestep, unconditional_context.cat(context, dim=0))
-  //     unconditional_latent, latent = latents[0:1], latents[1:2]
+  get_model_output = (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, unconditional_guidance_scale: Tensor) => {
+    // put into diffuser
+    const latents = this.model.diffusion_model.call(latent.expand([2, ...latent.shape.slice(1)]), timestep, unconditional_context.cat([context], 0))
+    const unconditional_latent = latents.get({ start: 0, stop: 1 })
+    latent = latents.get({ start: 1, stop: 2 })
 
-  //     e_t = unconditional_latent + unconditional_guidance_scale * (latent - unconditional_latent)
-  //     return e_t
+    const e_t = unconditional_latent.add(unconditional_guidance_scale.mul(latent.sub(unconditional_latent)))
+    return e_t
+  }
+  decode = async (x: Tensor) => {
+    x = this.first_stage_model.post_quant_conv.call(x.mul(1 / 0.18215, true))
+    x = await this.first_stage_model.decoder.call(x)
 
-  //   def decode(self, x):
-  //     x = this.first_stage_model.post_quant_conv(1/0.18215 * x)
-  //     x = this.first_stage_model.decoder(x)
-
-  //     # make image correct size and scale
-  //     x = (x + 1.0) / 2.0
-  //     x = x.reshape(3,512,512).permute(1,2,0).clip(0,1)*255
-  //     return x.cast(dtypes.uint8)
-
-  //   def __call__(self, unconditional_context, context, latent, timestep, alphas, alphas_prev, guidance):
-  //     e_t = this.get_model_output(unconditional_context, context, latent, timestep, guidance)
-  //     x_prev, _ = this.get_x_prev_and_pred_x0(latent, e_t, alphas, alphas_prev)
-  //     #e_t_next = get_model_output(x_prev)
-  //     #e_t_prime = (e_t + e_t_next) / 2
-  //     #x_prev, pred_x0 = get_x_prev_and_pred_x0(latent, e_t_prime, index)
-  //     return x_prev.realize()
+    // make image correct size and scale
+    x = x.add(1.0).div(2.0)
+    x = x.reshape([3, 512, 512]).permute(1, 2, 0).clip(0, 1).mul(255)
+    return x.cast(dtypes.uint8)
+  }
+  call = async (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, alphas: Tensor, alphas_prev: Tensor, guidance: Tensor) => {
+    const e_t = this.get_model_output(unconditional_context, context, latent, timestep, guidance)
+    const [x_prev] = this.get_x_prev_and_pred_x0(latent, e_t, alphas, alphas_prev)
+    //e_t_next = get_model_output(x_prev)
+    //e_t_prime = (e_t + e_t_next) / 2
+    //x_prev, pred_x0 = get_x_prev_and_pred_x0(latent, e_t_prime, index)
+    return await x_prev.realize()
+  }
 }
-// # ** ldm.models.autoencoder.AutoencoderKL (done!)
-// # 3x512x512 <--> 4x64x64 (16384)
-// # decode torch.Size([1, 4, 64, 64]) torch.Size([1, 3, 512, 512])
-// # section 4.3 of paper
-// # first_stage_model.encoder, first_stage_model.decoder
+// ** ldm.models.autoencoder.AutoencoderKL (done!)
+// 3x512x512 <--> 4x64x64 (16384)
+// decode torch.Size([1, 4, 64, 64]) torch.Size([1, 3, 512, 512])
+// section 4.3 of paper
+// first_stage_model.encoder, first_stage_model.decoder
 
-// # ** ldm.modules.diffusionmodules.openaimodel.UNetModel
-// # this is what runs each time to sample. is this the LDM?
-// # input:  4x64x64
-// # output: 4x64x64
-// # model.diffusion_model
-// # it has attention?
+// ** ldm.modules.diffusionmodules.openaimodel.UNetModel
+// this is what runs each time to sample. is this the LDM?
+// input:  4x64x64
+// output: 4x64x64
+// model.diffusion_model
+// it has attention?
 
-// # ** ldm.modules.encoders.modules.FrozenCLIPEmbedder
-// # cond_stage_model.transformer.text_model
-
-// if __name__ == "__main__":
-//   default_prompt = "a horse sized cat eating a bagel"
-//   parser = argparse.ArgumentParser(description='Run Stable Diffusion', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-//   parser.add_argument('--steps', type=int, default=6, help="Number of steps in diffusion")
-//   parser.add_argument('--prompt', type=str, default=default_prompt, help="Phrase to render")
-//   parser.add_argument('--out', type=str, default=Path(tempfile.gettempdir()) / "rendered.png", help="Output filename")
-//   parser.add_argument('--noshow', action='store_true', help="Don't show the image")
-//   parser.add_argument('--fp16', action='store_true', help="Cast the weights to float16")
-//   parser.add_argument('--timing', action='store_true', help="Print timing per step")
-//   parser.add_argument('--seed', type=int, help="Set the random latent seed")
-//   parser.add_argument('--guidance', type=float, default=7.5, help="Prompt strength")
-//   args = parser.parse_args()
-
-//   Tensor.no_grad = True
-//   model = StableDiffusion()
-
-//   # load in weights
-//   load_state_dict(model, torch_load(fetch('https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/main/sd-v1-4.ckpt', 'sd-v1-4.ckpt'))['state_dict'], strict=False)
-
-//   if args.fp16:
-//     for k,v in get_state_dict(model).items():
-//       if k.startswith("model"):
-//         v.replace(v.cast(dtypes.float16).realize())
-
-//   # run through CLIP to get context
-//   tokenizer = Tokenizer.ClipTokenizer()
-//   prompt = Tensor([tokenizer.encode(args.prompt)])
-//   context = model.cond_stage_model.transformer.text_model(prompt).realize()
-//   print("got CLIP context", context.shape)
-
-//   prompt = Tensor([tokenizer.encode("")])
-//   unconditional_context = model.cond_stage_model.transformer.text_model(prompt).realize()
-//   print("got unconditional CLIP context", unconditional_context.shape)
-
-//   # done with clip model
-//   del model.cond_stage_model
-
-//   timesteps = list(range(1, 1000, 1000//args.steps))
-//   print(f"running for {timesteps} timesteps")
-//   alphas = model.alphas_cumprod[Tensor(timesteps)]
-//   alphas_prev = Tensor([1.0]).cat(alphas[:-1])
-
-//   # start with random noise
-//   if args.seed is not None: Tensor.manual_seed(args.seed)
-//   latent = Tensor.randn(1,4,64,64)
-
-//   @TinyJit
-//   def run(model, *x): return model(*x).realize()
-
-//   # this is diffusion
-//   with Context(BEAM=getenv("LATEBEAM")):
-//     for index, timestep in (t:=tqdm(list(enumerate(timesteps))[::-1])):
-//       GlobalCounters.reset()
-//       t.set_description("%3d %3d" % (index, timestep))
-//       with Timing("step in ", enabled=args.timing, on_exit=lambda _: f", using {GlobalCounters.mem_used/1e9:.2f} GB"):
-//         tid = Tensor([index])
-//         latent = run(model, unconditional_context, context, latent, Tensor([timestep]), alphas[tid], alphas_prev[tid], Tensor([args.guidance]))
-//         if args.timing: Device[Device.DEFAULT].synchronize()
-//     del run
-
-//   # upsample latent space to image with autoencoder
-//   x = model.decode(latent)
-//   print(x.shape)
-
-//   # save image
-//   im = Image.fromarray(x.numpy())
-//   print(f"saving {args.out}")
-//   im.save(args.out)
-//   # Open image.
-//   if not args.noshow: im.show()
-
-//   # validation!
-//   if args.prompt == default_prompt and args.steps == 6 and args.seed == 0 and args.guidance == 7.5:
-//     ref_image = Tensor(Image.open(Path(__file__).parent / "stable_diffusion_seed0.png"))
-//     distance = (((x.cast(dtypes.float) - ref_image.cast(dtypes.float)) / ref_image.max())**2).mean().item()
-//     assert distance < 3e-3, colored(f"validation failed with {distance=}", "red")  # higher distance with WINO
-//     print(colored(f"output validated with {distance=}", "green"))
+// ** ldm.modules.encoders.modules.FrozenCLIPEmbedder
+// cond_stage_model.transformer.text_model

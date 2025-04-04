@@ -39,7 +39,7 @@ export class Tokenizer {
     return Object.fromEntries(zip(bs, cs.map((n) => String.fromCharCode(n))))
   }
 }
-class ClipTokenizer {
+export class ClipTokenizer {
   byte_encoder!: Record<number, string>
   encoder!: Record<string, number>
   bpe_ranks!: ArrayMap<[string, string], number>
@@ -117,7 +117,7 @@ abstract class Embedder {
   abstract call: (x: string | string[] | Tensor) => Tensor | Tensor[]
 }
 
-class ClipMlp {
+export class ClipMlp {
   fc1 = new Linear(768, 3072)
   fc2 = new Linear(3072, 768)
 
@@ -129,7 +129,7 @@ class ClipMlp {
   }
 }
 
-class ClipAttention {
+export class ClipAttention {
   embed_dim = 768
   num_heads = 12
   head_dim = idiv(this.embed_dim, this.num_heads)
@@ -146,7 +146,7 @@ class ClipAttention {
     return this.out_proj.call(attn_output.transpose(1, 2).reshape([bsz, tgt_len, embed_dim]))
   }
 }
-class ClipEncoderLayer {
+export class ClipEncoderLayer {
   self_attn = new ClipAttention()
   layer_norm1 = new LayerNorm(768)
   mlp = new ClipMlp()
@@ -166,7 +166,7 @@ class ClipEncoderLayer {
     return hidden_states
   }
 }
-class ClipTextEmbeddings {
+export class ClipTextEmbeddings {
   token_embedding = new Embedding(49408, 768)
   position_embedding = new Embedding(77, 768)
 
@@ -174,7 +174,7 @@ class ClipTextEmbeddings {
     return this.token_embedding.call(input_ids).add(this.position_embedding.call(position_ids))
   }
 }
-class ClipEncoder {
+export class ClipEncoder {
   layers: ClipEncoderLayer[]
   constructor(layer_count: number = 12) {
     this.layers = range(layer_count).map(() => new ClipEncoderLayer())
@@ -186,7 +186,7 @@ class ClipEncoder {
     return x
   }
 }
-class ClipTextTransformer {
+export class ClipTextTransformer {
   embeddings = new ClipTextEmbeddings()
   encoder = new ClipEncoder()
   final_layer_norm = new LayerNorm(768)
@@ -198,16 +198,12 @@ class ClipTextTransformer {
     return this.ret_layer_idx === undefined ? this.final_layer_norm.call(x) : x
   }
 }
-class ClipTextModel {
+export class ClipTextModel {
   text_model: ClipTextTransformer
   constructor(ret_layer_idx?: number) {
     this.text_model = new ClipTextTransformer(ret_layer_idx)
   }
 }
-/**
- * Namespace for OpenAI CLIP model components.
- */
-export const Closed = { ClipMlp, ClipAttention, ClipEncoderLayer, ClipTextEmbeddings, ClipEncoder, ClipTextTransformer, ClipTextModel }
 
 // # https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/encoders/modules.py#L331
 // class FrozenClosedClipEmbedder(Embedder):
