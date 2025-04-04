@@ -40,7 +40,7 @@ export class BunEnv extends NodeEnv {
   override getArrayBuffer = (ptr: any, byteLength: number, offset: number = 0) => toArrayBuffer(ptr, offset, byteLength)
   override callback: FFICallback = (x, cb) => new JSCallback(cb, { args: x.parameters.map(ffiType), returns: ffiType(x.result) }).ptr
 
-  override gunzip = async (res: Response) => Bun.gunzipSync(new Uint8Array(await res.arrayBuffer())).buffer as ArrayBuffer
+  override gunzip = async (data: ArrayBuffer) => Bun.gunzipSync(data).buffer as ArrayBuffer
 
   private bunDb?: Database
   private _tables: string[] = []
