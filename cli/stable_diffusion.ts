@@ -51,7 +51,7 @@ const alphas_prev = new Tensor([1.0]).cat([alphas.get({ stop: -1 })])
 if (args.seed !== undefined) Tensor.manual_seed(args.seed)
 let latent = Tensor.randn([1, 4, 64, 64])
 
-let jit = new TinyJit(model.call)
+const jit = new TinyJit(model.call)
 
 // this is diffusion
 await vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
@@ -63,8 +63,6 @@ await vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
     latent = await jit.call(unconditional_context, context, latent, new Tensor([timestep]), alphas.get(tid), alphas_prev.get(tid), new Tensor([args.guidance]))
     if (args.timing) Device.default().synchronize()
   }
-  // @ts-ignore
-  jit = undefined
 })
 
 // upsample latent space to image with autoencoder

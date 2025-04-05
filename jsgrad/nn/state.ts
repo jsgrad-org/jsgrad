@@ -58,54 +58,34 @@ export const safe_load = async (
   fn: string | Tensor,
   target_device: string = Device.DEFAULT,
 ): Promise<Record<string, Tensor>> => {
-  let file_bytes: Uint8Array
-  let source_device: string // Keep track of original device if input is Tensor
+  let bytes: Uint8Array
 
   if (fn instanceof Tensor) {
     const realized_fn = await fn.realize()
     const mem_view = await realized_fn.data()
-    file_bytes = mem_view.bytes
-    source_device = realized_fn.device as string
+    bytes = mem_view.bytes
   } else if (fn.startsWith('http://') || fn.startsWith('https://')) {
     const response = await fetch(fn)
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-    file_bytes = new Uint8Array(await response.arrayBuffer())
-    source_device = env.CPU_DEVICE
+    bytes = new Uint8Array(await response.arrayBuffer())
   } else {
-    file_bytes = await env.readFile(fn)
-    source_device = `DISK:${fn}`
+    bytes = await env.readFile(fn)
   }
+  const start = 8 + Number(new BigUint64Array(bytes.buffer, 0, 8)[0])
 
-  target_device = Device.canonicalize(target_device)
-
-  const metadata_len_bytes = file_bytes.slice(0, 8)
-  const metadata_len_view = new DataView(metadata_len_bytes.buffer, metadata_len_bytes.byteOffset, metadata_len_bytes.byteLength)
-  const metadata_len = Number(metadata_len_view.getBigUint64(0, true))
-  const data_start = 8 + metadata_len
-
-  const metadata_bytes = file_bytes.slice(8, data_start)
-  const metadata = JSON.parse(bytes_to_string(metadata_bytes))
-
-  const data_bytes = file_bytes.slice(data_start)
+  const metadata = JSON.parse(bytes_to_string(bytes.slice(8, start)))
+  const data = bytes.slice(start)
 
   const state_dict: Record<string, Tensor> = {}
   for (const [k, v] of Object.entries(metadata as Record<string, any>)) {
     if (k === '__metadata__') continue
 
-    const dtype_str = v.dtype as SafeDType
-    const dtype = safe_dtypes[dtype_str]
+    const dtype = safe_dtypes[v.dtype as SafeDType]
     if (!dtype) {
-      console.warn(`Warning: Skipping tensor '${k}' due to unsupported dtype '${dtype_str}'`)
+      console.warn(`Warning: Skipping tensor '${k}' due to unsupported dtype '${v.dtype}'`)
       continue
     }
-
-    const shape = v.shape as number[]
-    const [offset, end_offset] = v.data_offsets as [number, number]
-    const tensor_bytes = data_bytes.slice(offset, end_offset)
-
-    const tensor_1d = new Tensor(tensor_bytes, { dtype, device: target_device })
-
-    state_dict[k] = tensor_1d.reshape(shape)
+    state_dict[k] = new Tensor(data.slice(...v.data_offsets), { dtype, device: target_device }).reshape(v.shape)
   }
 
   return state_dict
@@ -135,7 +115,6 @@ export const safe_save = async (tensors: Record<string, Tensor>, fn: string, met
   await t.get({ start: 8, stop: 8 + j.length }).assign_disk(string_to_bytes(j))
   for (const [k, v] of Object.entries(await safe_load(t))) await v.assign_disk(tensors[k])
 }
-// state dict
 
 /**
  * Returns a state_dict of the object, with optional prefix.
