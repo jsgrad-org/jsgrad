@@ -176,7 +176,6 @@ export class StableDiffusion {
   get_x_prev_and_pred_x0 = (x: Tensor, e_t: Tensor, a_t: Tensor, a_prev: Tensor) => {
     const sigma_t = 0
     const sqrt_one_minus_at = a_t.sub(1, true).sqrt()
-    //print(a_t, a_prev, sigma_t, sqrt_one_minus_at)
 
     const pred_x0 = x.sub(sqrt_one_minus_at.mul(e_t)).div(a_t.sqrt())
 
@@ -208,24 +207,6 @@ export class StableDiffusion {
   call = async (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, alphas: Tensor, alphas_prev: Tensor, guidance: Tensor) => {
     const e_t = this.get_model_output(unconditional_context, context, latent, timestep, guidance)
     const [x_prev] = this.get_x_prev_and_pred_x0(latent, e_t, alphas, alphas_prev)
-    //e_t_next = get_model_output(x_prev)
-    //e_t_prime = (e_t + e_t_next) / 2
-    //x_prev, pred_x0 = get_x_prev_and_pred_x0(latent, e_t_prime, index)
     return await x_prev.realize()
   }
 }
-// ** ldm.models.autoencoder.AutoencoderKL (done!)
-// 3x512x512 <--> 4x64x64 (16384)
-// decode torch.Size([1, 4, 64, 64]) torch.Size([1, 3, 512, 512])
-// section 4.3 of paper
-// first_stage_model.encoder, first_stage_model.decoder
-
-// ** ldm.modules.diffusionmodules.openaimodel.UNetModel
-// this is what runs each time to sample. is this the LDM?
-// input:  4x64x64
-// output: 4x64x64
-// model.diffusion_model
-// it has attention?
-
-// ** ldm.modules.encoders.modules.FrozenCLIPEmbedder
-// cond_stage_model.transformer.text_model

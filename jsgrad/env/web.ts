@@ -59,7 +59,7 @@ export class WebEnv {
     return { isFile: ()=>!!res, size:res.length }
   }
   statSync = (path: string): Stats => this.notImplemented()
-  tempFile = async (): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}`
+  tempFile = async (ext?: string): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}${ext ?`.${ext}`:""}`
   mkdir = async (path:string): Promise<void> => {}
   fetchSave = async (url: string, path: string, dir?: string, onProgress?: TqdmOnProgress) => {
     path = this.realPath(dir || "", path)

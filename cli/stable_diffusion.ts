@@ -8,7 +8,7 @@ import sharp from 'npm:sharp'
 const args = parseArgs({
   steps: z.number().default(6).describe('Number of steps in diffusion'),
   prompt: z.string().default('a horse sized cat eating a bagel'),
-  out: z.string().default(await env.tempFile()).describe('Output path'),
+  out: z.string().default(await env.tempFile('png')).describe('Output path'),
   noshow: z.boolean().optional().describe("Don't show the image"),
   fp16: z.boolean().optional().describe('Cast the weight to float16'),
   timing: z.boolean().optional().describe('Print timing per step'),
@@ -39,9 +39,6 @@ prompt = new Tensor([tokenizer.encode('')])
 const unconditional_context = await model.cond_stage_model.transformer.text_model.call(prompt).realize()
 console.log('got unconditional CLIP context', unconditional_context.shape)
 
-// done with clip model
-// model.cond_stage_model = undefined
-
 const timesteps = range(1, 1000, idiv(1000, args.steps))
 console.log(`running for ${timesteps} timesteps`)
 const alphas = model.alphas_cumprod.get(new Tensor(timesteps))
@@ -70,7 +67,6 @@ await vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
 let x = await model.decode(latent)
 console.log(x.shape)
 
-console.log(`saving ${args.out}`)
 await sharp((await x.data()).bytes, { raw: { width: 512, height: 512, channels: 3 } }).toFormat('png').toFile(args.out)
 
-console.log(`saved ${args.out}`)
+console.log(`Saved image to ${args.out}`)
