@@ -59,12 +59,12 @@ export class WebEnv {
     return { isFile: ()=>!!res, size:res.length }
   }
   statSync = (path: string): Stats => this.notImplemented()
-  tempFile = async (): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}`
+  tempFile = async (ext?: string): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}${ext ?`.${ext}`:""}`
   mkdir = async (path:string): Promise<void> => {}
   fetchSave = async (url: string, path: string, dir?: string, onProgress?: TqdmOnProgress) => {
     path = this.realPath(dir || "", path)
     const cache = await this._cache()
-    const cached  = await cache.match(path)
+    const cached = await cache.match(path)
     if (cached) return path
 
     const res = await fetch(url)
@@ -94,7 +94,10 @@ export class WebEnv {
   // SYSTEM
   writeStdout = (p:string) => console.log(p+'\u200B')
   homedir = () => '/home'
-  gunzip = async (res:Response):Promise<ArrayBuffer> => await new Response(res.body!.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
+  gunzip = async (buffer: ArrayBuffer):Promise<ArrayBuffer> => {
+    const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return await new Response(stream).arrayBuffer();
+  }
   args = (): string[] => (window as any).args || []
   machine = () => "browser"
   exit = (code: number):never => {

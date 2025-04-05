@@ -118,7 +118,8 @@ export const parseArgs = <T extends Schema>(schema: T): ParsedSchema<T> => {
   const args = env.args().join(' ').split('--').filter(Boolean)
   const obj: Record<string, unknown> = {}
   for (const arg of args) {
-    const [key, value] = arg.split(/[ |=]/)
+    const [key, ...values] = arg.split(/[ |=]/), value = values.join(' ')
+
     if (value === 'true' || value === '' || value === undefined) {
       obj[key] = true
     } else if (value === 'false') obj[key] = false

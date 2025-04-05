@@ -736,13 +736,13 @@ export class Tensor extends MathTrait<Tensor> {
    */
 
   static from_url = async (url: string, opts?: TensorOptions): Promise<Tensor> => {
-    let res = await fetch(url)
+    const res = await fetch(url)
     if (!res.ok) throw new Error(`Failed to get ${url}`)
-    let data = await res.clone().arrayBuffer()
+    let data = await res.arrayBuffer()
     // checking if it is gzipped, using this instead of a flag cause, sometimes fetch automatically ungzips
     const preview = new Uint8Array(data.slice(0, 2))
     if (preview.length === 2 && preview[0] === 0x1f && preview[1] === 0x8b) {
-      data = await env.gunzip(res)
+      data = await env.gunzip(data)
     }
     return new Tensor(new Uint8Array(data), opts)
   }
@@ -1712,8 +1712,8 @@ export class Tensor extends MathTrait<Tensor> {
     if (!all_int(this.shape)) throw new Error(`does not support symbolic shape ${this.shape}`)
     dim = this._resolve_dim(dim)
     if (typeof sizes === 'number') sizes = range(0, max([1, this.shape[dim]]), max([1, sizes])).map((i) => min([num(sizes), this.shape_num[dim] - i]))
-    if (sum(sizes) !== this.shape[dim]) throw new Error(`expect sizes to sum exactly to {self.shape[dim]}, but got {sum(sizes)}`)
-    return range(sizes.length).map((i) => [...range(dim).map(() => ({})), { start: sum(sizes.slice(0, i)), stop: sum(sizes.slice(0, i + 1)) }]).map((sl) => this.get(sl))
+    if (sum(sizes) !== this.shape[dim]) throw new Error(`expect sizes to sum exactly to ${this.shape[dim]}, but got ${sum(sizes)}`)
+    return range(sizes.length).map((i) => [...range(dim).map(() => ({})), { start: sum(sizes.slice(0, i)), stop: sum(sizes.slice(0, i + 1)) }]).map((sl) => this.get(...sl))
   }
 
   /**
@@ -3222,6 +3222,7 @@ export class Tensor extends MathTrait<Tensor> {
   silu = () => {
     return this.swish() // The SiLU function === also known as the swish function.
   }
+  static silu = (x: Tensor) => x.silu()
 
   /**
    * Applies the ReLU6 function element-wise.
