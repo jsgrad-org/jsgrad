@@ -10,7 +10,7 @@ const [X_train, Y_train, X_test, Y_test] = await mnist(undefined)
 const model = new MNIST()
 
 // await model.load('./mnist.safetensors').catch((x) => x)
-const opt = Adam(get_parameters(model))
+const opt = new Adam(get_parameters(model))
 
 const train_step = new TinyJit(async () => {
   Tensor.training = true

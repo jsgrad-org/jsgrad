@@ -2,7 +2,7 @@ import { Adam, get_parameters, MNIST, mnist, Tensor, TinyJit } from '@jsgrad/jsg
 
 const [X_train, Y_train, X_test, Y_test] = await mnist(undefined, '/')
 const model = new MNIST()
-const opt = Adam(get_parameters(model))
+const opt = new Adam(get_parameters(model))
 
 const train_step = new TinyJit(async () => {
   Tensor.training = true

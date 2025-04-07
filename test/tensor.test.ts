@@ -146,11 +146,9 @@ describe(
         await t.get(9).tolist(),
         await t.get({ from: 2, to: 2 }).tolist(),
         await t.reshape(2, 5).get(0, 4).tolist(),
-        // await t.get({ start: 2, stop: 6 }).tolist(), // float tensor fails uop verification
         await t.reshape(2, 5).get(1).tolist(),
         await t.get({ from: 0, to: 2 }).tolist(),
         await t.reshape(5, 2).get({ from: 1, to: 2 }).tolist(),
-        // await t.reshape([5, 2]).get({ start: 1, stop: 3 }).tolist(), // float tensor fails uop verification
       ]
     },
     [

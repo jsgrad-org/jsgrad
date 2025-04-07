@@ -485,6 +485,21 @@ export class Tensor extends MathTrait<Tensor> {
     return this.toString()
   }
 
+  static train = async (fn: () => Promise<any> | any) => {
+    const prev = Tensor.training
+    Tensor.training = true
+    const res = await fn()
+    Tensor.training = prev
+    return res
+  }
+  static test = async (fn: () => Promise<any> | any) => {
+    const prev = Tensor.no_grad
+    Tensor.no_grad = true
+    const res = await fn()
+    Tensor.no_grad = prev
+    return res
+  }
+
   // Python has a non moving GC, so this should be okay
   // const __hash__ = () =>  id(this)
   get length(): sint {
@@ -1260,7 +1275,7 @@ export class Tensor extends MathTrait<Tensor> {
   /**
    * `.view` === an alias for `.reshape`.
    */
-  view = (...shape: number[]): Tensor => {
+  view = (...shape: sint[]): Tensor => {
     return this.reshape(...shape)
   }
 
@@ -1416,7 +1431,7 @@ export class Tensor extends MathTrait<Tensor> {
       if (mode === 'reflect') {
         const s = X.shape_num[d]
         if (num(pB) >= s || num(pA) >= s) throw new Error(`Padding (${pB}, ${pA}) should be less than the input size=${s} for dim=${d}.`)
-        const slcB = { start: pB, stop: 0, step: -1 }, slcA = { start: s - 2 >= 0 ? s - 2 : undefined, stop: s - 2 - num(pA) >= 0 ? s - 2 - num(pA) : undefined, step: -1 }
+        const slcB: Slice = { from: num(pB), to: 0, by: -1 }, slcA: Slice = { from: s - 2 >= 0 ? s - 2 : undefined, to: s - 2 - num(pA) >= 0 ? s - 2 - num(pA) : undefined, by: -1 }
         ;[xB, xA] = [[slcB, pB], [slcA, pA]].map(([slc, p]) => num(p) > 0 ? X.get(...range(X.ndim).map((i) => i === d ? slc : {})) : undefined)
       }
       if (mode === 'replicate') {
@@ -1713,7 +1728,7 @@ export class Tensor extends MathTrait<Tensor> {
     dim = this._resolve_dim(dim)
     if (typeof sizes === 'number') sizes = range(0, max([1, this.shape[dim]]), max([1, sizes])).map((i) => min([num(sizes), this.shape_num[dim] - i]))
     if (sum(sizes) !== this.shape[dim]) throw new Error(`expect sizes to sum exactly to ${this.shape[dim]}, but got ${sum(sizes)}`)
-    return range(sizes.length).map((i) => [...range(dim).map(() => ({})), { start: sum(sizes.slice(0, i)), stop: sum(sizes.slice(0, i + 1)) }]).map((sl) => this.get(...sl))
+    return range(sizes.length).map((i) => [...range(dim).map(() => ({})), { from: sum(sizes.slice(0, i)), to: sum(sizes.slice(0, i + 1)) }]).map((sl) => this.get(...sl))
   }
 
   /**
