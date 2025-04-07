@@ -39,7 +39,7 @@ data = data.slice(0x400)
 const tokens = new Tensor([...new Int32Array(new Uint16Array(data.buffer))])
 
 // lightweight dataloader
-function* get_batch(): Generator<[Tensor, Tensor]> {
+function* get_batch() {
   if (B * T + 1 > num(tokens.length)) throw new Error('not enough tokens')
   // for 338,025 tokens. E.g. with B=8 T=1024, this will yield 41 batches before looping
   let i = 0
@@ -56,7 +56,7 @@ function* get_batch(): Generator<[Tensor, Tensor]> {
 
 // forward backward for a few iterations
 const data_iter = get_batch()
-const [x, y] = data_iter.next().value // we'll overfit this batch below
+const [x, y] = data_iter.next().value! // we'll overfit this batch below
 const optimizer = new AdamW(get_parameters(model), 1e-4, undefined, undefined, undefined, 0)
 
 const step = new TinyJit((x, y) => {
