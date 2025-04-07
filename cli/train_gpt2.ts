@@ -4,12 +4,12 @@ import { parseArgs, z } from './parse.ts'
 import { get_encoding } from 'npm:tiktoken'
 
 const args = parseArgs({
-  num_iterations: z.number().default(10).describe('number of iterations to run'),
-  batch_size: z.number().default(4).describe('batch size'),
+  steps: z.number().default(10).describe('number of steps to run'),
+  bs: z.number().default(4).describe('batch size'),
   sequence_length: z.number().default(64).describe('sequence length'),
   skip_test: z.boolean().optional().describe('skip test'),
 })
-const [B, T] = [args.batch_size, args.sequence_length]
+const [B, T] = [args.bs, args.sequence_length]
 if (1 > T || T > 1024) throw new Error()
 
 const model = new GPT({
@@ -36,7 +36,7 @@ console.log(`loading cached tokens in ${tokens_bin}`)
 //   with open(tokens_bin, "rb") as f:
 let data = await env.readFile(tokens_bin)
 data = data.slice(0x400)
-const tokens = new Tensor([...new Int32Array(new Uint16Array(data.buffer))])
+const tokens = new Tensor([...new Uint16Array(data.buffer)])
 
 // lightweight dataloader
 function* get_batch() {
@@ -67,7 +67,7 @@ const step = new TinyJit((x, y) => {
 })
 
 await Tensor.train(async () => {
-  for (const i of range(args.num_iterations)) {
+  for (const i of range(args.steps)) {
     GlobalCounters.reset()
     const t0 = performance.now()
     const loss = await step.call(x.contiguous(), y.contiguous())
