@@ -60,24 +60,12 @@ export class OptimizerGroup extends Optimizer {
   override schedule_step = (): Tensor[] => this.optimizers.flatMap((o) => o.schedule_step())
 }
 
-// LARS === essentially just trust ratio to SGD so if we just set the trust coeff 0.0 its just standard SGD.
-// """
-// Stochastic Gradient Descent (SGD) optimizer with optional momentum and weight decay.
-
-// `classic` is a boolean flag that determines whether to use the popular momentum update rule or the classic momentum update rule.
-
-// - Described: https://paperswithcode.com/method/sgd
-// """
-export const SGD = (params: Tensor[], lr = 0.001, momentum = 0.0, weight_decay = 0.0, nesterov = false, classic = false) => {
-  return new LARS(params, lr, momentum, weight_decay, nesterov, classic, 0.0)
-}
-
-// """
-// Layer-wise Adaptive Rate Scaling (LARS) optimizer with optional momentum and weight decay.
-
-// - Described: https://paperswithcode.com/method/lars
-// - Paper: https://arxiv.org/abs/1708.03888v3
-// """
+/**
+ * Layer-wise Adaptive Rate Scaling (LARS) optimizer with optional momentum and weight decay.
+ *
+ * - Described: https://paperswithcode.com/method/lars
+ * - Paper: https://arxiv.org/abs/1708.03888v3
+ */
 export class LARS extends Optimizer {
   b: Tensor[]
   constructor(params: Tensor[], lr = 0.001, public momentum = 0.9, public weight_decay = 1e-4, public nesterov = false, public classic = true, public tcoef = 0.001) {
@@ -110,26 +98,16 @@ export class LARS extends Optimizer {
     return this.b
   }
 }
+// LARS === essentially just trust ratio to SGD so if we just set the trust coeff 0.0 its just standard SGD.
+// Stochastic Gradient Descent (SGD) optimizer with optional momentum and weight decay.
 
-// LAMB === essentially just the trust ratio part of LARS applied to Adam/W so if we just set the trust ratio to 1.0 its just Adam/W.
-/**
- * AdamW optimizer with optional weight decay.
- *
- * - Described: https://paperswithcode.com/method/adamw
- * - Paper: https://arxiv.org/abs/1711.05101v3
- */
-export const AdamW = (params: Tensor[], lr = 0.001, b1 = 0.9, b2 = 0.999, eps = 1e-8, weight_decay = 0.01) => {
-  return new LAMB(params, lr, b1, b2, eps, weight_decay, true)
-}
+// `classic` is a boolean flag that determines whether to use the popular momentum update rule or the classic momentum update rule.
 
-/**
- * Adam optimizer.
- *
- * - Described: https://paperswithcode.com/method/adam
- * - Paper: https://arxiv.org/abs/1412.6980
- */
-export const Adam = (params: Tensor[], lr = 0.001, b1 = 0.9, b2 = 0.999, eps = 1e-8) => {
-  return new LAMB(params, lr, b1, b2, eps, 0.0, true)
+// - Described: https://paperswithcode.com/method/sgd
+export class SGD extends LARS {
+  constructor(params: Tensor[], lr = 0.001, momentum = 0.0, weight_decay = 0.0, nesterov = false, classic = false) {
+    super(params, lr, momentum, weight_decay, nesterov, classic, 0.0)
+  }
 }
 
 /**
@@ -175,5 +153,30 @@ class LAMB extends Optimizer {
       t.assign((t.detach().sub(this.lr.mul(r).mul(up))).cast(t.dtype))
     }
     return [this.b1_t, this.b2_t, ...this.m, ...this.v]
+  }
+}
+
+// LAMB === essentially just the trust ratio part of LARS applied to Adam/W so if we just set the trust ratio to 1.0 its just Adam/W.
+/**
+ * AdamW optimizer with optional weight decay.
+ *
+ * - Described: https://paperswithcode.com/method/adamw
+ * - Paper: https://arxiv.org/abs/1711.05101v3
+ */
+export class AdamW extends LAMB {
+  constructor(params: Tensor[], lr = 0.001, b1 = 0.9, b2 = 0.999, eps = 1e-8, weight_decay = 0.01) {
+    super(params, lr, b1, b2, eps, weight_decay, true)
+  }
+}
+
+/**
+ * Adam optimizer.
+ *
+ * - Described: https://paperswithcode.com/method/adam
+ * - Paper: https://arxiv.org/abs/1412.6980
+ */
+export class Adam extends LAMB {
+  constructor(params: Tensor[], lr = 0.001, b1 = 0.9, b2 = 0.999, eps = 1e-8) {
+    super(params, lr, b1, b2, eps, 0.0, true)
   }
 }

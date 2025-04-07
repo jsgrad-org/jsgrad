@@ -13,7 +13,7 @@ export const MnistApp = () => {
   const [image, setImage] = useState(EMPTY)
   const [res, setRes] = useState<number[]>([])
   const [model, setModel] = useState(() => new MNIST())
-  const [opt, setOpt] = useState(() => Adam(get_parameters(model)))
+  const [opt, setOpt] = useState(() => new Adam(get_parameters(model)))
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (!model || is_eq(image, EMPTY)) return

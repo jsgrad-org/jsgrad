@@ -99,7 +99,7 @@ describe(
       Tensor.manual_seed(333)
       const [x_train, y_train] = await mnist()
       const model = new MNIST()
-      const opt = Adam(get_parameters(model))
+      const opt = new Adam(get_parameters(model))
 
       Tensor.training = true
       opt.zero_grad()

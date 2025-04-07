@@ -485,6 +485,21 @@ export class Tensor extends MathTrait<Tensor> {
     return this.toString()
   }
 
+  static train = async (fn: () => Promise<any> | any) => {
+    const prev = Tensor.training
+    Tensor.training = true
+    const res = await fn()
+    Tensor.training = prev
+    return res
+  }
+  static test = async (fn: () => Promise<any> | any) => {
+    const prev = Tensor.no_grad
+    Tensor.no_grad = true
+    const res = await fn()
+    Tensor.no_grad = prev
+    return res
+  }
+
   // Python has a non moving GC, so this should be okay
   // const __hash__ = () =>  id(this)
   get length(): sint {
@@ -1260,7 +1275,7 @@ export class Tensor extends MathTrait<Tensor> {
   /**
    * `.view` === an alias for `.reshape`.
    */
-  view = (...shape: number[]): Tensor => {
+  view = (...shape: sint[]): Tensor => {
     return this.reshape(...shape)
   }
 
