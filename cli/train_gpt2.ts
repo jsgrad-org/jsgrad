@@ -1,5 +1,5 @@
 import { GPT } from '../jsgrad/models/gpt2.ts'
-import { AdamW, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '../jsgrad/node.ts'
+import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '../jsgrad/node.ts'
 import { parseArgs, z } from './parse.ts'
 import { get_encoding } from 'npm:tiktoken'
 
@@ -8,7 +8,11 @@ const args = parseArgs({
   bs: z.number().default(4).describe('batch size'),
   sequence_length: z.number().default(64).describe('sequence length'),
   skip_test: z.boolean().optional().describe('skip test'),
+  seed: z.number().optional().describe('Seed'),
 })
+
+if (args.seed) Tensor.manual_seed(args.seed)
+
 const [B, T] = [args.bs, args.sequence_length]
 if (1 > T || T > 1024) throw new Error()
 
@@ -73,7 +77,7 @@ await Tensor.train(async () => {
     const loss = await step.call(x.contiguous(), y.contiguous())
     Device.default().synchronize()
     const t1 = performance.now()
-    console.log(`iteration ${i}, loss: ${(await loss.item()).toFixed(6)}, time: ${((t1 - t0) * 1000).toFixed(3)}ms, ${(B * T / (t1 - t0)).toFixed(0)} tok/s`)
+    console.log(`iteration ${i}, loss: ${(await loss.item()).toFixed(6)}, time: ${(t1 - t0).toFixed(3)}ms, ${(B * T / ((t1 - t0) / 1000)).toFixed(0)} tok/s`)
   }
 })
 
@@ -85,5 +89,6 @@ if (!args.skip_test) {
   const temperature = 1.0
   const top_k = 40
   const y = model.generate(x, max_new_tokens, temperature, top_k)
-  console.log(decode(new Uint32Array(await y.get(0).tolist())))
+  const res = bytes_to_string(decode(new Uint32Array(await y.get(0).tolist())))
+  console.log(res)
 }
