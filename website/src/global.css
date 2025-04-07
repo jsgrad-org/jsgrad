@@ -1,9 +1,9 @@
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 @theme {
-  --font-primary: "Inter Variable", "sans-serif";
-  --font-secondary: "Audiowide";
+  --font-primary: 'Inter Variable', 'sans-serif';
+  --font-secondary: 'Audiowide';
   --color-dark: #121212;
 }
 

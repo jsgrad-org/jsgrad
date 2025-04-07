@@ -1401,7 +1401,7 @@ export class Tensor extends MathTrait<Tensor> {
     let X: Tensor = this, pads = pX.map(([pB, pA]) => [smax(pB, 0), smax(pA, 0)] as [sint, sint])
     if (mode === 'constant') {
       const _constant = (x: Tensor, px: [number, number][], v: number | bigint | boolean) => v === 0 ? Pad.apply(x, px) : Pad.apply(x, px).add(Pad.apply(x.ones_like(), px).where(0, v))
-      return pX.flat().every((p) => resolve(ge(p, 0))) ? _constant(X, pX as [number, number][], value) : _constant(X.shrink(...zip(pX, X.shape).map(([[pB, pA], s]) => [-smin(pB, 0), smin(add(pA, s), s)] as [sint,sint])), pads as [number, number][], value)
+      return pX.flat().every((p) => resolve(ge(p, 0))) ? _constant(X, pX as [number, number][], value) : _constant(X.shrink(...zip(pX, X.shape).map(([[pB, pA], s]) => [-smin(pB, 0), smin(add(pA, s), s)] as [sint, sint])), pads as [number, number][], value)
     }
     if (!all_int(this.shape)) throw new Error(`does not support symbolic shape ${this.shape}`)
     if (mode === 'circular') {
@@ -1409,7 +1409,7 @@ export class Tensor extends MathTrait<Tensor> {
       if (pX.some(([pB, pA]) => num(pB) < 0 || num(pA) < 0)) throw new Error('Negative pads with circular pads is not supported')
       const orig_shape = X.shape_num
       X = X.repeat(pads.map(([pB, pA]) => (1 + Number(Boolean(pB)) + Number(Boolean(pA)))))
-      return X.shrink(...zip(pads, orig_shape, X.shape_num).map(([[pB, pA], osh, xsh]) => [pB === 0 ? 0 : osh - num(pB), pA === 0 ? xsh : xsh - osh + num(pA)] as [sint,sint]))
+      return X.shrink(...zip(pads, orig_shape, X.shape_num).map(([[pB, pA], osh, xsh]) => [pB === 0 ? 0 : osh - num(pB), pA === 0 ? xsh : xsh - osh + num(pA)] as [sint, sint]))
     }
     for (const [d, [pB, pA]] of pads.entries()) {
       let xB: Tensor | undefined, xA: Tensor | undefined
@@ -1484,7 +1484,7 @@ export class Tensor extends MathTrait<Tensor> {
         if (!all_int(x.shape)) throw new Error('symbolic shape not supported')
         x = x.pad(zip(x.shape, strides).map(([s, st]) => [0, round_up(s, st) - s] as [number, number]))
         x = x.reshape(...zip(x.shape, strides).flatMap(([s, st]) => [idiv(s, st), st]))
-        x = x.shrink(...x.shape.filter((_, i) => mod(i, 2) === 0).flatMap((s) => [[0, s], [0, 1]] as [sint,sint][])).reshape(...x.shape.filter((_, i) => mod(i, 2) === 0))
+        x = x.shrink(...x.shape.filter((_, i) => mod(i, 2) === 0).flatMap((s) => [[0, s], [0, 1]] as [sint, sint][])).reshape(...x.shape.filter((_, i) => mod(i, 2) === 0))
       }
     }
     // dim injection from undefined by including undefined dim size (which === 1) && dim collapse by skipping number dim size
@@ -2526,7 +2526,7 @@ export class Tensor extends MathTrait<Tensor> {
     // interleave tyx and HWO: (bs, groups, rcout, oy, HO, ox, WO)
     ret = ret.permute(...range(HW.length, ret.shape.length - HW.length), ...range(HW.length).flatMap((i) => [ret.shape.length - HW.length, 0].map((o) => i + o)))
     // merge groups and rcout, tyx and HWO: (bs, groups, cout, *yx), shrink to final
-    ret = ret.reshape(bs, cout, ...tyx.map((c, i) => c * HWO[i])).shrink(...[bs, cout, ...oyx].map((s) => [0, s] as [sint,sint]))
+    ret = ret.reshape(bs, cout, ...tyx.map((c, i) => c * HWO[i])).shrink(...[bs, cout, ...oyx].map((s) => [0, s] as [sint, sint]))
 
     return (bias === undefined ? ret : ret.add(bias.reshape(1, -1, ...range(HW.length).map(() => 1)))).contiguous().contiguous_backward()
   }
@@ -2791,7 +2791,7 @@ export class Tensor extends MathTrait<Tensor> {
     if (index.ndim !== this.ndim || this.ndim !== src.ndim) throw new Error(`self.ndim, index.ndim and src.dim must all equal, ndim=${this.ndim} index.ndim=${index.ndim} src.ndim=${src.ndim}`)
     if (!zip(this.shape, index.shape, src.shape).every(([self_, index_, src_], d) => (d === dim || self_ >= index_) && src_ >= index_)) throw new Error(`All dimensions of ${index.shape} should be <= to all dimensions of ${src.shape} and all dimensions except dimension ${dim} of ${this.shape}`)
     // shrink src to index shape to shrink away the unused values
-    src = src.shrink(...index.shape.map((s) => [0, s] as [sint,sint]))
+    src = src.shrink(...index.shape.map((s) => [0, s] as [sint, sint]))
     // prepare src and mask for reduce with respect to dim
     src = src.unsqueeze(-1).expand(...src.shape, this.shape[dim]).transpose(-1, dim)
     let mask = index.unsqueeze(-1)._one_hot_along_dim(this.shape_num[dim]).transpose(-1, dim) // pad src and mask to self.shape so that reduce can be done with padded values as no-ops

@@ -13,24 +13,24 @@ jobs:
       fail-fast: false
       matrix:
         runtime:
-          - "DEVICE=CLANG"
-          - "DEVICE=WEBGPU"
-          - "DEVICE=WEBGPU WGPU=1"
-          - "DEVICE=WASM TINY_DEVICE=CLANG"
+          - 'DEVICE=CLANG'
+          - 'DEVICE=WEBGPU'
+          - 'DEVICE=WEBGPU WGPU=1'
+          - 'DEVICE=WASM TINY_DEVICE=CLANG'
 
     name: Test ${{ matrix.runtime }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
-          submodules: "recursive"
+          submodules: 'recursive'
 
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.2.2
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.x"
+          python-version: '3.x'
 
       - name: Install WebGPU deps
         run: |
@@ -50,13 +50,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        env: ["deno -A", "node --experimental-transform-types", "bun -b", "./cli/chrome.ts"]
+        env: ['deno -A', 'node --experimental-transform-types', 'bun -b', './cli/chrome.ts']
     name: Env (${{ matrix.env }})
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
-          submodules: "recursive"
+          submodules: 'recursive'
 
       - name: Install WebGPU deps
         run: sudo apt update -y && sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/setup-node@v4
         if: matrix.env == 'node --experimental-transform-types'
         with:
-          node-version: "22"
+          node-version: '22'
       - run: npm i ffi-rs
         if: matrix.env == 'node --experimental-transform-types'
 
