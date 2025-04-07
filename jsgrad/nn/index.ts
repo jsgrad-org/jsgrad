@@ -137,7 +137,7 @@ export class BatchNorm {
     if (this.track_running_stats && !Tensor.training) {
       return [
         this.running_mean!,
-        this.running_var!.reshape(shape_mask).expand(x.shape),
+        this.running_var!.reshape(...shape_mask).expand(...x.shape),
       ]
     }
     // This requires two full memory accesses to x
@@ -145,7 +145,7 @@ export class BatchNorm {
     // There's "online" algorithms that fix this, like https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance//Welford's_Online_algorithm
     const reduce_axes = range(x.ndim).filter((x) => x !== 1)
     const batch_mean = x.mean(reduce_axes)
-    const y = x.sub(batch_mean.detach().reshape(shape_mask)) // d(var)/d(mean) = 0
+    const y = x.sub(batch_mean.detach().reshape(...shape_mask)) // d(var)/d(mean) = 0
     const batch_var = (y.mul(y)).mean(reduce_axes)
     return [batch_mean, batch_var]
   }
@@ -403,16 +403,11 @@ export class GroupNorm {
   call = (x: Tensor): Tensor => {
     // reshape for layernorm to work as group norm
     // subtract mean and divide stddev
-    x = x.reshape([x.shape[0], this.num_groups, -1]).layernorm(
-      undefined,
-      this.eps,
-    ).reshape(x.shape)
+    x = x.reshape(x.shape[0], this.num_groups, -1).layernorm(undefined, this.eps).reshape(...x.shape)
 
     if (this.weight === undefined || this.bias === undefined) return x
     // elementwise_affine on channels
-    return x.mul(
-      this.weight.reshape([1, -1, ...range(x.ndim - 2).map(() => 1)]),
-    ).add(this.bias.reshape([1, -1, ...range(x.ndim - 2).map(() => 1)]))
+    return x.mul(this.weight.reshape(1, -1, ...range(x.ndim - 2).map(() => 1))).add(this.bias.reshape(1, -1, ...range(x.ndim - 2).map(() => 1)))
   }
 }
 
@@ -441,14 +436,9 @@ export class InstanceNorm {
   }
 
   call = (x: Tensor): Tensor => {
-    x = x.reshape([x.shape[0], this.num_features, -1]).layernorm(
-      undefined,
-      this.eps,
-    ).reshape(x.shape)
+    x = x.reshape(x.shape[0], this.num_features, -1).layernorm(undefined, this.eps).reshape(...x.shape)
     if (this.weight === undefined || this.bias === undefined) return x
-    return x.mul(
-      this.weight.reshape([1, -1, ...range(x.ndim - 2).map(() => 1)]),
-    ).add(this.bias.reshape([1, -1, ...range(x.ndim - 2).map(() => 1)]))
+    return x.mul(this.weight.reshape(1, -1, ...range(x.ndim - 2).map(() => 1))).add(this.bias.reshape(1, -1, ...range(x.ndim - 2).map(() => 1)))
   }
 }
 
@@ -572,9 +562,9 @@ export class Embedding {
       }).unsqueeze(-1)
     }
     const big_shp = [...idx.shape, this.vocab_size, this.embed_size]
-    const arange = this.arange.expand(big_shp),
-      vals = this.weight!.expand(big_shp)
-    idx = idx.reshape([...idx.shape, 1, 1]).expand(big_shp)
+    const arange = this.arange.expand(...big_shp),
+      vals = this.weight!.expand(...big_shp)
+    idx = idx.reshape(...idx.shape, 1, 1).expand(...big_shp)
     return arange.eq(idx).mul(vals).sum(-2, undefined, vals.dtype)
   }
 }

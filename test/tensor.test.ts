@@ -68,7 +68,7 @@ describe(
       [new Tensor([4, 4, 4, 2, 6.5, 1, 2, 3, 4, 5]), [1, 1, 10]],
       [new Tensor([[4, 4, 4, 2, 6.5, 1, 2, 3, 4, 5]]), [2, 1, 5]],
     ],
-    (t: Tensor, shape: number[]) => t.reshape(shape),
+    (t: Tensor, shape: number[]) => t.reshape(...shape),
     'out(data[0].reshape(data[1]))',
   ),
 )
@@ -95,16 +95,16 @@ describe(
       return [
         await t.get(undefined).data(),
         await t.get('...').data(),
-        await t.reshape([5, 2]).data(),
+        await t.reshape(5, 2).data(),
         await t.get(0).data(),
         await t.get(9).data(),
         await t.get({ start: 2, stop: 2 }).data(),
-        await t.reshape([2, 5]).get(0, 4).data(),
+        await t.reshape(2, 5).get(0, 4).data(),
         await t.get({ start: 2, stop: 6 }).data(),
-        await t.reshape([2, 5]).get(1).data(),
+        await t.reshape(2, 5).get(1).data(),
         await t.get({ start: 0, stop: 2 }).data(),
-        await t.reshape([5, 2]).get({ start: 1, stop: 2 }).data(),
-        await t.reshape([5, 2]).get({ start: 1, stop: 3 }).data(),
+        await t.reshape(5, 2).get({ start: 1, stop: 2 }).data(),
+        await t.reshape(5, 2).get({ start: 1, stop: 3 }).data(),
       ]
     },
     [
@@ -141,15 +141,15 @@ describe(
       return [
         await t.get(undefined).tolist(),
         await t.get('...').tolist(),
-        await t.reshape([5, 2]).tolist(),
+        await t.reshape(5, 2).tolist(),
         await t.get(0).tolist(),
         await t.get(9).tolist(),
         await t.get({ start: 2, stop: 2 }).tolist(),
-        await t.reshape([2, 5]).get(0, 4).tolist(),
+        await t.reshape(2, 5).get(0, 4).tolist(),
         // await t.get({ start: 2, stop: 6 }).tolist(), // float tensor fails uop verification
-        await t.reshape([2, 5]).get(1).tolist(),
+        await t.reshape(2, 5).get(1).tolist(),
         await t.get({ start: 0, stop: 2 }).tolist(),
-        await t.reshape([5, 2]).get({ start: 1, stop: 2 }).tolist(),
+        await t.reshape(5, 2).get({ start: 1, stop: 2 }).tolist(),
         // await t.reshape([5, 2]).get({ start: 1, stop: 3 }).tolist(), // float tensor fails uop verification
       ]
     },
@@ -179,12 +179,12 @@ describe(
     [
       [new Tensor([4, 4, 4, 2, 6]), new Tensor([4, 4, 3, 3, 3])],
       [
-        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape([1, 1, 6]),
+        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape(1, 1, 6),
         new Tensor([4, 4, 3, 3, 3, 6]),
       ],
       [
-        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape([2, 3]),
-        new Tensor([4, 4, 3, 3, 3, 6]).reshape([2, 3]),
+        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape(2, 3),
+        new Tensor([4, 4, 3, 3, 3, 6]).reshape(2, 3),
       ],
       [new Tensor([4, 4, 4, 2, 6, 5]), 3.4],
     ],
@@ -199,15 +199,15 @@ describe(
     [
       [new Tensor([4, 4, 4, 2, 6]), new Tensor([4, 4, 3, 3, 3])],
       [
-        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape([1, 1, 6]),
+        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape(1, 1, 6),
         new Tensor([4, 4, 3, 3, 3, 6]),
       ],
       [
-        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape([2, 3]),
-        new Tensor([4, 4, 3, 3, 3, 6]).reshape([2, 3]),
+        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape(2, 3),
+        new Tensor([4, 4, 3, 3, 3, 6]).reshape(2, 3),
       ],
-      [new Tensor([4, 4, 4, 2, 6.5, 5]).reshape([2, 3]), 1],
-      [new Tensor([4, 4, 4, 2, 6, 5]).reshape([2, 3]), 1.2],
+      [new Tensor([4, 4, 4, 2, 6.5, 5]).reshape(2, 3), 1],
+      [new Tensor([4, 4, 4, 2, 6, 5]).reshape(2, 3), 1.2],
     ],
     (t1, t2) => t1.mul(t2),
     'out(data[0] * data[1])',
@@ -220,12 +220,12 @@ describe(
     () => [
       [new Tensor([4, 4, 4, 2, 6]), new Tensor([4, 4, 3, 3, 3])],
       [
-        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape([1, 1, 6]),
+        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape(1, 1, 6),
         new Tensor([4, 4, 3, 3, 3, 6]),
       ],
       [
-        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape([2, 3]),
-        new Tensor([4, 4, 3, 3, 3, 6]).reshape([2, 3]),
+        new Tensor([4, 4, 4, 2, 6.5, 5]).reshape(2, 3),
+        new Tensor([4, 4, 3, 3, 3, 6]).reshape(2, 3),
       ],
     ],
     (t1, t2) => t1.div(t2),
@@ -238,12 +238,12 @@ describe(
     () => [
       [new Tensor([4, 4, 4, 2, 6]), new Tensor([4, 4, 3, 3, 3])],
       [
-        new Tensor([4, 4, 4, 2, 6, 5]).reshape([1, 1, 6]),
+        new Tensor([4, 4, 4, 2, 6, 5]).reshape(1, 1, 6),
         new Tensor([4, 4, 3, 3, 3, 6]),
       ],
       [
-        new Tensor([4, 4, 4, 2, 6, 5]).reshape([2, 3]),
-        new Tensor([4, 4, 3, 3, 3, 6]).reshape([2, 3]),
+        new Tensor([4, 4, 4, 2, 6, 5]).reshape(2, 3),
+        new Tensor([4, 4, 3, 3, 3, 6]).reshape(2, 3),
       ],
     ],
     (t1, t2) => t1.idiv(t2),
@@ -255,8 +255,8 @@ describe(
   compare<[Tensor, DType]>(
     () => [
       // [new Tensor([4, 4, 4, 2, 6]), dtypes.bool],
-      [new Tensor([4, 4, 4, 2, 6, 5.5]).reshape([1, 1, 6]), dtypes.float],
-      [new Tensor([4, 4, 4, 2, 6, 5.5]).reshape([1, 1, 6]), dtypes.int],
+      [new Tensor([4, 4, 4, 2, 6, 5.5]).reshape(1, 1, 6), dtypes.float],
+      [new Tensor([4, 4, 4, 2, 6, 5.5]).reshape(1, 1, 6), dtypes.int],
       // [new Tensor([4, 4, 4, 2, 6, 5.5]).reshape([2, 3]), dtypes.bool],
     ],
     (t1, dtype) => t1.cast(dtype),
@@ -269,12 +269,12 @@ describe(
     () => [
       [new Tensor([4, 4, 4, 2, 6]), new Tensor([4, 4, 3, 3, 3])],
       [
-        new Tensor([4, 4, 4, 2, 6, 5]).reshape([1, 1, 6]),
+        new Tensor([4, 4, 4, 2, 6, 5]).reshape(1, 1, 6),
         new Tensor([4, 4, 3, 3, 3, 6]),
       ],
       [
-        new Tensor([4, 4, 4, 2, 6, 5]).reshape([2, 3]),
-        new Tensor([4, 4, 3, 3, 3, 6]).reshape([2, 3]),
+        new Tensor([4, 4, 4, 2, 6, 5]).reshape(2, 3),
+        new Tensor([4, 4, 3, 3, 3, 6]).reshape(2, 3),
       ],
     ],
     (t1: Tensor, t2: Tensor) => t1.maximum(t2),
@@ -287,12 +287,12 @@ describe(
     () => [
       [new Tensor([4, 4, 4, 2, 6]), new Tensor([4, 4, 3, 3, 3])],
       [
-        new Tensor([4, 4, 4, 2, 6, 5]).reshape([1, 1, 6]),
+        new Tensor([4, 4, 4, 2, 6, 5]).reshape(1, 1, 6),
         new Tensor([4, 3, 3, 3, 3, 6]),
       ],
       [
-        new Tensor([4, 4, 4, 2, 6, 5]).reshape([2, 3]),
-        new Tensor([1, 2, 3, 3, 3, 6]).reshape([2, 3]),
+        new Tensor([4, 4, 4, 2, 6, 5]).reshape(2, 3),
+        new Tensor([1, 2, 3, 3, 3, 6]).reshape(2, 3),
       ],
     ],
     (t1, t2) => t1.minimum(t2),
@@ -464,7 +464,7 @@ describe(
       ],
 
       [
-        new Tensor([0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]).reshape([15]),
+        new Tensor([0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]).reshape(15),
         [8],
       ],
       [
@@ -540,7 +540,7 @@ describe(
         [12, 12],
       ],
     ],
-    (t, shape) => t.reshape(shape),
+    (t, shape) => t.reshape(...shape),
     'out(data[0].reshape(*data[1]))',
   ),
 )
@@ -618,7 +618,7 @@ describe(
         [[0, 10], [0, 10]],
       ],
     ],
-    (t, args) => t.shrink(args),
+    (t, args) => t.shrink(...args),
     'out(data[0].shrink(data[1]))',
   ),
 )

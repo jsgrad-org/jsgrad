@@ -10,7 +10,7 @@ import { Tensor } from '../tensor.ts'
 export const precompute_freqs_cis = (dim: number, end: number, theta = 10000.0): Tensor => {
   let freqs = Tensor.arange(0, dim, 2).get({ stop: idiv(dim, 2) }).div(dim).pow(theta, true).div(1.0, true)
   freqs = Tensor.arange(end).unsqueeze(1).mul(freqs.unsqueeze(0))
-  return Tensor.stack([freqs.cos(), freqs.sin()], -1).reshape([1, end, 1, idiv(dim, 2), 2])
+  return Tensor.stack([freqs.cos(), freqs.sin()], -1).reshape(1, end, 1, idiv(dim, 2), 2)
 }
 
 // (a+i*b) * (c+i*d) = (ac-bd) + i*(ad+bc)
@@ -22,8 +22,8 @@ export const complex_mult = (A: Tensor, c: Tensor, d: Tensor) => {
 }
 export const apply_rotary_emb = (xq: Tensor, xk: Tensor, freqs_cis: Tensor): [Tensor, Tensor] => {
   if (freqs_cis.shape[1] !== xq.shape[1] || xq.shape[1] !== xk.shape[1]) throw new Error(`freqs_cis shape mismatch ${freqs_cis.shape} xq:${xq.shape} xk:${xk.shape}`)
-  xq = xq.reshape([...xq.shape.slice(0, -1), -1, 2])
-  xk = xk.reshape([...xk.shape.slice(0, -1), -1, 2])
+  xq = xq.reshape(...xq.shape.slice(0, -1), -1, 2)
+  xk = xk.reshape(...xk.shape.slice(0, -1), -1, 2)
   assert(xq.shape.length === xk.shape.length && xk.shape.length === freqs_cis.shape.length && freqs_cis.shape.length === 5)
   const c = freqs_cis.get('...', { start: 0, stop: 1 }), d = freqs_cis.get('...', { start: 1, stop: 2 })
   const xq_out = complex_mult(xq, c, d)
@@ -35,7 +35,7 @@ export const repeat_kv = (x: Tensor, n_rep: number): Tensor => {
   const [bs, seqlen, n_kv_heads, head_dim] = x.shape
   if (n_rep === 1) return x
   // NOTE: this is different from x.repeat((1, 1, n_rep, 1))
-  return x.repeat([1, 1, 1, n_rep]).reshape([bs, seqlen, mul(n_kv_heads, n_rep), head_dim])
+  return x.repeat([1, 1, 1, n_rep]).reshape(bs, seqlen, mul(n_kv_heads, n_rep), head_dim)
 }
 export class Attention {
   n_kv_heads: number
@@ -68,9 +68,9 @@ export class Attention {
       xq = this.wq.call(x), xk = this.wk.call(x), xv = this.wv.call(x)
     }
 
-    xq = xq.reshape([xq.shape[0], xq.shape[1], this.n_heads, this.head_dim])
-    xk = xk.reshape([xk.shape[0], xk.shape[1], this.n_kv_heads, this.head_dim])
-    xv = xv.reshape([xv.shape[0], xv.shape[1], this.n_kv_heads, this.head_dim])
+    xq = xq.reshape(xq.shape[0], xq.shape[1], this.n_heads, this.head_dim)
+    xk = xk.reshape(xk.shape[0], xk.shape[1], this.n_kv_heads, this.head_dim)
+    xv = xv.reshape(xv.shape[0], xv.shape[1], this.n_kv_heads, this.head_dim)
     ;[xq, xk] = apply_rotary_emb(xq, xk, freqs_cis)
     const [bsz, seqlen] = xq.shape
 
@@ -84,15 +84,15 @@ export class Attention {
     }
     // update the cache
     if (xk.dtype !== xv.dtype || xv.dtype !== this.cache_kv.dtype) throw new Error(`${xk.dtype}, ${xv.dtype}, ${this.cache_kv.dtype}`)
-    await this.cache_kv.shrink([undefined, undefined, [start_pos, add(start_pos, seqlen)], undefined, undefined]).assign(Tensor.stack([xk, xv])).realize()
+    await this.cache_kv.shrink(undefined, undefined, [start_pos, add(start_pos, seqlen)], undefined, undefined).assign(Tensor.stack([xk, xv])).realize()
 
-    let keys = this.cache_kv.get(0).shrink([undefined, [0, add(start_pos, seqlen)], undefined, undefined])
-    let values = this.cache_kv.get(1).shrink([undefined, [0, add(start_pos, seqlen)], undefined, undefined])
+    let keys = this.cache_kv.get(0).shrink(undefined, [0, add(start_pos, seqlen)], undefined, undefined)
+    let values = this.cache_kv.get(1).shrink(undefined, [0, add(start_pos, seqlen)], undefined, undefined)
 
     keys = repeat_kv(keys, this.n_rep), values = repeat_kv(values, this.n_rep)
     xq = xq.transpose(1, 2), keys = keys.transpose(1, 2), values = values.transpose(1, 2)
     let attn = xq.scaled_dot_product_attention(keys, values, mask).transpose(1, 2)
-    attn = attn.reshape([bsz, seqlen, -1])
+    attn = attn.reshape(bsz, seqlen, -1)
     return this.wo.call(attn)
   }
 }
@@ -203,7 +203,7 @@ export class Transformer {
     let h = this.tok_embeddings.call(tokens)
 
     this.freqs_cis = await this.freqs_cis.cast(h.dtype).realize()
-    const freqs_cis = this.freqs_cis.shrink([undefined, [start_pos, add(start_pos, seqlen)], undefined, undefined, undefined])
+    const freqs_cis = this.freqs_cis.shrink(undefined, [start_pos, add(start_pos, seqlen)], undefined, undefined, undefined)
 
     const mask = seqlen > 1 ? await Tensor.full([1, 1, seqlen, add(start_pos, seqlen)], -Infinity, { dtype: h.dtype, device: h.device }).triu(num(start_pos) + 1).realize() : undefined
     for (const layer of this.layers) h = await layer.call(h, start_pos, freqs_cis, mask)
@@ -223,7 +223,7 @@ export class Transformer {
 
 export const convert_from_huggingface = (weights: Record<string, Tensor>, model: Transformer, n_heads: number, n_kv_heads: number, permute_layers = true) => {
   const permute = (v: Tensor, n_heads: number) => {
-    return v.reshape([n_heads, 2, idiv(idiv(v.shape[0], n_heads), 2), v.shape[1]]).transpose(1, 2).reshape(v.shape.slice(0, 2))
+    return v.reshape(n_heads, 2, idiv(idiv(v.shape[0], n_heads), 2), v.shape[1]).transpose(1, 2).reshape(...v.shape.slice(0, 2))
   }
   const items = range(model.layers.length)
   const keymap = Object.fromEntries([

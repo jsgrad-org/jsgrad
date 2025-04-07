@@ -25,8 +25,8 @@ class AttnBlock {
 
     // compute attention
     let [b, c, h, w] = q.shape
-    ;[q, k, v] = [q, k, v].map((x) => x.reshape([b, c, mul(h, w)]).transpose(1, 2))
-    h_ = q.scaled_dot_product_attention(k, v).transpose(1, 2).reshape([b, c, h, w])
+    ;[q, k, v] = [q, k, v].map((x) => x.reshape(b, c, mul(h, w)).transpose(1, 2))
+    h_ = q.scaled_dot_product_attention(k, v).transpose(1, 2).reshape(b, c, h, w)
     return x.add(this.proj_out.call(h_))
   }
 }
@@ -92,7 +92,7 @@ class Decoder {
       if (l.upsample) {
         // https://pytorch.org/docs/stable/generated/torch.nn.functional.interpolate.html ?
         let [bs, c, py, px] = x.shape
-        x = x.reshape([bs, c, py, 1, px, 1]).expand([bs, c, py, 2, px, 2]).reshape([bs, c, mul(py, 2), mul(px, 2)])
+        x = x.reshape(bs, c, py, 1, px, 1).expand(bs, c, py, 2, px, 2).reshape(bs, c, mul(py, 2), mul(px, 2))
         x = l.upsample.conv.call(x)
       }
       await x.realize()
@@ -188,7 +188,7 @@ export class StableDiffusion {
 
   get_model_output = (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, unconditional_guidance_scale: Tensor) => {
     // put into diffuser
-    const latents = this.model.diffusion_model.call(latent.expand([2, ...latent.shape.slice(1)]), timestep, unconditional_context.cat([context], 0))
+    const latents = this.model.diffusion_model.call(latent.expand(2, ...latent.shape.slice(1)), timestep, unconditional_context.cat([context], 0))
     const unconditional_latent = latents.get({ start: 0, stop: 1 })
     latent = latents.get({ start: 1, stop: 2 })
 
@@ -201,7 +201,7 @@ export class StableDiffusion {
 
     // make image correct size and scale
     x = x.add(1.0).div(2.0)
-    x = x.reshape([3, 512, 512]).permute(1, 2, 0).clip(0, 1).mul(255)
+    x = x.reshape(3, 512, 512).permute(1, 2, 0).clip(0, 1).mul(255)
     return x.cast(dtypes.uint8)
   }
   call = async (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, alphas: Tensor, alphas_prev: Tensor, guidance: Tensor) => {

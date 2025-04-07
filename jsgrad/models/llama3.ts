@@ -71,8 +71,8 @@ class Int8Embedding {
   call = (idx: Tensor) => {
     if (!this.arange) this.arange = Tensor.arange(this.vocab_size, undefined, undefined, { requires_grad: false, device: this.weight.device }).unsqueeze(-1)
     const big_shp = [...idx.shape, this.vocab_size, this.embed_size]
-    idx = idx.reshape([...idx.shape, 1, 1]).expand(big_shp)
-    const arange = this.arange.expand(big_shp), vals = this.weight.cast(this.scale.dtype).T.mul(this.scale).T
+    idx = idx.reshape(...idx.shape, 1, 1).expand(...big_shp)
+    const arange = this.arange.expand(...big_shp), vals = this.weight.cast(this.scale.dtype).T.mul(this.scale).T
     return arange.eq(idx).mul(vals).sum(-2, undefined, vals.dtype)
   }
 }
@@ -92,14 +92,14 @@ const NF4Linear = (block_size: number) => {
       const high_bits = this.weight
       const low_bits = (this.weight.mul(2 ** 4)).contiguous()
       const unpacked = Tensor.stack([high_bits, low_bits], -1).idiv(2 ** 4)
-      const unscaled = CODE.get(unpacked).to(x.device).reshape([-1, block_size]).mul(this.scale)
-      return x.linear(unscaled.reshape([this.out_features, this.in_features]).T)
+      const unscaled = CODE.get(unpacked).to(x.device).reshape(-1, block_size).mul(this.scale)
+      return x.linear(unscaled.reshape(this.out_features, this.in_features).T)
     }
     static quantize = (state_dict: Record<string, Tensor>, device: string, scale_dtype = dtypes.float16) => {
       const new_state_dict: Record<string, Tensor> = {}
       for (const [k, v] of Object.entries(state_dict)) {
         if (k.includes('feed_forward') || k.includes('attention.w')) {
-          const grouped = v.reshape([-1, block_size])
+          const grouped = v.reshape(-1, block_size)
           const scale = grouped.abs().max(1, true)
           const coded = ((grouped.div(scale)).unsqueeze(-1).sub(CODE.to(v.device))).abs().argmin(-1).cast(dtypes.uint8).flatten()
           new_state_dict[k] = coded.get({ step: 2 }).mul(2 ** 4).add(coded.get({ start: 1, step: 2 }))

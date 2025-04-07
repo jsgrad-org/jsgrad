@@ -17,7 +17,7 @@ export const MnistApp = () => {
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (!model || is_eq(image, EMPTY)) return
-      const res = await model.call(new Tensor([[image]])).reshape([10])
+      const res = await model.call(new Tensor([[image]])).reshape(10)
         .tolist()
       setRes(res)
     }, 200)
