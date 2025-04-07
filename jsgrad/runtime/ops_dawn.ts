@@ -25,12 +25,18 @@ const write_buffer = (device: c.Device, buf: c.Buffer, offset: number, src: Uint
   c.queueWriteBuffer(c.deviceGetQueue(device), buf, c.U64.new(BigInt(offset)), new c.Pointer().setNative(env.ptr(src.buffer as ArrayBuffer)), c.Size.new(BigInt(src.length)))
 }
 
+type ReplaceStringView<T extends any[]> = { [K in keyof T]: T[K] extends c.StringView ? string : T[K] }
 type CallBack = typeof c.BufferMapCallbackInfo2 | typeof c.PopErrorScopeCallbackInfo | typeof c.CreateComputePipelineAsyncCallbackInfo2 | typeof c.RequestAdapterCallbackInfo | typeof c.RequestDeviceCallbackInfo | typeof c.QueueWorkDoneCallbackInfo2
-const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<Parameters<Parameters<InstanceType<T>['$callback']['set']>[0]>> => {
+const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['set']>[0]>>> => {
   return await new Promise((resolve) => {
     const cb = new cb_class()
     cb.$mode.set(c.CallbackMode.WaitAnyOnly.value)
-    cb.$callback.set((...args) => resolve(args as any))
+    cb.$callback.set((...args) => {
+      for (let i = 0; i < args.length; i++) {
+        args[i] = args[i] instanceof c.StringView ? from_wgpu_str(args[i] as any) : args[i]
+      }
+      resolve(args as any)
+    })
     _wait(async_fn(cb as any))
   })
 }
@@ -54,7 +60,7 @@ const read_buffer = async (dev: c.Device, buf: c.Buffer) => {
   copy_buffer_to_buffer(dev, buf, 0, tmp_buffer, 0, size)
 
   const [status, msg] = await _run(c.BufferMapCallbackInfo2, (cb) => c.bufferMapAsync2(tmp_buffer, c.MapMode.new(c.MapMode_Read.value), c.Size.new(0n), size, cb))
-  if (status.value !== c.BufferMapAsyncStatus.Success.value) throw new Error(`Async failed: ${from_wgpu_str(msg)}`)
+  if (status.value !== c.BufferMapAsyncStatus.Success.value) throw new Error(`Async failed: ${msg}`)
 
   const void_ptr = c.bufferGetConstMappedRange(tmp_buffer, c.Size.new(0n), size)
   const buf_copy = new c.Type(new ArrayBuffer(Number(size.value)), 0, Number(size.value)).replaceWithPtr(void_ptr)
@@ -65,7 +71,7 @@ const read_buffer = async (dev: c.Device, buf: c.Buffer) => {
 
 const pop_error = async (device: c.Device) => {
   const [_, __, msg] = await _run(c.PopErrorScopeCallbackInfo, (cb) => c.devicePopErrorScopeF(device, cb))
-  return from_wgpu_str(msg)
+  return msg
 }
 
 const create_uniform = (wgpu_device: c.Device, val: number) => {
@@ -181,7 +187,7 @@ class WebGPUProgram extends Program {
     })
     c.devicePushErrorScope(DAWN.device, c.ErrorFilter.Validation)
     const [status, compute_pipeline, msg] = await _run(c.CreateComputePipelineAsyncCallbackInfo2, (cb) => c.deviceCreateComputePipelineAsync2(DAWN.device, compute_desc.ptr(), cb))
-    if (status.value !== c.CreatePipelineAsyncStatus.Success.value) throw new Error(`${status}: ${from_wgpu_str(msg)}, ${await pop_error(DAWN.device)}`)
+    if (status.value !== c.CreatePipelineAsyncStatus.Success.value) throw new Error(`${status}: ${msg}, ${await pop_error(DAWN.device)}`)
 
     const command_encoder = c.deviceCreateCommandEncoder(DAWN.device, new c.CommandEncoderDescriptor().ptr())
     const comp_pass_desc = new c.ComputePassDescriptor()
@@ -278,7 +284,7 @@ export class DAWN extends Compiled {
     if (!DAWN.instance.value) throw new Error(`Failed creating instance!`)
 
     const [status, adapter, msg] = await _run(c.RequestAdapterCallbackInfo, (cb) => c.instanceRequestAdapterF(DAWN.instance, c.RequestAdapterOptions.new({ powerPreference: c.PowerPreference.HighPerformance }).ptr(), cb))
-    if (status.value !== c.RequestAdapterStatus.Success.value) throw new Error(`Error requesting adapter: ${status} ${from_wgpu_str(msg)}`)
+    if (status.value !== c.RequestAdapterStatus.Success.value) throw new Error(`Error requesting adapter: ${status} ${msg}`)
 
     const supported_features = new c.SupportedFeatures()
     c.adapterGetFeatures(adapter, supported_features.ptr())
@@ -296,7 +302,7 @@ export class DAWN extends Compiled {
 
     // Requesting a device
     const [dev_status, device, dev_msg] = await _run(c.RequestDeviceCallbackInfo, (cb) => c.adapterRequestDeviceF(adapter, dev_desc.ptr(), cb))
-    if (dev_status.value !== c.RequestDeviceStatus.Success.value) throw new Error(`Failed to request device: ${dev_status}] ${from_wgpu_str(dev_msg)}`)
+    if (dev_status.value !== c.RequestDeviceStatus.Success.value) throw new Error(`Failed to request device: ${dev_status}] ${dev_msg}`)
 
     DAWN.device = device
   }
