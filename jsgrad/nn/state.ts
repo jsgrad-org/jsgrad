@@ -219,13 +219,13 @@ export const ggml_data_to_tensor = (t: Uint8Array, n: number, ggml_type: number)
   const q_to_uint8 = (t: Tensor, b: number): Tensor => {
     // TODO: rewrite with arange?
     const shift_tensor = Tensor.stack(range(idiv(8, b)).map((i) => new Tensor(2 ** (i * b), { device: t.device, dtype: t.dtype }))), bitmask = 0xff >> (8 - b)
-    return t.unsqueeze(-1).expand([...t.shape, idiv(8, b)]).idiv(shift_tensor).bitwise_and(bitmask).transpose(-1, -2).flatten(-2)
+    return t.unsqueeze(-1).expand(...t.shape, idiv(8, b)).idiv(shift_tensor).bitwise_and(bitmask).transpose(-1, -2).flatten(-2)
   }
 
   // map to (number of elements, number of bytes)
   const nelements_nbytes = { 2: [32, 18], 3: [32, 20], 14: [256, 210], 8: [32, 34] }[ggml_type]
   if (nelements_nbytes !== undefined) {
-    const blocks = new Tensor(t.slice(0, idiv(n, nelements_nbytes[0]) * nelements_nbytes[1])).reshape([-1, nelements_nbytes[1]])
+    const blocks = new Tensor(t.slice(0, idiv(n, nelements_nbytes[0]) * nelements_nbytes[1])).reshape(-1, nelements_nbytes[1])
     if (ggml_type === 2) return (q_to_uint8(blocks.get({}, { start: 2 }), 4).bitcast(dtypes.int8).sub(8)).mul(blocks.get({}, { stop: 2 }).bitcast(dtypes.float16).cast(dtypes.float32))
     if (ggml_type === 3) {
       const [d, m] = [0, 2].map((s) => blocks.get({}, { start: s, stop: s + 2 }).bitcast(dtypes.float16).cast(dtypes.float32))
@@ -233,9 +233,9 @@ export const ggml_data_to_tensor = (t: Uint8Array, n: number, ggml_type: number)
     }
     if (ggml_type === 8) return blocks.get({}, { stop: 2 }).bitcast(dtypes.float16).cast(dtypes.float32).mul(blocks.get({}, { start: 2 }).bitcast(dtypes.int8))
     if (ggml_type === 14) {
-      const xl = q_to_uint8(blocks.get({}, { stop: 128 }).reshape([-1, 2, 64]), 4), xh = q_to_uint8(blocks.get({}, { start: 128, stop: 192 }).reshape([-1, 2, 32]), 2).lshift(4)
-      const scales = blocks.get({}, { start: 192, stop: 208 }).bitcast(dtypes.int8).unsqueeze(-1).expand([-1, 16, 16]).reshape([-1, 256])
-      const d = blocks.get({}, { start: -2 }).bitcast(dtypes.float16).cast(dtypes.float32).expand([-1, 256])
+      const xl = q_to_uint8(blocks.get({}, { stop: 128 }).reshape(-1, 2, 64), 4), xh = q_to_uint8(blocks.get({}, { start: 128, stop: 192 }).reshape(-1, 2, 32), 2).lshift(4)
+      const scales = blocks.get({}, { start: 192, stop: 208 }).bitcast(dtypes.int8).unsqueeze(-1).expand(-1, 16, 16).reshape(-1, 256)
+      const d = blocks.get({}, { start: -2 }).bitcast(dtypes.float16).cast(dtypes.float32).expand(-1, 256)
       return d.mul(xl.bitwise_or(xh).bitcast(dtypes.int8).sub(32).flatten(-2)).mul(scales)
     }
   }
@@ -292,6 +292,6 @@ export const gguf_load = async (data: Uint8Array, onProgress?: TqdmOnProgress): 
   }
   const data_start = round_up(reader._position, kv_data['general.alignment'] || 32)
 
-  for (const [name, dims, typ, off] of new Tqdm(t_infos, { label: 'ggml data to tensor' })) state_dict[name] = ggml_data_to_tensor(data.slice(data_start + off), prod(dims), typ).reshape(dims.toReversed())
+  for (const [name, dims, typ, off] of new Tqdm(t_infos, { label: 'ggml data to tensor' })) state_dict[name] = ggml_data_to_tensor(data.slice(data_start + off), prod(dims), typ).reshape(...dims.toReversed())
   return [kv_data, state_dict]
 }

@@ -28,7 +28,7 @@ class ResBlock {
   call = (x: Tensor, emb: Tensor): Tensor => {
     let h = x.sequential(this.in_layers)
     let emb_out = emb.sequential(this.emb_layers)
-    h = h.add(emb_out.reshape([...emb_out.shape, 1, 1]))
+    h = h.add(emb_out.reshape(...emb_out.shape, 1, 1))
     h = h.sequential(this.out_layers)
     return (this.skip_connection ? this.skip_connection.call(x) : x).add(h)
   }
@@ -48,9 +48,9 @@ class CrossAttention {
   call = (x: Tensor, ctx?: Tensor): Tensor => {
     ctx = ctx === undefined ? x : ctx
     let q = this.to_q.call(x), k = this.to_k.call(ctx), v = this.to_v.call(ctx)
-    ;[q, k, v] = [q, k, v].map((y) => y.reshape([x.shape[0], -1, this.n_heads, this.d_head]).transpose(1, 2))
+    ;[q, k, v] = [q, k, v].map((y) => y.reshape(x.shape[0], -1, this.n_heads, this.d_head).transpose(1, 2))
     let attention = q.scaled_dot_product_attention(k, v).transpose(1, 2)
-    const h_ = attention.reshape([x.shape[0], -1, this.n_heads * this.d_head])
+    const h_ = attention.reshape(x.shape[0], -1, this.n_heads * this.d_head)
     return h_.sequential(this.to_out)
   }
 }
@@ -119,10 +119,10 @@ class SpatialTransformer {
     let [b, c, h, w] = x.shape
     let x_in = x
     x = this.norm.call(x)
-    let ops = [(z: Tensor) => z.reshape([b, c, mul(h, w)]).permute(0, 2, 1), (z: Tensor) => this.proj_in.call(z)]
+    let ops = [(z: Tensor) => z.reshape(b, c, mul(h, w)).permute(0, 2, 1), (z: Tensor) => this.proj_in.call(z)]
     x = x.sequential(this.use_linear ? ops : ops.toReversed())
     for (const block of this.transformer_blocks) x = block.call(x, ctx)
-    ops = [(z: Tensor) => this.proj_out.call(z), (z: Tensor) => z.permute(0, 2, 1).reshape([b, c, h, w])]
+    ops = [(z: Tensor) => this.proj_out.call(z), (z: Tensor) => z.permute(0, 2, 1).reshape(b, c, h, w)]
     x = x.sequential(this.use_linear ? ops : ops.toReversed())
     return x.add(x_in)
   }
@@ -141,7 +141,7 @@ class Upsample {
   }
   call = (x: Tensor) => {
     let [bs, c, py, px] = x.shape
-    let z = x.reshape([bs, c, py, 1, px, 1]).expand([bs, c, py, 2, px, 2]).reshape([bs, c, mul(py, 2), mul(px, 2)])
+    let z = x.reshape(bs, c, py, 1, px, 1).expand(bs, c, py, 2, px, 2).reshape(bs, c, mul(py, 2), mul(px, 2))
     return this.conv.call(z)
   }
 }

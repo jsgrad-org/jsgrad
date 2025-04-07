@@ -142,9 +142,9 @@ export class ClipAttention {
   call = (hidden_states: Tensor, causal_attention_mask: Tensor) => {
     const [bsz, tgt_len, embed_dim] = hidden_states.shape
     let q = this.q_proj.call(hidden_states), k = this.k_proj.call(hidden_states), v = this.v_proj.call(hidden_states)
-    ;[q, k, v] = [q, k, v].map((x) => x.reshape([bsz, tgt_len, this.num_heads, this.head_dim]).transpose(1, 2))
+    ;[q, k, v] = [q, k, v].map((x) => x.reshape(bsz, tgt_len, this.num_heads, this.head_dim).transpose(1, 2))
     const attn_output = q.scaled_dot_product_attention(k, v, causal_attention_mask)
-    return this.out_proj.call(attn_output.transpose(1, 2).reshape([bsz, tgt_len, embed_dim]))
+    return this.out_proj.call(attn_output.transpose(1, 2).reshape(bsz, tgt_len, embed_dim))
   }
 }
 export class ClipEncoderLayer {
@@ -194,7 +194,7 @@ export class ClipTextTransformer {
   constructor(public ret_layer_idx?: number) {}
 
   call = (input_ids: Tensor) => {
-    let x = this.embeddings.call(input_ids, Tensor.arange(num(input_ids.shape[1])).reshape([1, -1]))
+    let x = this.embeddings.call(input_ids, Tensor.arange(num(input_ids.shape[1])).reshape(1, -1))
     x = this.encoder.call(x, Tensor.full([1, 1, 77, 77], -Infinity).triu(1), this.ret_layer_idx)
     return this.ret_layer_idx === undefined ? this.final_layer_norm.call(x) : x
   }

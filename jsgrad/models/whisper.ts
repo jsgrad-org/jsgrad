@@ -153,7 +153,7 @@ const get_mel = async (sr: number, n_fft: number, n_mels = 128, fmin = 0.0, fmax
   const mel_f = await mel_frequencies(n_mels + 2, fmin, fmax, htk)
 
   const fdiff = mel_f.get({ start: 1 }).sub(mel_f.get({ stop: -1 }))
-  const ramps = mel_f.reshape([-1, 1]).sub(fftfreqs.reshape([1, -1]))
+  const ramps = mel_f.reshape(-1, 1).sub(fftfreqs.reshape(1, -1))
 
   const t = []
   for (const i of range(n_mels)) {
@@ -241,8 +241,8 @@ export class MultiHeadAttention {
           this.cache_k = Tensor.zeros([x.shape[0], this.max_self_attn_cache_len, x.shape[2]])
           this.cache_v = Tensor.zeros([x.shape[0], this.max_self_attn_cache_len, x.shape[2]])
         }
-        k = this.cache_k.shrink([undefined, [0, len], undefined]).cat([k], 1)
-        v = this.cache_v!.shrink([undefined, [0, len], undefined]).cat([v], 1)
+        k = this.cache_k.shrink(undefined, [0, len], undefined).cat([k], 1)
+        v = this.cache_v!.shrink(undefined, [0, len], undefined).cat([v], 1)
         const padding = sub(sub(this.max_self_attn_cache_len, len), x.shape[1])
         await this.cache_k.assign(k.pad([undefined, [0, padding], undefined]).contiguous()).realize()
         await this.cache_v!.assign(v.pad([undefined, [0, padding], undefined]).contiguous()).realize()
@@ -252,9 +252,9 @@ export class MultiHeadAttention {
     const n_ctx = q.shape_num[1]
     if (q.shape.at(-1) !== k.shape.at(-1) || k.shape.at(-1) !== v.shape.at(-1)) throw new Error()
     const head_dim = idiv(q.shape.at(-1)!, this.n_head)
-    q = q.reshape([...q.shape.slice(0, 2), this.n_head, head_dim]).permute(0, 2, 1, 3)
-    k = k.reshape([...k.shape.slice(0, 2), this.n_head, head_dim]).permute(0, 2, 1, 3)
-    v = v.reshape([...v.shape.slice(0, 2), this.n_head, head_dim]).permute(0, 2, 1, 3)
+    q = q.reshape(...q.shape.slice(0, 2), this.n_head, head_dim).permute(0, 2, 1, 3)
+    k = k.reshape(...k.shape.slice(0, 2), this.n_head, head_dim).permute(0, 2, 1, 3)
+    v = v.reshape(...v.shape.slice(0, 2), this.n_head, head_dim).permute(0, 2, 1, 3)
     const attn = q.scaled_dot_product_attention(k, v, mask !== undefined ? mask.get({ stop: n_ctx }, { stop: n_ctx }) : undefined)
     const wv = attn.permute(0, 2, 1, 3).flatten(2)
     return this.out.call(wv)
@@ -343,7 +343,7 @@ class TextDecoder {
   }
   forward = async (x: Tensor, pos: Variable | number, encoded_audio: Tensor) => {
     const seqlen = x.shape.at(-1)!
-    x = this.token_embedding.call(x).add(this.positional_embedding.shrink([[pos, add(pos, seqlen)], undefined, undefined]))
+    x = this.token_embedding.call(x).add(this.positional_embedding.shrink([pos, add(pos, seqlen)], undefined, undefined))
     for (const block of this.blocks) x = await block.call(x, encoded_audio, this.mask, pos)
     return await this.output_tok(x)
   }
@@ -392,7 +392,7 @@ export const prep_audio = async (_waveforms: Float32Array[], batch_size: number,
   let max_len = truncate ? SAMPLES_PER_SEGMENT : Math.max(..._waveforms.map((x) => x.length))
   const r = mod(max_len, SAMPLES_PER_SEGMENT)
   if (r > 0) max_len += SAMPLES_PER_SEGMENT - r
-  let waveforms = new Tensor(concat_bytes(..._waveforms.map((w) => new Uint8Array(pad_or_trim(w, max_len).buffer))), { dtype: dtypes.float32 }).reshape([_waveforms.length, max_len])
+  let waveforms = new Tensor(concat_bytes(..._waveforms.map((w) => new Uint8Array(pad_or_trim(w, max_len).buffer))), { dtype: dtypes.float32 }).reshape(_waveforms.length, max_len)
   if (num(waveforms.shape[0]) > batch_size) throw new Error()
   if (num(waveforms.shape[0]) < batch_size) {
     // we could have a symbolic batch_size dim instead of manually padding here if conv/layernorm supported symbolic shapes
@@ -550,9 +550,9 @@ const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Fl
   const inferloop = async (ctx: Tensor, encoded_audio: Tensor) => {
     let pos = 0, next_tokens = ctx
     for (const i of range((nsample - start_tokens.length) * 2)) {
-      next_tokens = (await model.decoder.call(next_tokens, pos, encoded_audio)).get({}, -1).argmax(-1).cast(dtypes.int32).reshape([-1, 1])
+      next_tokens = (await model.decoder.call(next_tokens, pos, encoded_audio)).get({}, -1).argmax(-1).cast(dtypes.int32).reshape(1, 1)
       if (vars.DEBUG >= 1) console.log(enc.decode(await next_tokens.tolist()))
-      next_tokens = ctx.get({}, -1).eq(eot).reshape([-1, 1]).where(next_tokens.full_like(eot), next_tokens)
+      next_tokens = ctx.get({}, -1).eq(eot).reshape(-1, 1).where(next_tokens.full_like(eot), next_tokens)
       ctx = Tensor.cat([ctx, next_tokens], 1)
       pos = ctx.shape_num.at(-1)! - 1
       if (await (next_tokens.eq(eot)).all().item()) break
@@ -571,7 +571,7 @@ const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Fl
   start_tokens.push(enc.special_tokens['<|notimestamps|>'])
   const eot = enc.special_tokens['<|endoftext|>']
 
-  let ctx = new Tensor(start_tokens).reshape([1, -1]).expand([model.batch_size, start_tokens.length])
+  let ctx = new Tensor(start_tokens).reshape(1, -1).expand(model.batch_size, start_tokens.length)
   let transcriptions: number[][] = waveforms.map(() => [])
 
   for (const curr_frame of range(0, log_spec.shape_num.at(-1), FRAMES_PER_SEGMENT)) {
