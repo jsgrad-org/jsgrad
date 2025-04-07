@@ -378,16 +378,16 @@ const _masked_setitem = (target: Tensor, values: Tensor, mask: Tensor, axes: num
   return mask.where(values, target)
 }
 //  `(padding_left, padding_right, padding_top, padding_bottom, ...)` ->  `(..., (padding_top, padding_bottom), (padding_left, padding_right))`
-const _flat_to_grouped = (padding: sint[]): [sint, sint][] => zip(slice(padding, { start: -2, step: -2 }), slice(padding, { step: -2 }))
+const _flat_to_grouped = (padding: sint[]): [sint, sint][] => zip(slice(padding, { from: -2, by: -2 }), slice(padding, { by: -2 }))
 
 const ReductionStr = ['mean', 'sum', 'none']
 type ReductionStr = typeof ReductionStr[number]
 
 export type TensorOptions = { device?: string | string[]; dtype?: DType; requires_grad?: boolean }
 const sliceGetIndices = (index: Slice, size: number): [number, number, number] => {
-  let start = index.start ?? 0
-  let stop = index.stop ?? size
-  const step = index.step ?? 1
+  let start = index.from ?? 0
+  let stop = index.to ?? size
+  const step = index.by ?? 1
   if (start < 0) start += size
   if (stop < 0) stop += size
   start = Math.max(step < 0 ? -1 : 0, Math.min(size, start))
@@ -820,7 +820,7 @@ export class Tensor extends MathTrait<Tensor> {
     // threefry random bits
     const counts0 = Tensor.arange(ceildiv(num, 2), undefined, undefined, { device, dtype: dtypes.uint32, requires_grad: false }).add(Tensor._device_rng_counters[device])
     const counts1 = counts0.add(ceildiv(num, 2))
-    let bits = Tensor._threefry_random_bits(Tensor._device_seeds[device], counts0, counts1).get({ stop: num })
+    let bits = Tensor._threefry_random_bits(Tensor._device_seeds[device], counts0, counts1).get({ to: num })
 
     // bitcast to uint with same number of bits
     const [_, nmant] = dtypes.finfo(dtype)
@@ -831,7 +831,7 @@ export class Tensor extends MathTrait<Tensor> {
     bits = bits.rshift((dtype.itemsize * 8) - nmant).bitwise_or(one)
     // bitcast back to the original dtype && reshape
     // TODO: adding contiguous() after bits. fixes it for wasm
-    let out = bits.bitcast(dtype).get({ stop: numel }).sub(1).reshape(...shape)
+    let out = bits.bitcast(dtype).get({ to: numel }).sub(1).reshape(...shape)
 
     // move back to the original device if we were using MOCKGPU
     if (vars.get('MOCKGPU') && _device) out = out.to(_device)
@@ -1457,8 +1457,8 @@ export class Tensor extends MathTrait<Tensor> {
       } else if (index === undefined) {
         // do nothing
       } else if (typeof index === 'object') {
-        if (index.step === 0) throw new Error(`index=${index} can not have 0 as step`)
-        if (![index.start, index.stop, index.step].every((s) => Number.isInteger(s) || s === undefined)) throw new Error('only number slicing === supported')
+        if (index.by === 0) throw new Error(`index=${index} can not have 0 as step`)
+        if (![index.from, index.to, index.by].every((s) => Number.isInteger(s) || s === undefined)) throw new Error('only number slicing === supported')
         //       // handle int slicing
         const res = sliceGetIndices(index, size)
         ;[boundary, stride] = [[res[0], res[1]], res[2]]
@@ -1886,7 +1886,7 @@ export class Tensor extends MathTrait<Tensor> {
     let rolled: Tensor = this
     for (let [dim, shift] of zip(dims, make_tuple(shifts, 1))) {
       shift = mod(shift, this.shape_num[dim])
-      rolled = Tensor.cat([rolled.get(...range(rolled.ndim).map((i) => i !== dim ? {} : { start: -shift })), rolled.get(...range(rolled.ndim).map((i) => i !== dim ? {} : { stop: -shift }))], dim)
+      rolled = Tensor.cat([rolled.get(...range(rolled.ndim).map((i) => i !== dim ? {} : { from: -shift })), rolled.get(...range(rolled.ndim).map((i) => i !== dim ? {} : { to: -shift }))], dim)
     }
     return rolled
   }
@@ -2564,7 +2564,7 @@ export class Tensor extends MathTrait<Tensor> {
       // handle strides: (k) -> reshape -> (k,1) -> pad -> (k,s) -> reshape -> (k*s) -> shrink (k-(s-1))
       x = x.reshape(undefined, undefined, ...flatten(x.shape.slice(2).map((k) => [k, 1])))
       x = x.pad([undefined, undefined, ...flatten(stride.map((s) => [undefined, [0, s - 1] as [sint, sint]]))])
-      x = x.reshape(undefined, undefined, ...zip(slice(x.shape_num, { start: 2, step: 2 }), stride).map(([k, s]) => k * s))
+      x = x.reshape(undefined, undefined, ...zip(slice(x.shape_num, { from: 2, by: 2 }), stride).map(([k, s]) => k * s))
       x = x.shrink(undefined, undefined, ...zip(x.shape_num.slice(2), stride).map(([k, s]) => [0, k - (s - 1)] as [sint, sint]))
     }
     const new_padding = flatten(zip(HW, dilation, padding, output_padding).toReversed().map(([k, d, [pB, pA], op]) => [(k - 1) * d - num(pB), (k - 1) * d - num(pA) + op]))
@@ -2635,7 +2635,7 @@ export class Tensor extends MathTrait<Tensor> {
     const ret = this.transpose(axis, -1).pad([round_up(s, SPLIT) - s, 0], undefined, num(identity_element(op, this.dtype))).unflatten(-1, [-1, SPLIT])._cumalu(-1, op)
     let base = ret.get('...', -1)._cumalu(-1, op, true)
     base = base.unsqueeze(-1).expand(...base.shape, ret.shape.at(-1)!)
-    const fix = (x: Tensor) => x.flatten(-2).get('...', { start: -s }).transpose(axis, -1)
+    const fix = (x: Tensor) => x.flatten(-2).get('...', { from: -s }).transpose(axis, -1)
     return op === Ops.ADD ? fix(ret).add(fix(base)) : fix(ret).maximum(fix(base))
   }
   /**
@@ -2675,7 +2675,7 @@ export class Tensor extends MathTrait<Tensor> {
     const s = sub(add(r, c), 1)
     // build a (s, s) upper triangle
     const t = Tensor.ones([s, s], opts).pad([undefined, [0, s]]).flatten().shrink([0, mul(s, sub(mul(2, s), 1))]).reshape(s, -1).shrink(undefined, [0, s])
-    return diagonal <= 0 ? t.get({ stop: num(r) }, { start: -diagonal, stop: num(c) - diagonal }) : t.get({ start: diagonal, stop: num(r) + diagonal }, { stop: num(c) })
+    return diagonal <= 0 ? t.get({ to: num(r) }, { from: -diagonal, to: num(c) - diagonal }) : t.get({ from: diagonal, to: num(r) + diagonal }, { to: num(c) })
   }
 
   /**
@@ -4167,7 +4167,7 @@ export class Tensor extends MathTrait<Tensor> {
     if ((Array.isArray(this.device) || !this.device.startsWith('DISK')) && ns !== os) {
       const [new_uint, old_uint] = [to_dtype(`uint${8 * ns}`), to_dtype(`uint${8 * os}`)]
       const tmp = this.bitcast(old_uint)
-      if (ns > os) return range(idiv(ns, os)).map((i) => tmp.get('...', { start: i, step: idiv(ns, os) }).cast(new_uint).lshift(8 * i * os)).reduce((acc, x) => acc.add(x)).bitcast(dtype)
+      if (ns > os) return range(idiv(ns, os)).map((i) => tmp.get('...', { from: i, by: idiv(ns, os) }).cast(new_uint).lshift(8 * i * os)).reduce((acc, x) => acc.add(x)).bitcast(dtype)
       return Tensor.stack(range(idiv(os, ns)).map((i) => tmp.rshift(8).mul(i).mul(ns)), -1).flatten(-2).cast(new_uint).bitcast(dtype)
     }
     return this.dtype !== dt ? Cast.apply(this, dt, true) : this
@@ -4306,7 +4306,7 @@ export class Tensor extends MathTrait<Tensor> {
 
     // undo hack for non multiples of 4 on C.rcout
     if (added_output_channels !== 0) {
-      ret = ret.reshape(bs, oy, ox, groups, rcout).get({}, {}, {}, {}, { stop: -added_output_channels })
+      ret = ret.reshape(bs, oy, ox, groups, rcout).get({}, {}, {}, {}, { to: -added_output_channels })
       cout = groups * (rcout - added_output_channels)
     }
     // NCHW output

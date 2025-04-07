@@ -8,14 +8,14 @@ import { Tensor } from '../tensor.ts'
 
 // https://github.com/facebookresearch/llama/blob/1076b9c51c77ad06e9d7ba8a4c6df775741732bd/llama/model.py#L47
 export const precompute_freqs_cis = (dim: number, end: number, theta = 10000.0): Tensor => {
-  let freqs = Tensor.arange(0, dim, 2).get({ stop: idiv(dim, 2) }).div(dim).pow(theta, true).div(1.0, true)
+  let freqs = Tensor.arange(0, dim, 2).get({ to: idiv(dim, 2) }).div(dim).pow(theta, true).div(1.0, true)
   freqs = Tensor.arange(end).unsqueeze(1).mul(freqs.unsqueeze(0))
   return Tensor.stack([freqs.cos(), freqs.sin()], -1).reshape(1, end, 1, idiv(dim, 2), 2)
 }
 
 // (a+i*b) * (c+i*d) = (ac-bd) + i*(ad+bc)
 export const complex_mult = (A: Tensor, c: Tensor, d: Tensor) => {
-  const a = A.get('...', { start: 0, stop: 1 }), b = A.get('...', { start: 1, stop: 2 })
+  const a = A.get('...', { from: 0, to: 1 }), b = A.get('...', { from: 1, to: 2 })
   const ro = a.mul(c).sub(b.mul(d))
   const co = a.mul(d).add(b.mul(c))
   return ro.cat([co], -1)
@@ -25,7 +25,7 @@ export const apply_rotary_emb = (xq: Tensor, xk: Tensor, freqs_cis: Tensor): [Te
   xq = xq.reshape(...xq.shape.slice(0, -1), -1, 2)
   xk = xk.reshape(...xk.shape.slice(0, -1), -1, 2)
   assert(xq.shape.length === xk.shape.length && xk.shape.length === freqs_cis.shape.length && freqs_cis.shape.length === 5)
-  const c = freqs_cis.get('...', { start: 0, stop: 1 }), d = freqs_cis.get('...', { start: 1, stop: 2 })
+  const c = freqs_cis.get('...', { from: 0, to: 1 }), d = freqs_cis.get('...', { from: 1, to: 2 })
   const xq_out = complex_mult(xq, c, d)
   const xk_out = complex_mult(xk, c, d)
   return [xq_out.flatten(3), xk_out.flatten(3)]
@@ -169,7 +169,7 @@ export const sample = (logits: Tensor, temp: number, k: number, p: number, af: n
 
     // approximate top p
     // because we are already limited to top k elements we can do top p "without sorting"
-    const output_cumsum = output.get({ step: -1 }).cumsum().get({ step: -1 }).add(t.sum())
+    const output_cumsum = output.get({ by: -1 }).cumsum().get({ by: -1 }).add(t.sum())
     output = output_cumsum.ge(1 - p).mul(output)
     output_indices = output_cumsum.ge(1 - p).mul(output_indices)
 

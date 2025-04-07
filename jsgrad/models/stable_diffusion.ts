@@ -148,7 +148,7 @@ class AutoencoderKL {
   call = async (x: Tensor) => {
     let latent = this.encoder.call(x)
     latent = this.quant_conv.call(latent)
-    latent = latent.get({}, { start: 0, stop: 4 }) // only the means
+    latent = latent.get({}, { from: 0, to: 4 }) // only the means
     console.log('latent', latent.shape)
     latent = this.post_quant_conv.call(latent)
     return await this.decoder.call(latent)
@@ -189,8 +189,8 @@ export class StableDiffusion {
   get_model_output = (unconditional_context: Tensor, context: Tensor, latent: Tensor, timestep: Tensor, unconditional_guidance_scale: Tensor) => {
     // put into diffuser
     const latents = this.model.diffusion_model.call(latent.expand(2, ...latent.shape.slice(1)), timestep, unconditional_context.cat([context], 0))
-    const unconditional_latent = latents.get({ start: 0, stop: 1 })
-    latent = latents.get({ start: 1, stop: 2 })
+    const unconditional_latent = latents.get({ from: 0, to: 1 })
+    latent = latents.get({ from: 1, to: 2 })
 
     const e_t = unconditional_latent.add(unconditional_guidance_scale.mul(latent.sub(unconditional_latent)))
     return e_t

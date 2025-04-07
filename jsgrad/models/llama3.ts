@@ -102,7 +102,7 @@ const NF4Linear = (block_size: number) => {
           const grouped = v.reshape(-1, block_size)
           const scale = grouped.abs().max(1, true)
           const coded = ((grouped.div(scale)).unsqueeze(-1).sub(CODE.to(v.device))).abs().argmin(-1).cast(dtypes.uint8).flatten()
-          new_state_dict[k] = coded.get({ step: 2 }).mul(2 ** 4).add(coded.get({ start: 1, step: 2 }))
+          new_state_dict[k] = coded.get({ by: 2 }).mul(2 ** 4).add(coded.get({ from: 1, by: 2 }))
           new_state_dict[k.replace('.weight', '.scale')] = scale.cast(scale_dtype)
           if (Array.isArray(device)) {
             new_state_dict[k].shard_(device, -1)

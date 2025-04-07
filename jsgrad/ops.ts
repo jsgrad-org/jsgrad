@@ -1940,9 +1940,9 @@ export const index_collapse = (idx: UOp, rng: UOp, buf: UOp, ld: UOp, acc: UOp, 
 // TODO: there's a lot shared with no_vectorized_wmma here
 export const gep_through_wmma = (gep: UOp, wmma: UOp) => {
   const out_sz: number = prod(wmma.arg[6].at(-1)!.map((x: number[]) => x[1]))
-  const wmma_idxs: number[] = slice(gep.arg, { step: out_sz })
+  const wmma_idxs: number[] = slice(gep.arg, { by: out_sz })
   for (const i of range(out_sz)) {
-    if (!is_eq(slice(gep.arg, { start: i, step: out_sz }).map((x: any) => sub(x, i)), wmma_idxs)) return undefined
+    if (!is_eq(slice(gep.arg, { from: i, by: out_sz }).map((x: any) => sub(x, i)), wmma_idxs)) return undefined
   }
   const tsrcs: UOp[] = []
   for (const [s, sz] of zip(wmma.src, wmma.arg[6] as number[][][])) {

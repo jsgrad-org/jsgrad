@@ -631,7 +631,7 @@ export function replace<T>(instance: T, replacement: Partial<T>): T {
 // def _serialize_module(module:types.ModuleType): return importlib.import_module, (module.__name__,)
 // copyreg.pickle(types.ModuleType, _serialize_module)
 
-export type Slice = { start?: number; stop?: number; step?: number }
+export type Slice = { from?: number; to?: number; by?: number }
 /**
  * A Python-like slice function for arrays in TypeScript.
  * @param arr - The array you want to slice
@@ -641,7 +641,7 @@ export type Slice = { start?: number; stop?: number; step?: number }
  *   - step?: number (defaults to 1)
  * @returns A new array sliced according to the options
  */
-export function slice<T>(arr: T[], { start, stop, step }: Slice = {}): T[] {
+export function slice<T>(arr: T[], { from: start, to: stop, by: step }: Slice = {}): T[] {
   const len = arr.length
 
   // 1) Default step is 1 if not provided
