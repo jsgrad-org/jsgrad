@@ -7,7 +7,7 @@ import { BufferSpec, Device, uop_buffer, uop_is_realized, uop_realized } from '.
 import { create_schedule_with_vars, type ScheduleItem } from './engine/schedule.ts'
 import { memory_planner } from './engine/memory.ts'
 import { run_schedule } from './engine/realize.ts'
-// // **** start with two base classes, Tensor && Function ****
+// **** start with two base classes, Tensor && Function ****
 import { isInt, make_tuple, round_up } from './helpers/helpers.ts'
 import { argsort } from './helpers/helpers.ts'
 import { MemoryView } from './helpers/memoryview.ts'
@@ -109,7 +109,7 @@ class Cast extends CreateFunction<[UOp, DType, boolean?]>() {
   }
 }
 
-// // ************* unary ops *************
+// ************* unary ops *************
 
 class Reciprocal extends CreateFunction() {
   ret!: UOp
@@ -164,10 +164,10 @@ class Sqrt extends CreateFunction() {
 class Sign extends CreateFunction() {
   // NOTE: the x*0 is to match torch behavior without function.py
   override forward = (x: UOp): UOp => x.ne(0).where((x.lt(0)).where(x.const_like(-1), x.const_like(1)), x.const_like(0)).add(x.mul(0))
-  //   // backward always return 0 to match torch
+  // backward always return 0 to match torch
   override backward = (grad_output: UOp): UOp => grad_output.const_like(0)
 }
-// // ************* binary ops *************
+// ************* binary ops *************
 
 class Less extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.lt(y)
@@ -214,7 +214,7 @@ class IDiv extends CreateFunction<[UOp, UOp]>() {
 class Mod extends CreateFunction<[UOp, UOp]>() {
   override forward = (x: UOp, y: UOp): UOp => x.mod(y)
 }
-// // ************* ternary ops *************
+// ************* ternary ops *************
 
 class Where extends CreateFunction<[UOp, UOp, UOp]>() {
   x!: UOp
@@ -228,7 +228,7 @@ class Where extends CreateFunction<[UOp, UOp, UOp]>() {
     this.needs_input_grad[2] ? this.x.where(grad_output.const_like(0), grad_output) : undefined,
   ]
 }
-// // ************* reduce ops *************
+// ************* reduce ops *************
 
 class Sum extends CreateFunction<[UOp, number[]]>() {
   input_shape!: sint[]
@@ -264,9 +264,9 @@ class Max extends CreateFunction<[UOp, number[]]>() {
     return (max_is_1s.div(div)).mul(grad_output.expand(this.x.shape))
   }
 }
-// // ************* movement ops *************
+// ************* movement ops *************
 
-// // NOTE: this === sum in reverse
+// NOTE: this === sum in reverse
 class Expand extends CreateFunction<[UOp, sint[]]>() {
   expanded_axis!: number[]
   override forward = (x: UOp, shape: sint[]): UOp => {
@@ -326,7 +326,7 @@ const _metaop = (op: Ops, shape: sint[], dtype: DType, device: string | string[]
   return UOp.multi(device.map((d) => UOp.metaop(op, shape, dtype, d, arg)), undefined)
 }
 const get_shape = (x: any): number[] => {
-  //   // NOTE:string === special because __getitem__ on a string === still a string
+  // NOTE:string === special because __getitem__ on a string === still a string
   if (!Array.isArray(x) || typeof x === 'string') return []
   const subs = x.map((xi) => get_shape(xi))
   if (!all_same(subs)) throw new Error(`inhomogeneous shape from ${x}`)
@@ -340,7 +340,7 @@ const _frompy = (x: ConstType[] | Uint8Array, dtype: DType): UOp => {
     if (dtype.fmt === undefined) throw new Error(`${dtype} has undefined fmt`)
     data = MemoryView.fromArray(fully_flatten(x), dtype.fmt)
   }
-  //   // fake realize
+  // fake realize
   uop_buffer(ret)!.allocate(data instanceof Uint8Array ? new MemoryView(data) : data)
   return ret.buf_uop_view()
 }
@@ -361,7 +361,7 @@ const _apply_winograd_matrix = (mat: number[][], t: Tensor, dims: number): Tenso
   return ret
 }
 const _align_left = (...shapes: sint[][]): sint[][] => {
-  //   // unsqueeze left to make every shape same length
+  // unsqueeze left to make every shape same length
   const max_dim = max(shapes.map((shape) => shape.length))
   return shapes.map((shape) => [...range(max_dim - shape.length).map(() => 1), ...shape])
 }
@@ -432,11 +432,11 @@ export class Tensor extends MathTrait<Tensor> {
     } // keep it on the disk if device === undefined
     device = Array.isArray(device) ? device.map((x) => Device.canonicalize(x)) : Device.canonicalize(device)
 
-    //     // NOTE: this can be in three states. false && undefined: no gradient, true: gradient
-    //     // undefined (the default) will be updated to true if it's put in an optimizer
+    // NOTE: this can be in three states. false && undefined: no gradient, true: gradient
+    // undefined (the default) will be updated to true if it's put in an optimizer
     this.requires_grad = requires_grad
 
-    //     // create a LazyBuffer from the different types of inputs
+    // create a LazyBuffer from the different types of inputs
     if (data instanceof UOp) {
       if (dtype !== undefined && dtype !== data.dtype) throw new Error("dtype doesn't match, && casting isn't supported")
       // NOTE: this is here because LazyBuffer = UOp
@@ -485,7 +485,7 @@ export class Tensor extends MathTrait<Tensor> {
     return this.toString()
   }
 
-  //   // Python has a non moving GC, so this should be okay
+  // Python has a non moving GC, so this should be okay
   // const __hash__ = () =>  id(this)
   get length(): sint {
     if (!this.shape.length) throw new Error('len() of a 0-d tensor')
@@ -506,7 +506,7 @@ export class Tensor extends MathTrait<Tensor> {
     return this.lazydata.dtype
   }
 
-  //   // ***** data handlers ****
+  // ***** data handlers ****
 
   /**
    * Creates the schedule needed to realize these Tensor(s), with Variables.
@@ -567,7 +567,7 @@ export class Tensor extends MathTrait<Tensor> {
   }
   assign = (x: Tensor | number[] | number | string | Uint8Array): Tensor => {
     if (!(x instanceof Tensor)) x = new Tensor(x, { device: this.device, dtype: this.dtype })
-    //   // TODO: this is a hack for writing to DISK. remove with working assign
+    // TODO: this is a hack for writing to DISK. remove with working assign
     if (typeof this.device === 'string' && this.device.startsWith('DISK')) throw new Error("Use async assign_disk instead, until disk get's good assign")
     if (vars.DEBUG >= 4) console.log(`assign ${this.lazydata} <- ${x.lazydata}`)
     if (this.lazydata === x.lazydata) return this // a this assign === a NOOP
@@ -1169,7 +1169,7 @@ export class Tensor extends MathTrait<Tensor> {
     return (this.ndim === 1 ? indices.squeeze(0) : indices).cast(dtypes.int32)
   }
 
-  // // ***** toposort and backward pass *****
+  // ***** toposort and backward pass *****
 
   /**
    * Compute the gradient of the targets with respect to self.
@@ -1459,7 +1459,7 @@ export class Tensor extends MathTrait<Tensor> {
       } else if (typeof index === 'object') {
         if (index.by === 0) throw new Error(`index=${index} can not have 0 as step`)
         if (![index.from, index.to, index.by].every((s) => Number.isInteger(s) || s === undefined)) throw new Error('only number slicing === supported')
-        //       // handle int slicing
+        // handle int slicing
         const res = sliceGetIndices(index, size)
         ;[boundary, stride] = [[res[0], res[1]], res[2]]
         if (stride * (boundary[1] - boundary[0]) < 0) boundary = [0, 0]
@@ -1474,10 +1474,10 @@ export class Tensor extends MathTrait<Tensor> {
     // movement op indexing
     const mops = indices_parsed.filter((i) => i.index !== undefined)
     if (mops.length) {
-      //   // flip negative strides
+      // flip negative strides
       let [shrinks, strides] = [mops.map((i) => i.boundary), mops.map((i) => i.stride)]
       x = x.shrink(...shrinks).flip(...strides.entries().filter(([i, st]) => st < 0).map(([i, st]) => i))
-      //   // handle stride !== 1 || -1
+      // handle stride !== 1 || -1
       if (strides.some((st) => Math.abs(st) !== 1)) {
         strides = strides.map((s) => Math.abs(s))
         // pad shape to multiple of stride/
@@ -1487,18 +1487,18 @@ export class Tensor extends MathTrait<Tensor> {
         x = x.shrink(...x.shape.filter((_, i) => mod(i, 2) === 0).flatMap((s) => [[0, s], [0, 1]] as [sint,sint][])).reshape(...x.shape.filter((_, i) => mod(i, 2) === 0))
       }
     }
-    // // dim injection from undefined by including undefined dim size (which === 1) && dim collapse by skipping number dim size
+    // dim injection from undefined by including undefined dim size (which === 1) && dim collapse by skipping number dim size
     x = x.reshape(...indices_parsed.filter((index) => !Number.isInteger(index.index)).map((index) => index.size))
 
-    // // tensor indexing
+    // tensor indexing
     const tops = [...indices_parsed.filter((_i) => !Number.isInteger(_i.index)).entries().filter(([_, i]) => i.index instanceof Tensor)]
     if (tops.length) {
-      //   // unload the tensor object into actual tensors
+      // unload the tensor object into actual tensors
       const [dims, tensors, masks] = [tops.map(([d]) => d), tops.map(([_, i]) => i.index as Tensor), [] as Tensor[]]
       const big_shape = _broadcast_shape(tensors.map((t) => t.shape))
       const pre_reduce_shape = [...x.shape.slice(0, dims[0]), ...big_shape, ...x.shape.slice(dims[0])]
 
-      //   // create index masks
+      // create index masks
       for (const [dim, tensor] of zip(dims, tensors)) {
         try {
           const i = tensor.reshape(...(tensor.shape_num), ...range(x.ndim - dims[0]).map(() => 1)).expand(...pre_reduce_shape)
@@ -1931,7 +1931,7 @@ export class Tensor extends MathTrait<Tensor> {
     t = t.permute(...rhs.map((name) => lhs.indexOf(name)))
     return flatten_dims.toReversed().reduce((x, dims) => dims[0] < dims[1] ? x.flatten(dims[0], dims[1] - 1) : x.unsqueeze(dims[0]), t)
   }
-  //     // ***** reduce ops *****
+  // ***** reduce ops *****
 
   _reduce = (fxn: ReturnType<typeof CreateFunction>, axis?: number | number[], keepdim = false): Tensor => {
     axis = (axis === undefined ? range(this.ndim) : make_tuple(axis, 1)).map((x) => this._resolve_dim(x))
@@ -2375,10 +2375,10 @@ export class Tensor extends MathTrait<Tensor> {
       // handle stride
       x = x.shrink(...noop, ...zip(k_, o_, s_).flatMap(([k, o, s]) => [[0, k], [0, mul(o, s)]] as [sint, sint][])).reshape(...noop, ...zip(k_, o_, s_).flat())
       x = x.shrink(...noop, ...zip(k_, o_).flatMap(([k, o]) => [[0, k], [0, o], [0, 1]] as [sint, sint][])).reshape(...noop, ...zip(k_, o_).flat())
-      //   // permute to move reduce to the end
+      // permute to move reduce to the end
       return x.permute(...range(noop.length), ...range(i_.length).map((i) => noop.length + i * 2 + 1), ...range(i_.length).map((i) => noop.length + i * 2))
     }
-    // // TODO: once the shapetracker can optimize well, remove this alternative implementation
+    // TODO: once the shapetracker can optimize well, remove this alternative implementation
     let x = this.pad([...noop, ...zip(i_, o_, s_).map(([i, o, s]) => [0, max([0, num(sub(mul(o, s), i))])] as [sint, sint])]).shrink(...noop, ...zip(o_, s_).map(([o, s]) => [0, mul(o, s)] as [sint, sint]))
     x = x.reshape(...noop, ...zip(o_, s_).flat())
     x = x.shrink(...noop, ...zip(o_, k_).flatMap(([o, k]) => [[0, o], [0, k]] as [sint, sint][]))

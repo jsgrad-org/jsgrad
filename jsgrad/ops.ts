@@ -1294,7 +1294,7 @@ export const simplify_valid = (valid: UOp): UOp | undefined => {
 export const sint_to_uop = (x: sint, dtype = dtypes.int) => isConst(x) ? UOp.const(dtype, x) : x
 
 export const symbolic_simple = new PatternMatcher([
-  //   // ** this folding **
+  // ** this folding **
   UPat.var('x').add(0).fn(({ x }) => x), // x+0 -> x
   UPat.var('x').mul(1).fn(({ x }) => x), // x*1 -> x
   UPat.var('x').idiv(UPat.var('x')).fn(({ x }) => x.const_like(1)), // x//x -> 1
@@ -1310,17 +1310,17 @@ export const symbolic_simple = new PatternMatcher([
   new UPat(GroupOp.Idempotent, undefined, [UPat.var('x'), UPat.var('x')]).fn(({ x }) => x),
   UPat.var('x', dtypes.bool).logical_not().logical_not().fn(({ x }) => x),
   UPat.var('x', dtypes.bool).where(UPat.const(dtypes.bool, true), UPat.const(dtypes.bool, false)).fn(({ x }) => x),
-  //   // ** zero folding **
+  // ** zero folding **
   UPat.var('x').lt(UPat.var('x')).fn(({ x }) => x.const_like(false).cast(dtypes.bool.vec(x.dtype.count))), // x < x -> False
   UPat.var('x', dtypes.ints).ne(UPat.var('x', dtypes.ints)).fn(({ x }) => UOp.const(dtypes.bool.vec(x.dtype.count), false)), // x != x -> False (only ints)
-  //   // x*0 -> 0 or 0*x -> 0
-  //   // if x is nan or inf it should render the nan value.
-  //   // NOTE: this can be wrong for loaded NaN
+  // x*0 -> 0 or 0*x -> 0
+  // if x is nan or inf it should render the nan value.
+  // NOTE: this can be wrong for loaded NaN
   UPat.var('x').mul(0).fn(({ x }) => x.const_like(typeof x.arg === 'number' && (isNaN(x.arg) || isInf(x.arg)) ? NaN : 0)),
-  //   // ** constant folding **
+  // ** constant folding **
   // TODO: add const folding for Ops.THREEFRY
   new UPat(GroupOp.ALU, undefined, new UPat([Ops.VCONST, Ops.CONST])).named('a').fn(({ a }) => a.op !== Ops.THREEFRY ? a.const_like(exec_alu(a.op, a.dtype, a.src.map((x) => x.arg), false)) : undefined),
-  //   // bool MUL is AND, ADD/MAX is OR. prevents other rules to rewrite bool ADD/MUL incorrectly
+  // bool MUL is AND, ADD/MAX is OR. prevents other rules to rewrite bool ADD/MUL incorrectly
   UPat.var('x', dtypes.bool).mul(UPat.var('y', dtypes.bool)).fn(({ x, y }) => x.bitwise_and(y)),
   UPat.var('x', dtypes.bool).add(UPat.var('y', dtypes.bool)).fn(({ x, y }) => x.bitwise_or(y)),
   UPat.var('x', dtypes.bool).maximum(UPat.var('y', dtypes.bool)).fn(({ x, y }) => x.bitwise_or(y)),
@@ -1333,9 +1333,9 @@ export const symbolic = symbolic_simple.add(
   new PatternMatcher([
     // ** COMMUTATIVE flipping **
     new UPat(GroupOp.Commutative).named('x').fn(({ x }) => is_less_than(x.src[1].tuplize, x.src[0].tuplize) ? x.replace({ src: x.src.toReversed() }) : undefined),
-    //   // ** boolean algebra **
+    // ** boolean algebra **
     UPat.var('x').bitwise_or(UPat.var('x').bitwise_and(UPat.var())).fn(({ x }) => x), // x|(x&y) -> x
-    //   // ** combine terms **
+    // ** combine terms **
     UPat.var('x').mul(UPat.cvar('c0')).add(UPat.var('x').mul(UPat.cvar('c1'))).fn(({ x, c0, c1 }) => x.mul(c0.add(c1))), // (x*c0)+(x*c1) -> x*(c0+c1)
     (UPat.var('y').add(UPat.var('x').mul(UPat.cvar('c0')))).add(UPat.var('x').mul(UPat.cvar('c1'))).fn(({ x, y, c0, c1 }) => y.add(x.mul(c0.add(c1)))),
     UPat.var('x').add(UPat.var('x').mul(UPat.cvar('c'))).fn(({ x, c }) => x.mul(c.add(1))), // (x+x*c)-> x*(c+1)
@@ -1344,7 +1344,7 @@ export const symbolic = symbolic_simple.add(
     (UPat.var('y').add(UPat.var('x'))).add(UPat.var('x')).fn(({ y, x }) => y.add(x.mul(2))),
     (UPat.var('x').div(UPat.var('x2'))).div(UPat.var('x3')).fn(({ x, x2, x3 }) => x.div(x2.mul(x3))), // (x/x2)/x3 -> x/(x2*x3)
     UPat.var('x').add(UPat.cvar('c')).mul(-1, true).fn(({ x, c }) => x.neg().add(c.neg())), // -(x+c) -> -x + -c
-    // //   // a conditional with the same results either way is a noop, also fold const conditionals
+    // a conditional with the same results either way is a noop, also fold const conditionals
     UPat.var().where(UPat.var('val'), UPat.var('val')).fn(({ val }) => val),
     UPat.cvar('gate', undefined, false).where(UPat.var('c0'), UPat.var('c1')).fn(({ gate, c0, c1 }) => gate.arg ? c0 : c1),
     // alu of two where with same conds can combine, only do if true branch or false branch is const
@@ -1359,22 +1359,22 @@ export const symbolic = symbolic_simple.add(
     // TODO: why does this rule break beautiful_mnist?
     //((UPat.var("x")+UPat.var("z")).maximum(UPat.var("y")+UPat.var("z")), lambda x,y,z: x.maximum(y) + z),
     // UPat.var('x').mul(UPat.cvar('c1')).maximum(UPat.var('x').mul(UPat.cvar('c2'))).fn(({ x, c1, c2 }) => max_var_const({ x, c1, c2 })),
-    //   // ** two stage ALU folding **
+    // ** two stage ALU folding **
     ...GroupOp.Associative.map((op) => [UPat.var('x').alu(op, UPat.cvar('c1')).alu(op, UPat.cvar('c2')).named('f'), ({ f, x, c1, c2 }) => x.alu(f.op, c1.alu(f.op, c2))] as [UPat, (p: Record<string, UOp>) => UOp]),
     (UPat.cvar('c0').add(UPat.var('x'))).lt(UPat.cvar('c1')).fn(({ x, c0, c1 }) => x.lt(c1.sub(c0))), // c0 + x < c1 -> x < c1 - c0
     (UPat.var('x').idiv(UPat.cvar('c1'))).idiv(UPat.cvar('c2')).fn(({ x, c1, c2 }) => x.idiv(c1.mul(c2))), // (x//c1)//c2 -> x//(c1*c2)
-    // //   // ** lt **
-    // //   // c0*x<c1 for positive int c0,c1
+    // ** lt **
+    // c0*x<c1 for positive int c0,c1
     (UPat.cvar('c0', undefined, false).mul(UPat.var('x', dtypes.ints))).lt(UPat.cvar('c1', undefined, false)).fn(({ x, c0, c1 }) => c0.arg > 0 && c1.arg > 0 ? x.lt(Math.ceil(c1.arg / c0.arg)) : undefined),
-    //   // c0*x<c1 for negative int c0 and non-positive c1
+    // c0*x<c1 for negative int c0 and non-positive c1
     (UPat.cvar('c0', undefined, false).mul(UPat.var('x', dtypes.ints))).lt(UPat.cvar('c1', undefined, false)).fn(({ x, c0, c1 }) => c0.arg < 0 && c0.arg !== -1 && c1.arg <= 0 ? x.neg().lt(-Math.floor(-c1.arg / -c0.arg)) : undefined),
-    //   // x//c0<c1 for positive int c0
+    // x//c0<c1 for positive int c0
     (UPat.var('x', dtypes.ints).idiv(UPat.cvar('c0', undefined, false))).lt(UPat.cvar('c1', undefined, false)).fn(({ x, c0, c1 }) => c0.arg > 0 ? x.lt(c1.arg * c0.arg) : undefined),
-    //   // ** move add/mul consts to end (NOTE: this is still happening before constant folding) **
+    // ** move add/mul consts to end (NOTE: this is still happening before constant folding) **
     new UPat(Ops.ADD, undefined, [UPat.var('x'), UPat.cvar('c1')]).add(UPat.var('y')).fn(({ x, c1, y }) => (x.add(y)).add(c1)),
     new UPat(Ops.MUL, undefined, [UPat.var('x'), UPat.cvar('c1')]).mul(UPat.var('y')).fn(({ x, c1, y }) => (x.mul(y)).mul(c1)),
-    //   // *** rules from symbolic ***
-    //   // unrolled arange div folding
+    // *** rules from symbolic ***
+    // unrolled arange div folding
     new UPat(Ops.ADD, undefined, [[new UPat(), new UPat(Ops.IDIV)]]).named('divs').fn(({ divs }) => fold_unrolled_divs(divs)),
     // generic lt folding
     UPat.var('x', dtypes.sints).lt(UPat.cvar('c', undefined, false)).fn(({ x, c }) => 0 < c.arg ? lt_folding(x, c.arg) : undefined),

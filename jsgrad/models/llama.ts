@@ -219,7 +219,7 @@ export class Transformer {
     return await this.forward(tokens, start_pos, temperature, top_k, top_p, alpha_f, alpha_p)
   }
 }
-// # *** helpers ***
+// *** helpers ***
 
 export const convert_from_huggingface = (weights: Record<string, Tensor>, model: Transformer, n_heads: number, n_kv_heads: number, permute_layers = true) => {
   const permute = (v: Tensor, n_heads: number) => {

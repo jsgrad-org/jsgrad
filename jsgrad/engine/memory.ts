@@ -1,4 +1,4 @@
-// // **************** memory planning ****************
+// **************** memory planning ****************
 
 import { Buffer, Device } from '../device.ts'
 import { dedup, DefaultMap, id, vars } from '../helpers/helpers.ts'
@@ -15,8 +15,8 @@ export const _internal_memory_planner = (buffers: Buffer[][], noopt_buffers?: Bu
       last_appearance.set(buf.base, i)
     }
   }
-  //   // Sort buffers by size in descending order, prioritizing largest buffers for allocation first.
-  //   // Track free segments, each containing (start, stop, && buffer that could be reused on this segment).
+  // Sort buffers by size in descending order, prioritizing largest buffers for allocation first.
+  // Track free segments, each containing (start, stop, && buffer that could be reused on this segment).
   type Seg = [number, number, Buffer]
   const free_segs = new DefaultMap<bigint, Seg[]>(undefined, () => []) // Map<buffer key, [start, end, buffer to reuse on the seg>]
   const find_replace_buffer = (buf: Buffer, st: number, en: number) => {
@@ -48,7 +48,7 @@ export const _internal_memory_planner = (buffers: Buffer[][], noopt_buffers?: Bu
 }
 
 export const memory_planner = (schedule: ScheduleItem[]): ScheduleItem[] => {
-  //   // Exclude buffers involved in load ops (e.g transfers) to preserve parallelism in graphs.
+  // Exclude buffers involved in load ops (e.g transfers) to preserve parallelism in graphs.
   const assigned = _internal_memory_planner(
     schedule.map((si) => si.bufs),
     schedule.filter((si) => si.ast.op !== Ops.SINK).flatMap((si) => si.bufs),
