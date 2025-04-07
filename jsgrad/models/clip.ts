@@ -206,7 +206,7 @@ export class ClipTextModel {
   }
 }
 
-// # https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/encoders/modules.py#L331
+// https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/encoders/modules.py#L331
 // class FrozenClosedClipEmbedder(Embedder):
 //   def __init__(self, ret_layer_idx:Optional[int]=None):
 //     this.tokenizer   = Tokenizer.ClipTokenizer()
@@ -257,7 +257,7 @@ export class ClipTextModel {
 //     def __call__(self, x:Tensor) -> Tensor:
 //       return x.sequential([this.c_fc, Tensor.gelu, this.c_proj])
 
-//   # https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/transformer.py#L210
+// https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/transformer.py#L210
 //   class ResidualAttentionBlock:
 //     def __init__(self, dims:int, n_heads:int, mlp_ratio:float):
 //       this.ln_1 = LayerNorm(dims)
@@ -274,7 +274,7 @@ export class ClipTextModel {
 //       x = x + this.mlp(this.ln_2(x))
 //       return x
 
-//   # https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/transformer.py#L317
+// https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/transformer.py#L317
 //   class ClipTransformer:
 //     def __init__(self, dims:int, layers:int, n_heads:int, mlp_ratio:float=4.0):
 //       this.resblocks = [
@@ -286,8 +286,8 @@ export class ClipTextModel {
 //         x = r(x, attn_mask=attn_mask, transpose=True)
 //       return x
 
-//   # https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/model.py#L220
-//   # https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/transformer.py#L661
+// https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/model.py#L220
+// https://github.com/mlfoundations/open_clip/blob/58e4e39aaabc6040839b0d2a7e8bf20979e4558a/src/open_clip/transformer.py#L661
 //   class ClipTextTransformer:
 //     def __init__(self, width:int, n_heads:int, layers:int, vocab_size:int=49408, ctx_length:int=77):
 //       this.token_embedding = Embedding(vocab_size, width)
@@ -336,8 +336,8 @@ export class ClipTextModel {
 //       pooled = x[:, 0] @ this.proj
 //       return pooled
 
-// # https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/encoders/modules.py#L396
-// # https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/encoders/modules.py#L498
+// https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/encoders/modules.py#L396
+// https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/encoders/modules.py#L498
 // class FrozenOpenClipEmbedder(Embedder):
 //   def __init__(self, dims:int, n_heads:int, layers:int, return_pooled:bool, ln_penultimate:bool=False):
 //     this.tokenizer = Tokenizer.ClipTokenizer()
@@ -412,9 +412,9 @@ export class ClipTextModel {
 //     this.mean = Tensor([0.48145466, 0.45782750, 0.40821073]).reshape(-1, 1, 1)
 //     this.std  = Tensor([0.26862954, 0.26130258, 0.27577711]).reshape(-1, 1, 1)
 
-//   # TODO:
-//   # Should be doable in pure tinygrad, would just require some work and verification.
-//   # This is very desirable since it would allow for full generation->evaluation in a single JIT call.
+// TODO:
+// Should be doable in pure tinygrad, would just require some work and verification.
+// This is very desirable since it would allow for full generation->evaluation in a single JIT call.
 //   def prepare_image(self, image:Image.Image) -> Tensor:
 //     SIZE = 224
 //     w, h = image.size

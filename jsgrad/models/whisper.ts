@@ -152,7 +152,7 @@ const get_mel = async (sr: number, n_fft: number, n_mels = 128, fmin = 0.0, fmax
 
   const mel_f = await mel_frequencies(n_mels + 2, fmin, fmax, htk)
 
-  const fdiff = mel_f.get({ start: 1 }).sub(mel_f.get({ stop: -1 }))
+  const fdiff = mel_f.get({ from: 1 }).sub(mel_f.get({ to: -1 }))
   const ramps = mel_f.reshape(-1, 1).sub(fftfreqs.reshape(1, -1))
 
   const t = []
@@ -164,10 +164,10 @@ const get_mel = async (sr: number, n_fft: number, n_mels = 128, fmin = 0.0, fmax
   let weights = await Tensor.cat(t, 0).realize()
 
   if (norm === 1) {
-    const enorm = mel_f.get({ start: 2, stop: n_mels + 2 }).sub(mel_f.get({ stop: n_mels })).div(2, true)
+    const enorm = mel_f.get({ from: 2, to: n_mels + 2 }).sub(mel_f.get({ to: n_mels })).div(2, true)
     weights = weights.mul(enorm.unsqueeze(-1))
   }
-  if (!mel_f.get({ stop: -2 }).eq(0).bitwise_or(weights.max(1).gt(0)).all().item()) {
+  if (!mel_f.get({ to: -2 }).eq(0).bitwise_or(weights.max(1).gt(0)).all().item()) {
     console.log(`Empty filters detected in mel frequency basis. Some channels will produce empty responses. Try increasing your sampling rate (and fmax) or reducing n_mels.`)
   }
   return weights
@@ -196,8 +196,8 @@ class STFT {
     if (this.center) x = x.pad([[0, 0], [this.pad_amount, this.pad_amount]])
     x = x.get({}, undefined, {})
 
-    const spec_imag = x.conv2d(this.wsin, undefined, undefined, this.stride).get({}, { stop: this.freq_bins }, {})
-    const spec_real = x.conv2d(this.wcos, undefined, undefined, this.stride).get({}, { stop: this.freq_bins }, {})
+    const spec_imag = x.conv2d(this.wsin, undefined, undefined, this.stride).get({}, { to: this.freq_bins }, {})
+    const spec_real = x.conv2d(this.wcos, undefined, undefined, this.stride).get({}, { to: this.freq_bins }, {})
     if (return_spec) {
       let spec = spec_real.pow(2).add(spec_imag.pow(2)).sqrt()
       return this.trainable ? spec.add(this.eps) : spec
@@ -255,7 +255,7 @@ export class MultiHeadAttention {
     q = q.reshape(...q.shape.slice(0, 2), this.n_head, head_dim).permute(0, 2, 1, 3)
     k = k.reshape(...k.shape.slice(0, 2), this.n_head, head_dim).permute(0, 2, 1, 3)
     v = v.reshape(...v.shape.slice(0, 2), this.n_head, head_dim).permute(0, 2, 1, 3)
-    const attn = q.scaled_dot_product_attention(k, v, mask !== undefined ? mask.get({ stop: n_ctx }, { stop: n_ctx }) : undefined)
+    const attn = q.scaled_dot_product_attention(k, v, mask !== undefined ? mask.get({ to: n_ctx }, { to: n_ctx }) : undefined)
     const wv = attn.permute(0, 2, 1, 3).flatten(2)
     return this.out.call(wv)
   }
@@ -305,7 +305,7 @@ export class AudioEncoder {
     x = this.conv1.call(x).gelu()
     x = this.conv2.call(x).gelu()
     x = x.permute(0, 2, 1)
-    x = x.add(this.positional_embedding.get({ stop: x.shape_num[1] }))
+    x = x.add(this.positional_embedding.get({ to: x.shape_num[1] }))
     x = await x.sequentialAsync(this.blocks)
     x = this.ln_post.call(x)
     return await x.realize()
@@ -399,7 +399,7 @@ export const prep_audio = async (_waveforms: Float32Array[], batch_size: number,
     waveforms = waveforms.pad([[0, batch_size - num(waveforms.shape[0])], [0, 0]])
   }
   const stft = new STFT(N_FFT, undefined, undefined, HOP_LENGTH).call(waveforms)
-  const magnitudes = stft.get('...', 0).pow(2).add(stft.get('...', 1).pow(2)).get('...', { stop: -1 })
+  const magnitudes = stft.get('...', 0).pow(2).add(stft.get('...', 1).pow(2)).get('...', { to: -1 })
   const mel_spec = (await get_mel(RATE, N_FFT, N_MELS)).matmul(magnitudes)
 
   let log_spec = mel_spec.clip(1e-10).log().div(Math.log(10))
@@ -575,7 +575,7 @@ const transcribe_waveform = async (model: Whisper, enc: Tokenizer, waveforms: Fl
   let transcriptions: number[][] = waveforms.map(() => [])
 
   for (const curr_frame of range(0, log_spec.shape_num.at(-1), FRAMES_PER_SEGMENT)) {
-    const encoded_audio = await model.encoder.encode.call(log_spec.get({}, {}, { start: curr_frame, stop: curr_frame + FRAMES_PER_SEGMENT }))
+    const encoded_audio = await model.encoder.encode.call(log_spec.get({}, {}, { from: curr_frame, to: curr_frame + FRAMES_PER_SEGMENT }))
 
     if ((await ctx.tolist<number[][]>()).every((c) => c.length === ctx.get(0).length)) ctx = await inferloop(ctx, encoded_audio)
     else {

@@ -185,7 +185,7 @@ export class PythonProgram extends Program {
             return out
           }
 
-          //   // TODO: refactor these to a shared TensorCoreLayout in kernel.py
+          // TODO: refactor these to a shared TensorCoreLayout in kernel.py
           if (arg[4] === 'METAL') {
             // A (2 elements on 32 threads): row major
             const a_b_elem: Fn = (x, i, j, goff) => x[mod(i, 2)][goff + mod(idiv(i, 2), 2) + mod(j, 4) * 2 + idiv(i, 4) * 8 + idiv(j, 4) * 16]

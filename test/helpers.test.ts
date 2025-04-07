@@ -253,7 +253,7 @@ describe(
       [[1, 2, 3, 4, 5], -3, -1, 1],
       [[1, 2, 3, 4, 5], 0, -2, 2],
     ],
-    (arr: number[], start?: number, stop?: number, step?: number) => helpers.slice(arr, { start, stop, step }),
+    (arr: number[], start?: number, stop?: number, step?: number) => helpers.slice(arr, { from: start, to: stop, by: step }),
     'out(data[0][data[1]:data[2]:data[3]])',
   ),
 )

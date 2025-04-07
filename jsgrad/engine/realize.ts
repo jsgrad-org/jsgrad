@@ -149,7 +149,7 @@ export const get_runner = async (device: string, ast: UOp): Promise<CompiledRunn
   return ret
 }
 
-// // **************** lowering functions ****************
+// **************** lowering functions ****************
 
 export class ExecItem {
   constructor(public prg: Runner, public bufs: (Buffer | undefined)[], public metadata?: Metadata[]) {}
@@ -207,7 +207,7 @@ export const lower_schedule = async function* (schedule: ScheduleItem[]): AsyncG
     }
   }
 }
-// // **************** main run function ****************
+// **************** main run function ****************
 
 export const capturing: TinyJit<any, any>[] = [] // put classes with an add method in here
 

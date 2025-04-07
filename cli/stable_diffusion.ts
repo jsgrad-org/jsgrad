@@ -45,7 +45,7 @@ delete model.cond_stage_model
 const timesteps = range(1, 1000, idiv(1000, args.steps))
 console.log(`running for ${timesteps} timesteps`)
 const alphas = model.alphas_cumprod.get(new Tensor(timesteps))
-const alphas_prev = new Tensor([1.0]).cat([alphas.get({ stop: -1 })])
+const alphas_prev = new Tensor([1.0]).cat([alphas.get({ to: -1 })])
 
 // start with random noise
 if (args.seed !== undefined) Tensor.manual_seed(args.seed)

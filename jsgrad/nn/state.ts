@@ -43,8 +43,8 @@ export const inverse_safe_dtypes = new Map(Object.entries(safe_dtypes).map(([k, 
  */
 export const safe_load_metadata = async (t: Tensor | string): Promise<[Tensor, number, Record<string, any>]> => {
   if (typeof t === 'string') t = new Tensor(t)
-  const data_start = (await t.get({ start: 0, stop: 8 }).data()).cast('i').getValue(0) + 8
-  return [t, data_start, JSON.parse(bytes_to_string((await t.get({ start: 8, stop: data_start }).data()).bytes))]
+  const data_start = (await t.get({ from: 0, to: 8 }).data()).cast('i').getValue(0) + 8
+  return [t, data_start, JSON.parse(bytes_to_string((await t.get({ from: 8, to: data_start }).data()).bytes))]
 }
 
 /**
@@ -85,7 +85,7 @@ export const safe_load = async (
       console.warn(`Warning: Skipping tensor '${k}' due to unsupported dtype '${v.dtype}'`)
       continue
     }
-    state_dict[k] = new Tensor(data.slice(...v.data_offsets), { dtype, device: target_device }).reshape(v.shape)
+    state_dict[k] = new Tensor(data.slice(...v.data_offsets), { dtype, device: target_device }).reshape(...v.shape)
   }
 
   return state_dict
@@ -111,8 +111,8 @@ export const safe_save = async (tensors: Record<string, Tensor>, fn: string, met
   j += '\x20'.repeat(round_up(j.length, 8) - j.length)
   // pathlib.Path(fn).unlink(missing_ok=true)
   const t = Tensor.empty([8 + j.length + offset], { dtype: dtypes.uint8, device: `DISK:${fn}` })
-  await t.get({ start: 0, stop: 8 }).bitcast(dtypes.int64).assign_disk([j.length])
-  await t.get({ start: 8, stop: 8 + j.length }).assign_disk(string_to_bytes(j))
+  await t.get({ from: 0, to: 8 }).bitcast(dtypes.int64).assign_disk([j.length])
+  await t.get({ from: 8, to: 8 + j.length }).assign_disk(string_to_bytes(j))
   for (const [k, v] of Object.entries(await safe_load(t))) await v.assign_disk(tensors[k])
 }
 
@@ -226,16 +226,16 @@ export const ggml_data_to_tensor = (t: Uint8Array, n: number, ggml_type: number)
   const nelements_nbytes = { 2: [32, 18], 3: [32, 20], 14: [256, 210], 8: [32, 34] }[ggml_type]
   if (nelements_nbytes !== undefined) {
     const blocks = new Tensor(t.slice(0, idiv(n, nelements_nbytes[0]) * nelements_nbytes[1])).reshape(-1, nelements_nbytes[1])
-    if (ggml_type === 2) return (q_to_uint8(blocks.get({}, { start: 2 }), 4).bitcast(dtypes.int8).sub(8)).mul(blocks.get({}, { stop: 2 }).bitcast(dtypes.float16).cast(dtypes.float32))
+    if (ggml_type === 2) return (q_to_uint8(blocks.get({}, { from: 2 }), 4).bitcast(dtypes.int8).sub(8)).mul(blocks.get({}, { to: 2 }).bitcast(dtypes.float16).cast(dtypes.float32))
     if (ggml_type === 3) {
-      const [d, m] = [0, 2].map((s) => blocks.get({}, { start: s, stop: s + 2 }).bitcast(dtypes.float16).cast(dtypes.float32))
-      return q_to_uint8(blocks.get({}, { start: 4 }), 4).bitcast(dtypes.int8).mul(d).add(m)
+      const [d, m] = [0, 2].map((s) => blocks.get({}, { from: s, to: s + 2 }).bitcast(dtypes.float16).cast(dtypes.float32))
+      return q_to_uint8(blocks.get({}, { from: 4 }), 4).bitcast(dtypes.int8).mul(d).add(m)
     }
-    if (ggml_type === 8) return blocks.get({}, { stop: 2 }).bitcast(dtypes.float16).cast(dtypes.float32).mul(blocks.get({}, { start: 2 }).bitcast(dtypes.int8))
+    if (ggml_type === 8) return blocks.get({}, { to: 2 }).bitcast(dtypes.float16).cast(dtypes.float32).mul(blocks.get({}, { from: 2 }).bitcast(dtypes.int8))
     if (ggml_type === 14) {
-      const xl = q_to_uint8(blocks.get({}, { stop: 128 }).reshape(-1, 2, 64), 4), xh = q_to_uint8(blocks.get({}, { start: 128, stop: 192 }).reshape(-1, 2, 32), 2).lshift(4)
-      const scales = blocks.get({}, { start: 192, stop: 208 }).bitcast(dtypes.int8).unsqueeze(-1).expand(-1, 16, 16).reshape(-1, 256)
-      const d = blocks.get({}, { start: -2 }).bitcast(dtypes.float16).cast(dtypes.float32).expand(-1, 256)
+      const xl = q_to_uint8(blocks.get({}, { to: 128 }).reshape(-1, 2, 64), 4), xh = q_to_uint8(blocks.get({}, { from: 128, to: 192 }).reshape(-1, 2, 32), 2).lshift(4)
+      const scales = blocks.get({}, { from: 192, to: 208 }).bitcast(dtypes.int8).unsqueeze(-1).expand(-1, 16, 16).reshape(-1, 256)
+      const d = blocks.get({}, { from: -2 }).bitcast(dtypes.float16).cast(dtypes.float32).expand(-1, 256)
       return d.mul(xl.bitwise_or(xh).bitcast(dtypes.int8).sub(32).flatten(-2)).mul(scales)
     }
   }
