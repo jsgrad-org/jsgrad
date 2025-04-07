@@ -85,7 +85,7 @@ export const safe_load = async (
       console.warn(`Warning: Skipping tensor '${k}' due to unsupported dtype '${v.dtype}'`)
       continue
     }
-    state_dict[k] = new Tensor(data.slice(...v.data_offsets), { dtype, device: target_device }).reshape(v.shape)
+    state_dict[k] = new Tensor(data.slice(...v.data_offsets), { dtype, device: target_device }).reshape(...v.shape)
   }
 
   return state_dict
