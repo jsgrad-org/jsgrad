@@ -21,10 +21,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org/'
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org/"
 
       - name: Publish
-        run: deno task publish
+        run: deno task build && cd dist && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Test npm install
+        run: |
+          mkdir /tmp/node
+          cd /tmp/node
+          VERSION=$(jq -r '.version' package.json)
+          npm i @jsgrad/jsgrad${VERSION}
+          cp ${{ github.workspace }}/test/install.test.js .
+          node install.test.js
