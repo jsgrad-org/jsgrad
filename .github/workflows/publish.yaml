@@ -35,6 +35,16 @@ jobs:
           mkdir /tmp/node
           cd /tmp/node
           sleep 20
-          npm i @jsgrad/jsgrad@$VERSION
+          npm i @jsgrad/jsgrad@$VERSION && npm i ffi-rs
           cp ${{ github.workspace }}/test/install.test.js .
           node install.test.js
+
+      - name: Test deno install
+        run: |
+          VERSION=$(jq -r '.version' dist/package.json)
+          mkdir /tmp/deno
+          cd /tmp/deno
+          sleep 20
+          deno i npm:@jsgrad/jsgrad@$VERSION
+          cp ${{ github.workspace }}/test/install.test.js .
+          deno -A install.test.js
