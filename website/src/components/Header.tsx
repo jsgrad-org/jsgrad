@@ -1,7 +1,8 @@
+import '../../../jsgrad/env-web.ts'
 import { Settings2 } from 'lucide-react'
 import { vars } from '../../../jsgrad/helpers/helpers.ts'
-import { Device, env } from '../../../jsgrad/web.ts'
-import * as jsg from '../../../jsgrad/web.ts'
+import { Device, env } from '../../../jsgrad/base.ts'
+import * as jsg from '../../../jsgrad/base.ts'
 import { useState } from 'react'
 
 const allVars: (keyof typeof vars)[] = ['DEBUG', 'BEAM', 'JIT', 'NOOPT', 'CACHELEVEL']
