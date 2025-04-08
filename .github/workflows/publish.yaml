@@ -31,9 +31,9 @@ jobs:
 
       - name: Test npm install
         run: |
+          VERSION=$(jq -r '.version' dist/package.json)
           mkdir /tmp/node
           cd /tmp/node
-          VERSION=$(jq -r '.version' package.json)
-          npm i @jsgrad/jsgrad${VERSION}
+          npm i @jsgrad/jsgrad@$VERSION
           cp ${{ github.workspace }}/test/install.test.js .
           node install.test.js
