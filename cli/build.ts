@@ -66,7 +66,7 @@ const beta = version === npmVersion
 if (beta) version = `${version}-beta-${new Date().getTime()}`
 
 // package.json
-const jsFile = (entry: string, type: 'web' | 'node') => entry.replace('./', `./${type}/`).replace('.ts', `${type}.js`)
+const jsFile = (entry: string, type: 'web' | 'node') => entry.replace('./', `./${type}/`).replace('.ts', `.${type}.js`)
 const typesFile = (entry: string) => entry.replace('./', './types/').replace('.ts', '.d.ts')
 const packageJson = {
   name: '@jsgrad/jsgrad',
