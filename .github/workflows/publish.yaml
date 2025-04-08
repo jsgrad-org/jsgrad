@@ -36,8 +36,8 @@ jobs:
           cd /tmp/node
           sleep 20
           npm i @jsgrad/jsgrad@$VERSION && npm i ffi-rs
-          cp ${{ github.workspace }}/test/install.test.js .
-          node install.test.js
+          cp ${{ github.workspace }}/cli/devices-npm.js .
+          node devices-npm.js
 
       - name: Test deno install
         run: |
@@ -46,5 +46,5 @@ jobs:
           cd /tmp/deno
           sudo apt update -y && sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
           deno i npm:@jsgrad/jsgrad@$VERSION
-          cp ${{ github.workspace }}/test/install.test.js .
-          deno -A install.test.js
+          cp ${{ github.workspace }}/cli/devices-npm.js .
+          deno -A devices-npm.js
