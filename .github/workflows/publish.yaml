@@ -44,7 +44,7 @@ jobs:
           VERSION=$(jq -r '.version' dist/package.json)
           mkdir /tmp/deno
           cd /tmp/deno
-          sleep 20
+          sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
           deno i npm:@jsgrad/jsgrad@$VERSION
           cp ${{ github.workspace }}/test/install.test.js .
           deno -A install.test.js
