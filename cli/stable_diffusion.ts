@@ -1,4 +1,4 @@
-import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '../jsgrad/mod.ts'
+import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '../jsgrad/base.ts'
 import { parseArgs, z } from './parse.ts'
 import { StableDiffusion } from '../models/stable_diffusion.ts'
 import { ClipTokenizer } from '../models/clip.ts'

@@ -6,4 +6,5 @@ for (const device in env.DEVICES) {
 
   const test = await new Tensor([1, 2, 3], { device }).mul(2).tolist()
   if (!is_eq(test, [2, 4, 6])) throw new Error(`got ${test} instead of [2, 4, 6]`)
+  console.log(`Device ${device} success!`)
 }

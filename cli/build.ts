@@ -1,14 +1,20 @@
 import esbuild from 'npm:esbuild'
 import ts from 'npm:typescript'
 
-const PATH = './jsgrad/mod.ts'
-const MODELS = [...Deno.readDirSync('./models')].filter((x) => x.isFile && x.name !== 'deno.json').map((x) => `./models/${x.name}`)
-
 await Deno.remove('./dist', { recursive: true }).catch(() => {})
 
-// Build node
+const PATH = './jsgrad/mod.ts'
+const MODELS = ['clip', 'gpt2', 'llama', 'llama3', 'whisper', 'stable_diffusion', 'mnist', 'tokenizer', 'unet'].map((x) => `./models/${x}.ts`)
+
+// Importing envs
+for (const file of [PATH, ...MODELS]) {
+  await Deno.writeTextFile(file.replace('.ts', '.node.ts'), `import "../jsgrad/env-node.ts"\n${await Deno.readTextFile(file)}`)
+  await Deno.writeTextFile(file.replace('.ts', '.web.ts'), `import "../jsgrad/env-web.ts"\n${await Deno.readTextFile(file)}`)
+}
+
+// NODE
 await esbuild.build({
-  entryPoints: [PATH, ...MODELS],
+  entryPoints: [PATH, ...MODELS].map((x) => x.replace('.ts', '.node.ts')),
   format: 'esm',
   outdir: 'dist/node',
   bundle: true,
@@ -18,13 +24,12 @@ await esbuild.build({
   splitting: true,
   sourcemap: true,
   target: ['esnext'],
-  inject: ['./jsgrad/env-node.ts'],
   external: ['bun:ffi', 'bun:sqlite', 'ffi-rs'],
 })
 
-// Build web
+// WEB
 await esbuild.build({
-  entryPoints: [PATH, ...MODELS],
+  entryPoints: [PATH, ...MODELS].map((x) => x.replace('.ts', '.web.ts')),
   format: 'esm',
   outdir: 'dist/web',
   bundle: true,
@@ -34,7 +39,6 @@ await esbuild.build({
   splitting: true,
   sourcemap: true,
   target: ['chrome100'],
-  inject: ['./jsgrad/env-web.ts'],
 })
 
 // tsc
@@ -62,7 +66,7 @@ const beta = version === npmVersion
 if (beta) version = `${version}-beta-${new Date().getTime()}`
 
 // package.json
-const jsFile = (entry: string, type: 'web' | 'node') => entry.replace('./', `./${type}/`).replace('.ts', '.js')
+const jsFile = (entry: string, type: 'web' | 'node') => entry.replace('./', `./${type}/`).replace('.ts', `${type}.js`)
 const typesFile = (entry: string) => entry.replace('./', './types/').replace('.ts', '.d.ts')
 const packageJson = {
   name: '@jsgrad/jsgrad',

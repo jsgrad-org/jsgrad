@@ -1,5 +1,5 @@
 import "../jsgrad/env-node.ts"
-import { colored, env } from '../jsgrad/mod.ts'
+import { colored, env } from '../jsgrad/base.ts'
 
 abstract class Type<TsType> {
   required = true

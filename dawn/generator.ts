@@ -1,4 +1,4 @@
-import { range } from '../jsgrad/mod.ts'
+import { range } from '../jsgrad/base.ts'
 import data from './webgpu.json' with { type: 'json' }
 
 const rename = (name: string) => {

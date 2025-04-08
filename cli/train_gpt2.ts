@@ -1,5 +1,5 @@
 import { GPT } from '../models/gpt2.ts'
-import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '../jsgrad/mod.ts'
+import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '../jsgrad/base.ts'
 import { parseArgs, z } from './parse.ts'
 import { get_encoding } from 'npm:tiktoken'
 

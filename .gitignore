@@ -13,3 +13,5 @@ package-lock.json
 weights/
 .playwright
 .vscode
+*node.ts
+*web.ts
