@@ -6,13 +6,17 @@ import { typeColors } from "./API";
 export type Props = {};
 
 const docs = await getCollection("docs");
-const api = await getCollection("api");
+const generated = await getCollection("generated");
+
 const sections: { title: string; items: { href: string; title: string; kind?: string }[] }[] = [
   { title: "Docs", items: docs.map((x) => ({ href: x.id === "getting-started" ? "/docs" : `/docs/${x.id}`, title: x.data.title })) },
-  {
-    title: "API",
-    items: [{ href: "/docs/api", title: "Index" }, ...api.map((x) => ({ href: `/docs/api/${x.id}`, title: x.data.name, kind: x.data.kind }))],
-  },
+  ...generated.map((x) => ({
+    title: x.data.title,
+    items: [
+      { href: `/docs/${x.id}`, title: x.data.title },
+      ...x.data.items.map((item: any) => ({ href: `/docs/${x.id}/${item.name}`, title: item.name, kind: item.kind })),
+    ],
+  })),
 ];
 ---
 

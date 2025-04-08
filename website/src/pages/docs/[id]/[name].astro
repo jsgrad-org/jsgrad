@@ -4,8 +4,13 @@ import DocsLayout from "../../../components/DocsLayout.astro";
 import { APIItem } from "../../../components/API";
 
 export const getStaticPaths = async () => {
-  const posts = await getCollection("api");
-  return posts.map((post) => ({ params: { id: post.data.id }, props: { data: post.data, all: posts.map((x) => x.data.name) } }));
+  const items = await getCollection("generated");
+  return items.flatMap((x) =>
+    x.data.items.map((item) => ({
+      params: { id: x.id, name: item.name },
+      props: { data: item, all: x.data.items.map((x) => x.name) },
+    }))
+  );
 };
 ---
 
