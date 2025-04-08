@@ -1,5 +1,5 @@
-import { MNIST } from '@jsgrad/models/mnist'
-import { Adam, Device, get_parameters, mnist } from '@jsgrad/jsgrad'
+import { MNIST } from '../models/mnist.ts'
+import { Adam, Device, get_parameters, mnist } from '../jsgrad/base.ts'
 import { Tensor } from '../jsgrad/tensor.ts'
 import { asdict, compare, python } from './helpers.ts'
 import { describe, expect, test } from 'vitest'

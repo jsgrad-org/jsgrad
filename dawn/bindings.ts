@@ -1,6 +1,6 @@
 
 import * as c from './ctypes.ts'
-import { env } from '@jsgrad/jsgrad'
+import { env } from '../jsgrad/env/index.ts'
 
 export * from './ctypes.ts'
 
