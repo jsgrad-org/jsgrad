@@ -34,6 +34,7 @@ jobs:
           VERSION=$(jq -r '.version' dist/package.json)
           mkdir /tmp/node
           cd /tmp/node
+          sleep 10
           npm i @jsgrad/jsgrad@$VERSION
           cp ${{ github.workspace }}/test/install.test.js .
           node install.test.js
