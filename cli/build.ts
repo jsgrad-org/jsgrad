@@ -73,15 +73,15 @@ const packageJson = {
   types: typesFile(PATH),
   exports: {
     '.': {
-      default: jsFile(PATH, 'node'),
+      import: jsFile(PATH, 'node'),
       node: jsFile(PATH, 'node'),
       browser: jsFile(PATH, 'web'),
       types: typesFile(PATH),
     },
-    './node': { default: jsFile(PATH, 'node'), types: typesFile(PATH) },
-    './web': { default: jsFile(PATH, 'web'), types: typesFile(PATH) },
+    './node': { import: jsFile(PATH, 'node'), types: typesFile(PATH) },
+    './web': { import: jsFile(PATH, 'web'), types: typesFile(PATH) },
     ...Object.fromEntries(MODELS.map((x) => [x.replace('./models/', './').replace('.ts', ''), {
-      default: jsFile(x, 'node'),
+      import: jsFile(x, 'node'),
       node: jsFile(x, 'node'),
       browser: jsFile(x, 'web'),
       types: typesFile(x),
