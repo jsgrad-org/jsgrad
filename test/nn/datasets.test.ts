@@ -1,4 +1,4 @@
-import { mnist } from '../../jsgrad/node.ts'
+import { mnist } from '@jsgrad/jsgrad'
 import { expect, test } from 'vitest'
 
 test(

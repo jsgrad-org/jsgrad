@@ -1,5 +1,4 @@
 {
   "imports": {
-    "@jsgrad/jsgrad": "../jsgrad"
   }
 }

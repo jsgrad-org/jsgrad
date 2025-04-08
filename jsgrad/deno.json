@@ -1,8 +1,9 @@
 {
   "name": "@jsgrad/jsgrad",
   "exports": {
-    ".": "./node.ts",
-    "./web": "./web.ts"
+    ".": "./base.ts",
+    "./env-web": "./env-web.ts",
+    "./env-node": "./env-node.ts"
   },
   "imports": {
     "bun:ffi": "npm:bun-types@1.2.4",

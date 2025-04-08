@@ -1,4 +1,4 @@
-import { env } from '../jsgrad/env/index.ts'
+import { env } from '@jsgrad/jsgrad'
 
 export type DenoFnType =
   | Deno.ToNativeParameterTypes<[Deno.NativeType]>[number]

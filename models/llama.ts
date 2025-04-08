@@ -1,10 +1,4 @@
-import { Device } from '../device.ts'
-import { dtypes } from '../dtype.ts'
-import { TinyJit } from '../engine/jit.ts'
-import { add, assert, idiv, is_eq, mul, num, range, vars } from '../helpers/helpers.ts'
-import { Embedding, Linear, RMSNorm } from '../nn/index.ts'
-import { UOp, type Variable } from '../ops.ts'
-import { Tensor } from '../tensor.ts'
+import { add, assert, Device, dtypes, Embedding, idiv, is_eq, Linear, mul, num, range, RMSNorm, Tensor, TinyJit, UOp, type Variable, vars } from '@jsgrad/jsgrad'
 
 // https://github.com/facebookresearch/llama/blob/1076b9c51c77ad06e9d7ba8a4c6df775741732bd/llama/model.py#L47
 export const precompute_freqs_cis = (dim: number, end: number, theta = 10000.0): Tensor => {

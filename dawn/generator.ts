@@ -1,4 +1,4 @@
-import { range } from '../jsgrad/node.ts'
+import { range } from '@jsgrad/jsgrad'
 import data from './webgpu.json' with { type: 'json' }
 
 const rename = (name: string) => {
@@ -92,7 +92,7 @@ const getLibType = (type: Type): string => {
 
 let content = `
 import * as c from './ctypes.ts'
-import { env } from '../jsgrad/env/index.ts'
+import { env } from '@jsgrad/jsgrad'
 
 export * from './ctypes.ts'
 
