@@ -1,7 +1,7 @@
 import esbuild from 'npm:esbuild'
 import ts from 'npm:typescript'
 
-const NODE = './jsgrad/node.ts', BASE = './jsgrad/base.ts', WEB = './jsgrad/web.ts'
+const NODE = './jsgrad/node.ts', BASE = './jsgrad/mod.ts', WEB = './jsgrad/web.ts'
 await Deno.remove('./dist', { recursive: true }).catch(() => {})
 
 // Build
@@ -59,7 +59,7 @@ const packageJson = {
   exports: {
     './node': { import: jsFile(NODE), types: typesFile(NODE) },
     './web': { import: jsFile(WEB), types: typesFile(WEB) },
-    './base': { import: jsFile(BASE), types: typesFile(BASE) },
+    './mod': { import: jsFile(BASE), types: typesFile(BASE) },
     '.': {
       default: { import: jsFile(NODE), types: typesFile(NODE) },
       node: { import: jsFile(NODE), types: typesFile(NODE) },
