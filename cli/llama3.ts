@@ -1,5 +1,5 @@
-import { env, Tensor } from '@jsgrad/jsgrad'
-import { Llama3 } from '@jsgrad/models/llama3'
+import { env, Tensor } from '../jsgrad/mod.ts'
+import { Llama3 } from '../models/llama3.ts'
 import { parseArgs, z } from './parse.ts'
 
 const args = parseArgs({

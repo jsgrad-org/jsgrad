@@ -1,7 +1,7 @@
-import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '@jsgrad/jsgrad'
+import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '../jsgrad/mod.ts'
 import { parseArgs, z } from './parse.ts'
-import { StableDiffusion } from '@jsgrad/models/stable_diffusion'
-import { ClipTokenizer } from '@jsgrad/models/clip'
+import { StableDiffusion } from '../models/stable_diffusion.ts'
+import { ClipTokenizer } from '../models/clip.ts'
 import sharp from 'npm:sharp'
 
 const args = parseArgs({

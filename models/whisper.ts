@@ -1,4 +1,4 @@
-import { vars,add, ArrayMap, concat_bytes, Conv1d, type Conv2d, Device, dtypes, Embedding, env, id, idiv, type Layer, LayerNorm, Linear, load_state_dict, mod, num, range, replace_state_dict, safe_load, type sint, sub, Tensor, TinyJit, UOp, type Variable, zip } from '@jsgrad/jsgrad'
+import { vars,add, ArrayMap, concat_bytes, Conv1d, type Conv2d, Device, dtypes, Embedding, env, id, idiv, type Layer, LayerNorm, Linear, load_state_dict, mod, num, range, replace_state_dict, safe_load, type sint, sub, Tensor, TinyJit, UOp, type Variable, zip } from '../jsgrad/mod.ts'
 import {Tokenizer} from "./tokenizer.ts"
 
 // deno-fmt-ignore

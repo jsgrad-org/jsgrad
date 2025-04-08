@@ -1,4 +1,4 @@
-import { Conv2d, dtypes, GroupNorm, idiv, is_dtype_supported, type Layer, LayerNorm, Linear, mul, range, Tensor } from '@jsgrad/jsgrad'
+import { Conv2d, dtypes, GroupNorm, idiv, is_dtype_supported, type Layer, LayerNorm, Linear, mul, range, Tensor } from '../jsgrad/mod.ts'
 
 // https://github.com/Stability-AI/generative-models/blob/fbdc58cab9f4ee2be7a5e1f2e2787ecd9311942f/sgm/modules/diffusionmodules/util.py#L207
 const timestep_embedding = (timesteps: Tensor, dim: number, max_period = 10000) => {
