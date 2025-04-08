@@ -1,4 +1,5 @@
-import { env } from '../jsgrad/node.ts'
+import "../jsgrad/env-node.ts"
+import { env } from '../jsgrad/env/index.ts'
 import { DType, dtypes, ImageDType, INVERSE_DTYPES_DICT, PtrDType } from '../jsgrad/dtype.ts'
 import { ArrayMap, Enum, Metadata, random_id } from '../jsgrad/helpers/helpers.ts'
 import process from 'node:process'

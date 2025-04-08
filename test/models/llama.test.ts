@@ -2,7 +2,7 @@ import { Tensor } from '../../jsgrad/tensor.ts'
 import { dtypes } from '../../jsgrad/dtype.ts'
 import { Device } from '../../jsgrad/device.ts'
 import { compare } from '../helpers.ts'
-import { precompute_freqs_cis, Transformer } from '../../jsgrad/models/llama.ts'
+import { precompute_freqs_cis, Transformer } from '../../models/llama.ts'
 import { describe as describe } from 'vitest'
 
 describe(

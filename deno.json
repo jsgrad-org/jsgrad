@@ -14,7 +14,8 @@
     "./jsgrad",
     "./website",
     "./cli",
-    "./dawn"
+    "./dawn",
+    "./models"
   ],
   "nodeModulesDir": "auto",
   "fmt": {
@@ -48,10 +49,10 @@
     }
   },
   "imports": {
+    "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.4",
     "vitest": "npm:vitest@3.0.9",
     "ffi-rs": "npm:ffi-rs@1.2.9",
-    "@webgpu/types": "npm:@webgpu/types@0.1.54",
-    "@jsgrad/dist": "./dist"
+    "@webgpu/types": "npm:@webgpu/types@0.1.54"
   },
   "exclude": [
     "tinygrad*",

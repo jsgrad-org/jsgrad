@@ -1,4 +1,5 @@
-import { colored, Device, env, is_eq, Tensor } from '../jsgrad/node.ts'
+import "../jsgrad/env-node.ts"
+import { colored, Device, env, is_eq, Tensor } from '../jsgrad/mod.ts'
 
 let result: string[] = [], error = false
 for (const device in env.DEVICES) {

@@ -3,9 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "docs": "deno doc --json ../jsgrad/base.ts > /tmp/docs.json",
-    "dev": "npm run docs && astro dev",
-    "build": "npm run docs && astro build",
+    "dev": "astro dev",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

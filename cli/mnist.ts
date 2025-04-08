@@ -1,4 +1,5 @@
-import { Adam, get_parameters, GlobalCounters, MNIST, mnist, Tensor, TinyJit, Tqdm } from '../jsgrad/node.ts'
+import { Adam, get_parameters, GlobalCounters, mnist, Tensor, TinyJit, Tqdm } from '../jsgrad/mod.ts'
+import { MNIST } from '../models/mnist.ts'
 import { parseArgs, z } from './parse.ts'
 
 const args = parseArgs({

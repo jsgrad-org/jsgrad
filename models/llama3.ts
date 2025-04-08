@@ -1,12 +1,5 @@
-import { GlobalCounters, perf, range, vars, zip } from '../helpers/helpers.ts'
-import { Tensor } from '../tensor.ts'
-import { get_state_dict, gguf_load, load_state_dict, safe_load } from '../nn/state.ts'
-import { dtypes } from '../dtype.ts'
+import { Device, dtypes, Embedding, env, get_state_dict, gguf_load, GlobalCounters, Linear, load_state_dict, perf, range, safe_load, Tensor, Tqdm, type TqdmOnProgress, vars, zip } from '../jsgrad/mod.ts'
 import { convert_from_gguf, convert_from_huggingface, fix_bf16, Transformer } from './llama.ts'
-import { Embedding, Linear } from '../nn/index.ts'
-import { env } from '../env/index.ts'
-import { Tqdm, type TqdmOnProgress } from '../helpers/tqdm.ts'
-import { Device } from '../device.ts'
 import { Tokenizer } from './tokenizer.ts'
 
 // **** helper functions ****

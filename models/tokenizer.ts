@@ -1,5 +1,4 @@
-import { env } from '../env/index.ts'
-import { bytes_to_string, range, string_to_bytes } from '../helpers/helpers.ts'
+import { bytes_to_string, env, range, string_to_bytes } from '../jsgrad/mod.ts'
 
 export class Tokenizer {
   decode_map: Record<number, string>

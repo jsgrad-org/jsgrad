@@ -1,6 +1,7 @@
+import '../../../jsgrad/env-web.ts'
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, Play } from 'lucide-react'
-import * as jsg from '../../../jsgrad/web.ts'
+import * as jsg from '../../../jsgrad/mod.ts'
 
 export const Code = ({ code, setCode }: { code: string; setCode?: (x: string) => void }) => {
   const [loading, setLoading] = useState(false)
