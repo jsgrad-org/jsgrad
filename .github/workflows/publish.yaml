@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
           VERSION=$(jq -r '.version' dist/package.json)
           mkdir /tmp/deno
           cd /tmp/deno
-          sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
+          sudo apt update -y && sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
           deno i npm:@jsgrad/jsgrad@$VERSION
           cp ${{ github.workspace }}/test/install.test.js .
           deno -A install.test.js
