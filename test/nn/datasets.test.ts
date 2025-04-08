@@ -1,4 +1,4 @@
-import { mnist } from '@jsgrad/jsgrad'
+import { mnist } from '../../jsgrad/mod.ts'
 import { expect, test } from 'vitest'
 
 test(
