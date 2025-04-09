@@ -22,8 +22,8 @@ const make_anchors = (feats: Tensor[], strides: number[], grid_cell_offset = 0.5
     let sy = Tensor.arange(num(h)).add(grid_cell_offset)
 
     // this is np.meshgrid but in tinygrad
-    sx = sx.reshape(1, -1).repeat([h, 1]).reshape(-1)
-    sy = sy.reshape(-1, 1).repeat([1, w]).reshape(-1)
+    sx = sx.reshape(1, -1).repeat(h, 1).reshape(-1)
+    sy = sy.reshape(-1, 1).repeat(1, w).reshape(-1)
 
     anchor_points.push(Tensor.stack([sx, sy], -1).reshape(-1, 2))
     stride_tensor.push(Tensor.full([mul(h, w)], stride))
