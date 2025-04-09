@@ -232,10 +232,10 @@ export class YOLOv8 {
     this.fpn = new Yolov8NECK(w, r, d)
     this.head = new DetectionHead(num_classes, [Math.trunc(256 * w), Math.trunc(512 * w), Math.trunc(512 * w * r)])
   }
-  call = async (x: Tensor) => {
+  call = (x: Tensor) => {
     let y = this.net.call(x)
     y = this.fpn.call(...y)
-    return await this.head.call(y).realize()
+    return this.head.call(y)
   }
   return_all_trainable_modules = () => {
     const backbone_modules = range(10)

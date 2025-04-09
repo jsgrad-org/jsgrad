@@ -111,7 +111,6 @@
       import { get_weights_location, YOLOv8 } from "../../../models/yolov8";
       import { safe_load, load_state_dict, Tensor, TinyJit } from "../../../jsgrad/base.ts";
 
-
       const modelInputSize = 416;
       let lastCalledTime: number;
       let fps = 0,
@@ -120,20 +119,20 @@
 
       const video = document.getElementById("video") as HTMLVideoElement;
       const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-      const context = canvas.getContext("2d");
       const offscreenCanvas = document.createElement("canvas") as HTMLCanvasElement;
       const fpsMeter = document.getElementById("fps-meter")!;
-      const loadingContainer = document.getElementById("div-loading")!
-      const wgpuError = document.getElementById("wgpu-error");
+      const loadingContainer = document.getElementById("div-loading")!;
       offscreenCanvas.width = modelInputSize;
       offscreenCanvas.height = modelInputSize;
       const offscreenContext = offscreenCanvas.getContext("2d")!;
 
-
       const yolo = new YOLOv8(0.25, 2.0, 0.33, 80);
       const state_dict = await safe_load(await get_weights_location("n"));
       await load_state_dict(yolo, state_dict);
-      const net = new TinyJit(yolo.call);
+      const net = new TinyJit(async (x: Tensor) => {
+        x = x.reshape(1, 3, 416, 416);
+        return await yolo.call(x).reshape(-1).realize();
+      });
       loadingContainer.style.display = "none";
 
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -185,20 +184,13 @@
         offscreenContext.clearRect(0, 0, modelInputSize, modelInputSize);
         offscreenContext.drawImage(video, offsetX, offsetY, targetWidth, targetHeight);
         const boxes = await detectObjectsOnFrame(offscreenContext);
-        drawBoxes(offscreenCanvas, boxes, targetWidth, targetHeight, offsetX, offsetY);
+        drawBoxes(boxes, targetWidth, targetHeight, offsetX, offsetY);
         requestAnimationFrame(processFrame);
       }
 
       requestAnimationFrame(processFrame);
 
-      function drawBoxes(
-        offscreenCanvas: HTMLCanvasElement,
-        boxes: Box[],
-        targetWidth: number,
-        targetHeight: number,
-        offsetX: number,
-        offsetY: number
-      ) {
+      function drawBoxes(boxes: Box[], targetWidth: number, targetHeight: number, offsetX: number, offsetY: number) {
         const ctx = (document.querySelector("canvas") as HTMLCanvasElement).getContext("2d")!;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.lineWidth = 3;
@@ -230,7 +222,7 @@
         const [input, img_width, img_height] = await prepareInput(offscreenContext);
         console.log("Preprocess took: " + (performance.now() - start) + " ms");
         start = performance.now();
-        const output = await (await net.call(new Tensor(input).reshape(1, 3, 416, 416))).reshape(-1).tolist();
+        const output = await (await net.call(new Tensor(input))).tolist();
         console.log("Inference took: " + (performance.now() - start) + " ms");
         start = performance.now();
         let out = processOutput(output, img_width, img_height);
