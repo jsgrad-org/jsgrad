@@ -491,7 +491,7 @@ describe(
         [3, 3],
       ],
     ],
-    (t, repeats) => t.repeat(repeats),
+    (t, repeats) => t.repeat(...repeats),
     'out(data[0].repeat(data[1]))',
   ),
 )

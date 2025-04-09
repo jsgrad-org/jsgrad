@@ -29,7 +29,7 @@ export const repeat_kv = (x: Tensor, n_rep: number): Tensor => {
   const [bs, seqlen, n_kv_heads, head_dim] = x.shape
   if (n_rep === 1) return x
   // NOTE: this is different from x.repeat((1, 1, n_rep, 1))
-  return x.repeat([1, 1, 1, n_rep]).reshape(bs, seqlen, mul(n_kv_heads, n_rep), head_dim)
+  return x.repeat(1, 1, 1, n_rep).reshape(bs, seqlen, mul(n_kv_heads, n_rep), head_dim)
 }
 export class Attention {
   n_kv_heads: number

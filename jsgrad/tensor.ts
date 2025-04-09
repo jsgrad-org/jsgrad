@@ -1423,7 +1423,7 @@ export class Tensor extends MathTrait<Tensor> {
       if (zip(pX, X.shape_num).some(([[pB, pA], sh]) => num(pB) > sh || num(pA) > sh)) throw new Error('Padding value causes wrapping around more than once.')
       if (pX.some(([pB, pA]) => num(pB) < 0 || num(pA) < 0)) throw new Error('Negative pads with circular pads is not supported')
       const orig_shape = X.shape_num
-      X = X.repeat(pads.map(([pB, pA]) => (1 + Number(Boolean(pB)) + Number(Boolean(pA)))))
+      X = X.repeat(...pads.map(([pB, pA]) => (1 + Number(Boolean(pB)) + Number(Boolean(pA)))))
       return X.shrink(...zip(pads, orig_shape, X.shape_num).map(([[pB, pA], osh, xsh]) => [pB === 0 ? 0 : osh - num(pB), pA === 0 ? xsh : xsh - osh + num(pA)] as [sint, sint]))
     }
     for (const [d, [pB, pA]] of pads.entries()) {
@@ -1693,7 +1693,7 @@ export class Tensor extends MathTrait<Tensor> {
    * console.log(t.repeat(4, 2, 1).shape)
    * ```
    */
-  repeat = (repeats: sint[]): Tensor => {
+  repeat = (...repeats: sint[]): Tensor => {
     const base_shape = _align_left(this.shape, repeats)[0]
     const unsqueezed_shape = base_shape.flatMap((s) => [1, s] as [number, number])
     const expanded_shape = zip(repeats, base_shape).flat()
@@ -2384,7 +2384,7 @@ export class Tensor extends MathTrait<Tensor> {
       // input size scaling factor to make sure shrink for stride === possible
       const f_ = zip(o_, s_, i_, d_).map(([o, s, i, d]) => 1 + Number(resolve(gt(mul(o, s), add(i, d)))))
       // repeats such that we don't need padding
-      let x = this.repeat([...range(noop.length).map(() => 1), ...zip(k_, i_, d_, f_).map(([k, i, d, f]) => ceildiv(mul(k, add(mul(i, f), d)), i))])
+      let x = this.repeat(...range(noop.length).map(() => 1), ...zip(k_, i_, d_, f_).map(([k, i, d, f]) => ceildiv(mul(k, add(mul(i, f), d)), i)))
       // handle dilation
       x = x.shrink(...noop, ...zip(k_, i_, d_, f_).map(([k, i, d, f]) => [0, mul(k, add(mul(i, f), d))] as [sint, sint])).reshape(...noop, ...zip(k_, i_, d_, f_).flatMap(([k, i, d, f]) => [k, add(mul(i, f), d)]))
       // handle stride
