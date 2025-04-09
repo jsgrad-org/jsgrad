@@ -1,152 +1,4 @@
-import { BatchNorm2d, Conv2d, idiv, type Layer, mul, num, range, Tensor, zip } from '../jsgrad/base.ts'
-
-//Model architecture from https://github.com/ultralytics/ultralytics/issues/189
-//The upsampling class has been taken from this pull request https://github.com/tinygrad/tinygrad/pull/784 by dc-dc-dc. Now 2(?) models use upsampling. (retinet and this)
-
-//Pre processing image functions.
-// def compute_transform(image, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, stride=32) -> Tensor:
-//   shape = image.shape[:2]  # current shape [height, width]
-//   new_shape = (new_shape, new_shape) if isinstance(new_shape, int) else new_shape
-//   r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
-//   r = min(r, 1.0) if not scaleup else r
-//   new_unpad = (int(round(shape[1] * r)), int(round(shape[0] * r)))
-//   dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]
-//   dw, dh = (np.mod(dw, stride), np.mod(dh, stride)) if auto else (0.0, 0.0)
-//   new_unpad = (new_shape[1], new_shape[0]) if scaleFill else new_unpad
-//   dw /= 2
-//   dh /= 2
-//   image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR) if shape[::-1] != new_unpad else image
-//   top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
-//   left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-//   image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114))
-//   return Tensor(image)
-
-// def preprocess(im, imgsz=640, model_stride=32, model_pt=True):
-//   same_shapes = all(x.shape == im[0].shape for x in im)
-//   auto = same_shapes and model_pt
-//   im = [compute_transform(x, new_shape=imgsz, auto=auto, stride=model_stride) for x in im]
-//   im = Tensor.stack(*im) if len(im) > 1 else im[0].unsqueeze(0)
-//   im = im[..., ::-1].permute(0, 3, 1, 2)  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
-//   im = im / 255.0  # 0 - 255 to 0.0 - 1.0
-//   return im
-
-// Post Processing functions
-// def box_area(box):
-//   return (box[:, 2] - box[:, 0]) * (box[:, 3] - box[:, 1])
-
-// def box_iou(box1, box2):
-//   lt = np.maximum(box1[:, None, :2], box2[:, :2])
-//   rb = np.minimum(box1[:, None, 2:], box2[:, 2:])
-//   wh = np.clip(rb - lt, 0, None)
-//   inter = wh[:, :, 0] * wh[:, :, 1]
-//   area1 = box_area(box1)[:, None]
-//   area2 = box_area(box2)[None, :]
-//   iou = inter / (area1 + area2 - inter)
-//   return iou
-
-// def compute_nms(boxes, scores, iou_threshold):
-//   order, keep = scores.argsort()[::-1], []
-//   while order.size > 0:
-//     i = order[0]
-//     keep.append(i)
-//     if order.size == 1:
-//       break
-//     iou = box_iou(boxes[i][None, :], boxes[order[1:]])
-//     inds = np.where(np.atleast_1d(iou.squeeze()) <= iou_threshold)[0]
-//     order = order[inds + 1]
-//   return np.array(keep)
-
-// def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45, agnostic=False, max_det=300, nc=0, max_wh=7680):
-//   prediction = prediction[0] if isinstance(prediction, (list, tuple)) else prediction
-//   bs, nc = prediction.shape[0], nc or (prediction.shape[1] - 4)
-//   xc = np.amax(prediction[:, 4:4 + nc], axis=1) > conf_thres
-//   nm = prediction.shape[1] - nc - 4
-//   output = [np.zeros((0, 6 + nm))] * bs
-
-//   for xi, x in enumerate(prediction):
-//     x = x.swapaxes(0, -1)[xc[xi]]
-//     if not x.shape[0]: continue
-//     box, cls, mask = np.split(x, [4, 4 + nc], axis=1)
-//     conf, j = np.max(cls, axis=1, keepdims=True), np.argmax(cls, axis=1, keepdims=True)
-//     x = np.concatenate((xywh2xyxy(box), conf, j.astype(np.float32), mask), axis=1)
-//     x = x[conf.ravel() > conf_thres]
-//     if not x.shape[0]: continue
-//     x = x[np.argsort(-x[:, 4])]
-//     c = x[:, 5:6] * (0 if agnostic else max_wh)
-//     boxes, scores = x[:, :4] + c, x[:, 4]
-//     i = compute_nms(boxes, scores, iou_thres)[:max_det]
-//     output[xi] = x[i]
-//   return output
-
-// def postprocess(preds, img, orig_imgs):
-//   print('copying to CPU now for post processing')
-//   #if you are on CPU, this causes an overflow runtime error. doesn't "seem" to make any difference in the predictions though.
-//   # TODO: make non_max_suppression in tinygrad - to make this faster
-//   preds = preds.numpy() if isinstance(preds, Tensor) else preds
-//   preds = non_max_suppression(prediction=preds, conf_thres=0.25, iou_thres=0.7, agnostic=False, max_det=300)
-//   all_preds = []
-//   for i, pred in enumerate(preds):
-//     orig_img = orig_imgs[i] if isinstance(orig_imgs, list) else orig_imgs
-//     if not isinstance(orig_imgs, Tensor):
-//       pred[:, :4] = scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
-//       all_preds.append(pred)
-//   return all_preds
-
-// def draw_bounding_boxes_and_save(orig_img_paths, output_img_paths, all_predictions, class_labels, iou_threshold=0.5):
-//   color_dict = {label: tuple((((i+1) * 50) % 256, ((i+1) * 100) % 256, ((i+1) * 150) % 256)) for i, label in enumerate(class_labels)}
-//   font = cv2.FONT_HERSHEY_SIMPLEX
-
-//   def is_bright_color(color):
-//     r, g, b = color
-//     brightness = (r * 299 + g * 587 + b * 114) / 1000
-//     return brightness > 127
-
-//   for img_idx, (orig_img_path, output_img_path, predictions) in enumerate(zip(orig_img_paths, output_img_paths, all_predictions)):
-//     predictions = np.array(predictions)
-//     orig_img = cv2.imread(orig_img_path) if not isinstance(orig_img_path, np.ndarray) else cv2.imdecode(orig_img_path, 1)
-//     height, width, _ = orig_img.shape
-//     box_thickness = int((height + width) / 400)
-//     font_scale = (height + width) / 2500
-
-//     grouped_preds = defaultdict(list)
-//     object_count = defaultdict(int)
-
-//     for pred_np in predictions:
-//       grouped_preds[int(pred_np[-1])].append(pred_np)
-
-//     def draw_box_and_label(pred, color):
-//       x1, y1, x2, y2, conf, _ = pred
-//       x1, y1, x2, y2 = map(int, (x1, y1, x2, y2))
-//       cv2.rectangle(orig_img, (x1, y1), (x2, y2), color, box_thickness)
-//       label = f"{class_labels[class_id]} {conf:.2f}"
-//       text_size, _ = cv2.getTextSize(label, font, font_scale, 1)
-//       label_y, bg_y = (y1 - 4, y1 - text_size[1] - 4) if y1 - text_size[1] - 4 > 0 else (y1 + text_size[1], y1)
-//       cv2.rectangle(orig_img, (x1, bg_y), (x1 + text_size[0], bg_y + text_size[1]), color, -1)
-//       font_color = (0, 0, 0) if is_bright_color(color) else (255, 255, 255)
-//       cv2.putText(orig_img, label, (x1, label_y), font, font_scale, font_color, 1, cv2.LINE_AA)
-
-//     for class_id, pred_list in grouped_preds.items():
-//       pred_list = np.array(pred_list)
-//       while len(pred_list) > 0:
-//         max_conf_idx = np.argmax(pred_list[:, 4])
-//         max_conf_pred = pred_list[max_conf_idx]
-//         pred_list = np.delete(pred_list, max_conf_idx, axis=0)
-//         color = color_dict[class_labels[class_id]]
-//         draw_box_and_label(max_conf_pred, color)
-//         object_count[class_labels[class_id]] += 1
-//         iou_scores = box_iou(np.array([max_conf_pred[:4]]), pred_list[:, :4])
-//         low_iou_indices = np.where(iou_scores[0] < iou_threshold)[0]
-//         pred_list = pred_list[low_iou_indices]
-//         for low_conf_pred in pred_list:
-//           draw_box_and_label(low_conf_pred, color)
-
-//     print(f"Image {img_idx + 1}:")
-//     print("Objects detected:")
-//     for obj, count in object_count.items():
-//       print(f"- {obj}: {count}")
-
-//     cv2.imwrite(output_img_path, orig_img)
-//     print(f'saved detections at {output_img_path}')
+import { BatchNorm2d, Conv2d, env, idiv, type Layer, mul, num, range, Tensor, zip } from '../jsgrad/base.ts'
 
 // utility functions for forward pass.
 const dist2bbox = (distance: Tensor, anchor_points: Tensor, xywh = true, dim = -1) => {
@@ -193,41 +45,9 @@ const autopad = (k: number | number[], p?: number | number[], d = 1) => { // ker
   return p
 }
 
-// def clip_boxes(boxes, shape):
-//   boxes[..., [0, 2]] = np.clip(boxes[..., [0, 2]], 0, shape[1])  # x1, x2
-//   boxes[..., [1, 3]] = np.clip(boxes[..., [1, 3]], 0, shape[0])  # y1, y2
-//   return boxes
-
-// def scale_boxes(img1_shape, boxes, img0_shape, ratio_pad=None):
-//   gain = ratio_pad if ratio_pad else min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])
-//   pad = ((img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2)
-//   boxes_np = boxes.numpy() if isinstance(boxes, Tensor) else boxes
-//   boxes_np[..., [0, 2]] -= pad[0]
-//   boxes_np[..., [1, 3]] -= pad[1]
-//   boxes_np[..., :4] /= gain
-//   boxes_np = clip_boxes(boxes_np, img0_shape)
-//   return boxes_np
-
-// def xywh2xyxy(x):
-//   xy = x[..., :2]  # center x, y
-//   wh = x[..., 2:4]  # width, height
-//   xy1 = xy - wh / 2  # top left x, y
-//   xy2 = xy + wh / 2  # bottom right x, y
-//   result = np.concatenate((xy1, xy2), axis=-1)
-//   return Tensor(result) if isinstance(x, Tensor) else result
-
-// def get_variant_multiples(variant):
-//   return {'n':(0.33, 0.25, 2.0), 's':(0.33, 0.50, 2.0), 'm':(0.67, 0.75, 1.5), 'l':(1.0, 1.0, 1.0), 'x':(1, 1.25, 1.0) }.get(variant, None)
-
-// def label_predictions(all_predictions):
-//   class_index_count = defaultdict(int)
-//   for predictions in all_predictions:
-//     predictions = np.array(predictions)
-//     for pred_np in predictions:
-//       class_id = int(pred_np[-1])
-//       class_index_count[class_id] += 1
-
-//   return dict(class_index_count)
+export const get_variant_multiples = (variant: string) => {
+  return { 'n': [0.33, 0.25, 2.0], 's': [0.33, 0.50, 2.0], 'm': [0.67, 0.75, 1.5], 'l': [1.0, 1.0, 1.0], 'x': [1, 1.25, 1.0] }[variant]
+}
 
 //this is taken from https://github.com/tinygrad/tinygrad/pull/784/files by dc-dc-dc (Now 2 models use upsampling)
 class Upsample {
@@ -403,7 +223,7 @@ class DetectionHead {
     return z
   }
 }
-class YOLOv8 {
+export class YOLOv8 {
   net: Darknet
   fpn: Yolov8NECK
   head: DetectionHead
@@ -412,10 +232,10 @@ class YOLOv8 {
     this.fpn = new Yolov8NECK(w, r, d)
     this.head = new DetectionHead(num_classes, [Math.trunc(256 * w), Math.trunc(512 * w), Math.trunc(512 * w * r)])
   }
-  call = (x: Tensor) => {
+  call = async (x: Tensor) => {
     let y = this.net.call(x)
     y = this.fpn.call(...y)
-    return this.head.call(y)
+    return await this.head.call(y).realize()
   }
   return_all_trainable_modules = () => {
     const backbone_modules = range(10)
@@ -424,73 +244,9 @@ class YOLOv8 {
     return [...zip(backbone_modules, this.net.return_modules()), ...zip(yolov8neck_modules, this.fpn.return_modules()), ...yolov8_head_weights]
   }
 }
-// def convert_f16_safetensor_to_f32(input_file: Path, output_file: Path):
-//   with open(input_file, 'rb') as f:
-//     metadata_length = int.from_bytes(f.read(8), 'little')
-//     metadata = json.loads(f.read(metadata_length).decode())
-//     float32_values = np.fromfile(f, dtype=np.float16).astype(np.float32)
 
-//   for v in metadata.values():
-//     if v["dtype"] == "F16": v.update({"dtype": "F32", "data_offsets": [offset * 2 for offset in v["data_offsets"]]})
-
-//   with open(output_file, 'wb') as f:
-//     new_metadata_bytes = json.dumps(metadata).encode()
-//     f.write(len(new_metadata_bytes).to_bytes(8, 'little'))
-//     f.write(new_metadata_bytes)
-//     float32_values.tofile(f)
-
-// def get_weights_location(yolo_variant: str) -> Path:
-//   weights_location = Path(__file__).parents[1] / "weights" / f'yolov8{yolo_variant}.safetensors'
-//   fetch(f'https://gitlab.com/r3sist/yolov8_weights/-/raw/master/yolov8{yolo_variant}.safetensors', weights_location)
-
-//   if not is_dtype_supported(dtypes.half):
-//     f32_weights = weights_location.with_name(f"{weights_location.stem}_f32.safetensors")
-//     if not f32_weights.exists(): convert_f16_safetensor_to_f32(weights_location, f32_weights)
-//     weights_location = f32_weights
-
-//   return weights_location
-
-// if __name__ == '__main__':
-
-//   # usage : python3 yolov8.py "image_URL OR image_path" "v8 variant" (optional, n is default)
-//   if len(sys.argv) < 2:
-//     print("Error: Image URL or path not provided.")
-//     sys.exit(1)
-
-//   img_path = sys.argv[1]
-//   yolo_variant = sys.argv[2] if len(sys.argv) >= 3 else (print("No variant given, so choosing 'n' as the default. Yolov8 has different variants, you can choose from ['n', 's', 'm', 'l', 'x']") or 'n')
-//   print(f'running inference for YOLO version {yolo_variant}')
-
-//   output_folder_path = Path('./outputs_yolov8')
-//   output_folder_path.mkdir(parents=True, exist_ok=True)
-//   #absolute image path or URL
-//   image_location = [np.frombuffer(fetch(img_path).read_bytes(), np.uint8)]
-//   image = [cv2.imdecode(image_location[0], 1)]
-//   out_paths = [(output_folder_path / f"{Path(img_path).stem}_output{Path(img_path).suffix or '.png'}").as_posix()]
-//   if not isinstance(image[0], np.ndarray):
-//     print('Error in image loading. Check your image file.')
-//     sys.exit(1)
-//   pre_processed_image = preprocess(image)
-
-//   # Different YOLOv8 variants use different w , r, and d multiples. For a list , refer to this yaml file (the scales section) https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/models/v8/yolov8.yaml
-//   depth, width, ratio = get_variant_multiples(yolo_variant)
-//   yolo_infer = YOLOv8(w=width, r=ratio, d=depth, num_classes=80)
-//   state_dict = safe_load(get_weights_location(yolo_variant))
-//   load_state_dict(yolo_infer, state_dict)
-
-//   st = time.time()
-//   predictions = yolo_infer(pre_processed_image)
-//   print(f'did inference in {int(round(((time.time() - st) * 1000)))}ms')
-
-//   post_predictions = postprocess(preds=predictions, img=pre_processed_image, orig_imgs=image)
-
-//   #v8 and v3 have same 80 class names for Object Detection
-//   class_labels = fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names').read_text().split("\n")
-
-//   draw_bounding_boxes_and_save(orig_img_paths=image_location, output_img_paths=out_paths, all_predictions=post_predictions, class_labels=class_labels)
-
-// TODO for later:
-//  1. Fix SPPF minor difference due to maxpool
-//  2. AST exp overflow warning while on cpu
-//  3. Make NMS faster
-//  4. Add video inference and webcam support
+export const get_weights_location = async (yolo_variant: string) => {
+  let weights_location = `weights/yolov8${yolo_variant}.safetensors`
+  await env.fetchSave(`https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8${yolo_variant}.safetensors`, weights_location)
+  return weights_location
+}
