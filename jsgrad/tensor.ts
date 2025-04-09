@@ -2468,7 +2468,7 @@ export class Tensor extends MathTrait<Tensor> {
    * print(t.avg_pool2d(padding=1, count_include_pad=false).numpy())
    * ```
    */
-  max_pool2d = (kernel_size = [2, 2], stride?: number, dilation = 1, padding = 0, ceil_mode = false) => {
+  max_pool2d = (kernel_size: number[] | number = [2, 2], stride?: number, dilation = 1, padding = 0, ceil_mode = false) => {
     let k_ = make_tuple(kernel_size, 2), pads = this._resolve_pool_pads(padding, k_.length)
     if (ceil_mode) pads = this._apply_ceil_mode(pads, k_, stride !== undefined ? stride : k_, dilation)
     return this.pad(pads, undefined, dtypes.min(this.dtype))._pool(k_, stride !== undefined ? stride : k_, dilation).max(range(-k_.length, 0))
