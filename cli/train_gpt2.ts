@@ -1,3 +1,9 @@
+/** <!-- cell:markdown --> */
+/**
+ * First import and get the inputs
+ */
+
+/** <!-- cell:code --> */
 import { GPT } from '../models/gpt2.ts'
 import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '../jsgrad/base.ts'
 import { parseArgs, z } from './parse.ts'
@@ -16,6 +22,12 @@ if (args.seed) Tensor.manual_seed(args.seed)
 const [B, T] = [args.bs, args.sequence_length]
 if (1 > T || T > 1024) throw new Error()
 
+/** <!-- cell:markdown --> */
+/**
+ * Initialize and load the model and tokenizer
+ */
+
+/** <!-- cell:code --> */
 const model = new GPT({
   block_size: 1024,
   vocab_size: 50257,
@@ -32,12 +44,13 @@ const enc = get_encoding('gpt2')
 const encode = (s: string) => enc.encode(s, ['<|endoftext|>'])
 const decode = (l: Uint32Array) => enc.decode(l)
 
-// load the tokens
-// prefer to use tiny_shakespeare if it's available, otherwise use tiny_stories
-// we're using val instead of train split just because it is smaller/faster
+/** <!-- cell:markdown --> */
+/**
+ * Load the data
+ */
+
+/** <!-- cell:code --> */
 const tokens_bin = await env.fetchSave('https://huggingface.co/datasets/karpathy/llmc-starter-pack/resolve/main/tiny_shakespeare_val.bin', 'weights/tiny_shakespeare_val.bin')
-console.log(`loading cached tokens in ${tokens_bin}`)
-//   with open(tokens_bin, "rb") as f:
 let data = await env.readFile(tokens_bin)
 data = data.slice(0x400)
 const tokens = new Tensor([...new Uint16Array(data.buffer)])
@@ -61,6 +74,13 @@ function* get_batch() {
 // forward backward for a few iterations
 const data_iter = get_batch()
 const [x, y] = data_iter.next().value! // we'll overfit this batch below
+
+/** <!-- cell:markdown --> */
+/**
+ * Init the optimizer and the step function
+ */
+
+/** <!-- cell:code --> */
 const optimizer = new AdamW(get_parameters(model), 1e-4, undefined, undefined, undefined, 0)
 
 const step = new TinyJit((x, y) => {
@@ -70,6 +90,12 @@ const step = new TinyJit((x, y) => {
   return loss!.realize(optimizer.schedule_step())
 })
 
+/** <!-- cell:markdown --> */
+/**
+ * Training
+ */
+
+/** <!-- cell:code --> */
 await Tensor.train(async () => {
   for (const i of range(args.steps)) {
     GlobalCounters.reset()
@@ -81,6 +107,12 @@ await Tensor.train(async () => {
   }
 })
 
+/** <!-- cell:markdown --> */
+/**
+ * Testing
+ */
+
+/** <!-- cell:code --> */
 if (!args.skip_test) {
   const start = '<|endoftext|>'
   const start_ids = encode(start)
