@@ -4,7 +4,7 @@ import ts from 'npm:typescript'
 await Deno.remove('./dist', { recursive: true }).catch(() => {})
 
 const PATH = './jsgrad/mod.ts'
-const MODELS = ['clip', 'gpt2', 'llama', 'llama3', 'whisper', 'stable_diffusion', 'mnist', 'tokenizer', 'unet'].map((x) => `./models/${x}.ts`)
+const MODELS = ['clip', 'gpt2', 'llama', 'llama3', 'whisper', 'stable_diffusion', 'mnist', 'tokenizer', 'unet', 'yolov8'].map((x) => `./models/${x}.ts`)
 
 // Importing envs
 for (const file of [PATH, ...MODELS]) {
