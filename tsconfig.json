@@ -14,8 +14,7 @@
             "@webgpu/types",
             "@types/deno",
             "@types/node",
-            "@types/bun",
-            "./website/.astro/types.d.ts"
+            "@types/bun"
         ],
         "allowJs": true,
         "declaration": true,
