@@ -1,7 +1,7 @@
 {
   "version": "0.0.17",
   "scripts": {
-    "test": "deno -A npm:vitest run --testTimeout 0",
+    "test": "vitest run --testTimeout 0",
     "format": "deno fmt",
     "check": "tsc",
     "update": "deno -A scripts/update.ts",

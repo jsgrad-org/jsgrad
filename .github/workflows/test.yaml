@@ -25,9 +25,11 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - uses: denoland/setup-deno@v2
+      - uses: actions/setup-node@v4
         with:
-          deno-version: v2.2.2
+          node-version: '22'
+      - run: npm i 
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
@@ -41,11 +43,11 @@ jobs:
           sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
 
       - name: Run tests
-        run: TQDM=0 CACHE_DB=":memory:" ${{ matrix.runtime }} deno task test
+        run: TQDM=0 CACHE_DB=":memory:" ${{ matrix.runtime }} npm run test
 
       - name: Train mnist
         if: "!contains(matrix.runtime, 'DEVICE=WEBGPU')" # Buffer binding 1 range 737280000 exceeds `max_*_buffer_binding_size` limit 134217728
-        run: TQDM=0 CACHE_DB=":memory:" ${{ matrix.runtime }} deno -A cli/mnist.ts --steps 10 --bs 2
+        run: TQDM=0 CACHE_DB=":memory:" ${{ matrix.runtime }} node --experimental-transform-types cli/mnist.ts --steps 10 --bs 2
   envs:
     strategy:
       fail-fast: false
@@ -62,10 +64,10 @@ jobs:
         run: sudo apt update -y && sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
 
       - uses: denoland/setup-deno@v2
-        if: matrix.env == 'deno -A' || matrix.env == './cli/chrome.ts'
+        if: matrix.env == 'deno -A' 
 
       - uses: actions/setup-node@v4
-        if: matrix.env == 'node --experimental-transform-types'
+        if: matrix.env == 'node --experimental-transform-types' || matrix.env == './cli/chrome.ts'
         with:
           node-version: '22'
       - run: npm i ffi-rs

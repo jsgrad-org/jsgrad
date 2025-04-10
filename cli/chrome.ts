@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -A
+#!/usr/bin/env node
 import { chromium } from 'playwright'
 import esbuild from 'esbuild'
 import process from 'node:process'
@@ -6,7 +6,7 @@ import { string_to_bytes } from '@jsgrad/jsgrad'
 
 const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL', 'TQDM']
 
-const [entry, ...args] = Deno.args
+const [entry, ...args] = process.argv.slice(2)
 const build = await esbuild.build({
   entryPoints: [entry],
   format: 'esm',
@@ -15,14 +15,10 @@ const build = await esbuild.build({
   write: false,
   logLevel: 'error',
   target: ['chrome100'],
-  external: [
-    './jsgrad/env/deno.ts',
-    './jsgrad/env/bun.ts',
-    './jsgrad/env/node.ts',
-  ],
+  external: ['./jsgrad/env/deno.ts', './jsgrad/env/bun.ts', './jsgrad/env/node.ts'],
   define: {
     'window.args': JSON.stringify(args),
-    'process': JSON.stringify({
+    process: JSON.stringify({
       env: Object.fromEntries(FORWARD_ENVS.map((k) => [k, process.env[k]])),
     }),
   },
@@ -32,11 +28,7 @@ const code = build.outputFiles[0].text + ';console.log("ASYNC_CODE_COMPLETE");'
 
 const browser = await chromium.launchPersistentContext('.playwright', {
   headless: !process.env.SHOW,
-  args: [
-    '--disable-web-security',
-    '--enable-unsafe-webgpu',
-    '--enable-features=Vulkan',
-  ],
+  args: ['--disable-web-security', '--enable-unsafe-webgpu', '--enable-features=Vulkan'],
 })
 const page = await browser.newPage()
 await page.goto('https://jsgrad.org') // needed cause indexedDB won't work in about:blank
@@ -55,7 +47,7 @@ const promise = new Promise<void>((res) => {
     const text = msg.text()
     if (text === 'ASYNC_CODE_COMPLETE') return res()
     if (text.includes('\u200B')) {
-      Deno.stdout.writeSync(string_to_bytes(text.replace('\u200B', '')))
+      process.stdout.write(string_to_bytes(text.replace('\u200B', '')))
     } else console.log(text)
   })
 })
