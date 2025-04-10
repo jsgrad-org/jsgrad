@@ -10,7 +10,6 @@
     "./jsgrad",
     "./website",
     "./cli",
-    "./dawn",
     "./models"
   ],
   "dependencies": {
