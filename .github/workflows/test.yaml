@@ -75,5 +75,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         if: matrix.env == 'bun -b'
 
+      - run: npx playwright install
+        if: matrix.env == './cli/chrome.ts'
+
       - name: Test
         run: TQDM=0 ${{ matrix.env }} cli/devices.ts
