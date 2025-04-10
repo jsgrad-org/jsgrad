@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-publish:
+  publish:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
