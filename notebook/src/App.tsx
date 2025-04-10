@@ -34,12 +34,10 @@ const codeToCells = (code: string): Cell[] => {
     let content = splits[i + 1].trim()
     if (type === 'markdown') content = content.split('\n').slice(1, -1).join('\n')
 
-    let lines = 1 // the cell definition
-    lines += content.split('\n').length // content
-    if (type === 'markdown') lines += 2 // md block start and end
-    lines++ // trailing space
-    out.push({ type, content, startLine: offset, endLine: offset + lines })
-    offset += lines
+    let lines = content.split('\n').length // content
+    lines += 2 // block start and end
+    out.push({ type, content, startLine: offset + 1, endLine: offset + 1 + lines })
+    offset += lines + 2 // cell definition and trailing space
   }
   return out
 }
@@ -47,7 +45,7 @@ const cellsToCode = (cells: Cell[]): string => {
   let out = ''
   for (const cell of cells) {
     out += `/** [](cell:${cell.type}) */\n`
-    if (cell.type === 'code') out += `${cell.content}\n\n`
+    if (cell.type === 'code') out += `\n${cell.content}\n\n\n`
     if (cell.type === 'markdown') out += `/**\n${cell.content}\n*/\n\n`
   }
   return out
@@ -96,7 +94,7 @@ export const CodeInit = () => {
     let model = monaco.editor.getModel(uri)
     if (model) return
     model = monaco.editor.createModel(cellsToCode(cells), 'typescript', uri)
-    model.onDidChangeContent((e)=>{
+    model.onDidChangeContent((e) => {
       console.log(e)
     })
 
@@ -132,41 +130,45 @@ export const CodeInit = () => {
 
     loadPackage('@jsgrad/jsgrad')
     loadPackage('@jsgrad/models')
-    loadPackage('zod')
   }, [monaco])
 
   return null
 }
-
 export const CodeBlock = ({ startLine, endLine }: Cell) => {
-  const start = startLine + 1
-  const end = endLine - 1
-  const monaco = useMonaco()
-
-  useEffect(() => {
-    if (!monaco) return
-    // Ensure TypeScript compiler options are set
-  }, [monaco])
+  const lineHeight = 19
   return (
     <Editor
+      className="border-2 border-gray-900 rounded-xl !shadow-none overflow-hidden"
       defaultPath={Uri.file('notebook.ts').toString()}
-      height={(end - start) * 19}
+      height={(endLine - startLine) * lineHeight}
       onMount={(editor, monaco) => {
-        const range = new monaco.Range(start, 1, end, Number.MAX_SAFE_INTEGER)
-        editor.revealRange(range, 0)
+        const range = new monaco.Range(startLine, 1, endLine, Number.MAX_SAFE_INTEGER)
+        editor.revealRange(range, 1)
         editor.onDidScrollChange((e) => {
-          editor.revealRange(range, 0)
+          editor.revealRange(range, 1)
         })
+        // editor.addAction({
+        //   id: 'custom-select-all',
+        //   label: 'Select Cell Content',
+        //   keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA],
+        //   run: () => {
+        //     editor.setSelection(range)
+        //   },
+        // })
       }}
       options={{
-        // lineNumbers: 'off',
+        lineNumbers: (e) => {
+          if (e >= endLine - 1 || e<startLine) return null
+          return (e - startLine) as any
+        },
         stickyScroll: { enabled: false },
         wordWrap: 'off',
         minimap: { enabled: false },
+        lineHeight,
         formatOnType: true,
         scrollbar: {
           vertical: 'hidden',
-          horizontal: 'auto',
+          horizontal: 'hidden',
           handleMouseWheel: false,
         },
         overviewRulerLanes: 0,

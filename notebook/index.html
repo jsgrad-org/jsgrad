@@ -88,7 +88,7 @@ function* get_batch() {
 
 // forward backward for a few iterations
 const data_iter = get_batch()
-const [x, y] = data_iter.next().value! // we'll overfit this batch below
+const [x, y] = data_iter.next().value as [Tensor, Tensor] // we'll overfit this batch below
 
 /** [](cell:markdown) */
 /**
