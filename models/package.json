@@ -1,3 +1,15 @@
 {
-    "name": "@jsgrad/models"
+    "name": "@jsgrad/models",
+    "exports":{
+        "./clip": "./clip.ts",
+        "./gpt2": "./gpt2.ts",
+        "./llama": "./llama.ts",
+        "./llama3": "./llama3.ts",
+        "./mnist": "./mnist.ts",
+        "./stable_diffusion": "./stable_diffusion.ts",
+        "./tokenizer": "./tokenizer.ts",
+        "./unet": "./unet.ts",
+        "./whisper": "./whisper.ts",
+        "./yolov8": "./yolov8.ts"
+    }
 }

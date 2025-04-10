@@ -1,4 +1,3 @@
-import '@jsgrad/jsgrad/env-web.ts'
 import { Settings2 } from 'lucide-react'
 import { vars,Device, env } from '@jsgrad/jsgrad'
 import * as jsg from '@jsgrad/jsgrad'

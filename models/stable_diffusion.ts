@@ -2,8 +2,8 @@
 // https://github.com/ekagra-ranjan/huggingface-blog/blob/main/stable_diffusion.md
 
 import { Conv2d, dtypes, GroupNorm, mul, Tensor } from '@jsgrad/jsgrad'
-import { ClipTextTransformer } from './clip'
-import { UNetModel } from './unet'
+import { ClipTextTransformer } from './clip.ts'
+import { UNetModel } from './unet.ts'
 
 class AttnBlock {
   norm: GroupNorm

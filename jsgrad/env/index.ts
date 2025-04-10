@@ -11,7 +11,7 @@ export const env = new Proxy<WebEnv>({} as WebEnv, {
 })
 
 export const setEnv = (e: WebEnv) => {
-  if (_env) throw new Error(`Env already set to ${env.NAME}`)
+  // if (_env) throw new Error(`Env already set to ${env.NAME}`)
   _env = e
   if (vars.DEBUG === 1) console.log(`Using env ${e.NAME}`)
 }

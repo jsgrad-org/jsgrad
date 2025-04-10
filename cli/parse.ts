@@ -1,4 +1,3 @@
-import "@jsgrad/jsgrad/env-node.ts"
 import { colored, env } from '@jsgrad/jsgrad'
 
 abstract class Type<TsType> {

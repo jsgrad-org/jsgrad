@@ -27,7 +27,7 @@ const generated = defineCollection({
       const items = JSON.parse(new TextDecoder().decode(await fs.readFile(`/tmp/${id}.json`))).nodes.filter((x: any) => x.kind !== 'import')
       return { id, items, title }
     }
-    out.push(await item('../jsgrad/mod.ts', 'api', 'API'))
+    out.push(await item('../jsgrad/index.ts', 'api', 'API'))
 
     const MODELS = (await fs.readdir('../models')).filter((x) => x.endsWith('.ts'))
     for (const model of MODELS) {

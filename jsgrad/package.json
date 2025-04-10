@@ -1,9 +1,12 @@
 {
   "name": "@jsgrad/jsgrad",
   "exports": {
-    ".": "./index.ts",
-    "./env-web": "./env-web.ts",
-    "./env-node": "./env-node.ts"
+    ".": {
+      "default": "./index.ts",
+      "node": "./node.ts"
+    },
+    "./node": "./node.ts",
+    "./base": "./base.ts"
   },
   "license": "MIT",
   "dependencies": {

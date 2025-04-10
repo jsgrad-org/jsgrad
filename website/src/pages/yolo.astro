@@ -107,9 +107,8 @@
       </div>
     </div>
     <script>
-      import "../../../jsgrad/env-web";
-      import { get_weights_location, YOLOv8 } from "../../../models/yolov8";
-      import { safe_load, load_state_dict, Tensor, TinyJit } from "../../../jsgrad/base.ts";
+      import { get_weights_location, YOLOv8 } from "@jsgrad/models/yolov8";
+      import { safe_load, load_state_dict, Tensor, TinyJit } from "@jsgrad/jsgrad";
 
       const modelInputSize = 416;
       let lastCalledTime: number;

@@ -1,4 +1,3 @@
-import '../../../jsgrad/env-web.ts'
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, Play } from 'lucide-react'
 import * as jsg from '@jsgrad/jsgrad'
