@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run -A
 import { chromium } from 'playwright'
 import esbuild from 'esbuild'
 import process from 'node:process'
@@ -6,7 +6,7 @@ import { string_to_bytes } from '@jsgrad/jsgrad'
 
 const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL', 'TQDM']
 
-const [entry, ...args] = process.argv.slice(2)
+const [entry, ...args] = Deno.args
 const build = await esbuild.build({
   entryPoints: [entry],
   format: 'esm',
@@ -47,7 +47,7 @@ const promise = new Promise<void>((res) => {
     const text = msg.text()
     if (text === 'ASYNC_CODE_COMPLETE') return res()
     if (text.includes('\u200B')) {
-      process.stdout.write(string_to_bytes(text.replace('\u200B', '')))
+      Deno.stdout.writeSync(string_to_bytes(text.replace('\u200B', '')))
     } else console.log(text)
   })
 })
