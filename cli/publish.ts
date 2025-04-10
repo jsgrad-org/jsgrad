@@ -2,7 +2,7 @@ import { execSync } from 'node:child_process'
 
 await Deno.remove('./dist', { recursive: true }).catch(() => {})
 
-const out = await new Deno.Command(Deno.execPath(), { args: ['npx', 'tsc'] }).output()
+const out = await new Deno.Command('sh', { args: ['-c', 'npx tsc'] }).output()
 if (!out.success) throw new Error(`Failed: ${new TextDecoder().decode(out.stderr)}, out: ${new TextDecoder().decode(out.stdout)}`)
 
 // if deno.json version is updated then push new version otherwise beta
