@@ -5,7 +5,12 @@ import { useEffect } from 'react'
 
 const CELL_TYPES = ['code', 'markdown']
 type CellType = 'code' | 'markdown'
-type Cell = { type: CellType; content: string }
+type Cell = {
+  type: CellType
+  content: string
+  startLine: number
+  endLine: number
+}
 type Notebook = {
   cells: Cell[]
   setCells: (c: Cell[]) => void
@@ -18,20 +23,36 @@ type PackageInfo = {
   files: PackageFile[]
 }
 
-const parseCode = (code: string) => {
+const codeToCells = (code: string): Cell[] => {
   const out: Cell[] = []
   const pattern = /\/\*\*\s*\[\]\(cell:(\w+)\)\s*\*\//g
-  const splits = code.split(pattern).slice(1)
+  const splits = code.trim().split(pattern).slice(1)
+  let offset = 1
   for (let i = 0; i < splits.length; i += 2) {
     const type = splits[i] as CellType
     if (!CELL_TYPES.includes(type)) throw new Error(`Invalid cell type ${type}`)
     let content = splits[i + 1].trim()
     if (type === 'markdown') content = content.split('\n').slice(1, -1).join('\n')
-    out.push({ type, content })
+
+    let lines = 1 // the cell definition
+    lines += content.split('\n').length // content
+    if (type === 'markdown') lines += 2 // md block start and end
+    lines++ // trailing space
+    out.push({ type, content, startLine: offset, endLine: offset + lines })
+    offset += lines
   }
-  console.log(out)
   return out
 }
+const cellsToCode = (cells: Cell[]): string => {
+  let out = ''
+  for (const cell of cells) {
+    out += `/** [](cell:${cell.type}) */\n`
+    if (cell.type === 'code') out += `${cell.content}\n\n`
+    if (cell.type === 'markdown') out += `/**\n${cell.content}\n*/\n\n`
+  }
+  return out
+}
+
 const NotebookContext = createContext<Notebook | undefined>(undefined)
 const useNotebook = () => {
   const res = useContext(NotebookContext)
@@ -39,39 +60,53 @@ const useNotebook = () => {
   return res
 }
 export const NotebookProvider = ({ code, children }: { children: ReactNode; code: string }) => {
-  const [cells, setCells] = useState(() => parseCode(code))
+  const [cells, setCells] = useState(() => codeToCells(code))
   return <NotebookContext.Provider value={{ cells, setCells }}>{children}</NotebookContext.Provider>
 }
 
 export const App = ({ code }: { code: string }) => {
   return (
     <NotebookProvider code={code}>
-      <Cells code={code} />
+      <Cells />
     </NotebookProvider>
   )
 }
 
-const Cells = ({ code }: { code: string }) => {
+const Cells = () => {
   const { cells } = useNotebook()
   return (
     <div className="flex flex-col gap-6 bg-[#1e1e1e] text-white p-10">
-      <CodeInit code={code} />
+      <CodeInit />
       {cells.map((cell, i) => (
         <div key={i} className="">
           {cell.type === 'markdown' && <MarkdownBlock content={cell.content} />}
-          {cell.type === 'code' && <CodeBlock content={cell.content} index={i} />}
+          {cell.type === 'code' && <CodeBlock {...cell} />}
         </div>
       ))}
     </div>
   )
 }
 
-export const CodeInit = ({ code }: { code: string }) => {
+export const CodeInit = () => {
   const monaco = useMonaco()
-
+  const { cells } = useNotebook()
   useEffect(() => {
     if (!monaco) return
-    monaco.editor.createModel(code, 'typescript', Uri.file('notebook.ts'))
+    const uri = Uri.file('notebook.ts')
+    let model = monaco.editor.getModel(uri)
+    if (model) return
+    model = monaco.editor.createModel(cellsToCode(cells), 'typescript', uri)
+    model.onDidChangeContent((e)=>{
+      console.log(e)
+    })
+
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.Latest,
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+      allowNonTsExtensions: true,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      noEmit: true,
+    })
 
     const loadPackage = async (name: string) => {
       const version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
@@ -98,28 +133,20 @@ export const CodeInit = ({ code }: { code: string }) => {
     loadPackage('@jsgrad/jsgrad')
     loadPackage('@jsgrad/models')
     loadPackage('zod')
-    loadPackage('sharp')
   }, [monaco])
 
   return null
 }
 
-export const CodeBlock = ({ content, index }: { index: number; content: string }) => {
+export const CodeBlock = ({ startLine, endLine }: Cell) => {
+  const start = startLine + 1
+  const end = endLine - 1
   const monaco = useMonaco()
 
   useEffect(() => {
     if (!monaco) return
     // Ensure TypeScript compiler options are set
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.Latest,
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      allowNonTsExtensions: true,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      noEmit: true,
-    })
   }, [monaco])
-  const start = index * 15
-  const end = index * 15 + 15
   return (
     <Editor
       defaultPath={Uri.file('notebook.ts').toString()}
@@ -127,11 +154,10 @@ export const CodeBlock = ({ content, index }: { index: number; content: string }
       onMount={(editor, monaco) => {
         const range = new monaco.Range(start, 1, end, Number.MAX_SAFE_INTEGER)
         editor.revealRange(range, 0)
-        editor.onDidScrollChange(() => {
+        editor.onDidScrollChange((e) => {
           editor.revealRange(range, 0)
         })
       }}
-      onChange={(e) => console.log(e)}
       options={{
         // lineNumbers: 'off',
         stickyScroll: { enabled: false },
@@ -140,7 +166,7 @@ export const CodeBlock = ({ content, index }: { index: number; content: string }
         formatOnType: true,
         scrollbar: {
           vertical: 'hidden',
-          horizontal: 'hidden',
+          horizontal: 'auto',
           handleMouseWheel: false,
         },
         overviewRulerLanes: 0,
