@@ -17,7 +17,7 @@ for (const path of PACKAGES) {
   // package.json
   const json = JSON.parse(await Deno.readTextFile(`./${path}/package.json`))
   const pack = {
-    name: json.name,
+    ...json,
     version,
     type: 'module',
   }
