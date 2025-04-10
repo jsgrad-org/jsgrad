@@ -754,7 +754,7 @@ export const sub = _meta((a, b, r) => a.sub(b, r), (a, b) => a - b)
 export const mul = _meta((a, b, r) => a.mul(b, r), (a, b) => a * b)
 export const div = _meta((a, b, r) => a.div(b, r), (a, b) => a / b)
 export const idiv = _meta((a, b, r) => a.idiv(b, r), (a, b) => Math.floor(a / b), (a, b) => a / b)
-export const neg = <A extends Math>(a: A): Return<A, A> => ((!isConst(a)) ? a.neg() : typeof a === 'bigint' ? -a : -Number(a))
+export const neg = <A extends Math>(a: A): Return<A, A> => ((!isConst(a)) ? a.neg() : typeof a === 'bigint' ? -a : -Number(a)) as Return<A, A>
 export const mod = _meta((a, b, r) => a.mod(b, r), (a, b) => ((a % b) + b) % b)
 
 export const and = _meta((a, b, r) => a.bitwise_and(b, r), (a, b) => a & b)

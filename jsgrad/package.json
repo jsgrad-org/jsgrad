@@ -1,0 +1,16 @@
+{
+  "name": "@jsgrad/jsgrad",
+  "exports": {
+    ".": "./index.ts",
+    "./env-web": "./env-web.ts",
+    "./env-node": "./env-node.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/bun": "^1.2.9",
+    "@types/deno": "^2.2.0",
+    "@types/node": "^22.14.0",
+    "@webgpu/types": "^0.1.60",
+    "ffi-rs": "^1.2.10"
+  }
+}

@@ -1,6 +1,6 @@
-import { env, Tensor } from '../jsgrad/base.ts'
-import { Llama3 } from '../models/llama3.ts'
-import { parseArgs, z } from './parse.ts'
+import { env, Tensor } from '@jsgrad/jsgrad'
+import { Llama3 } from '@jsgrad/models/llama3'
+import { parseArgs, z } from './parse'
 
 const args = parseArgs({
   // model: z.string().optional().describe('Model path'),

@@ -811,7 +811,7 @@ export class Tensor extends MathTrait<Tensor> {
     if (!dtypes.is_float(dtype)) throw new Error(`rand only supports float dtypes, got ${dtype}`)
     if (!all_int(shape) || !shape.every((s) => s >= 0)) throw new Error(`invalid input ${shape}`)
     if (device !== undefined && typeof device !== 'string') throw new Error(`rand only supports single device, got ${device}`)
-    device = Device.canonicalize(device)
+    device = Device.canonicalize(device as string)
     const _device = device
 
     // if shape has 0, return zero tensor

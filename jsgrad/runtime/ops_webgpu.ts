@@ -1,4 +1,3 @@
-import type * as _webgpu from '@webgpu/types'
 import { bytes_to_string, isInt, perf, round_up } from '../helpers/helpers.ts'
 import { Allocator, type BufferSpec, Compiled, Compiler, Program, type ProgramCallArgs } from './allocator.ts'
 import { WGSLRenderer } from '../renderer/wgsl.ts'

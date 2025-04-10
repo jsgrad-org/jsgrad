@@ -1,7 +1,7 @@
-import { ArrayMap, bytes_to_string, DefaultMap, Device, env, MemoryView, string_to_bytes,vars,type BufferSpec, type Program } from '../jsgrad/base.ts'
-import { BatchRequest, BufferAlloc, BufferFree, CopyIn, CopyOut, ProgramAlloc, ProgramExec, ProgramFree } from '../jsgrad/runtime/ops_cloud.ts'
-import { bin, install, Tunnel } from 'npm:cloudflared'
-import { parseArgs, z } from './parse.ts'
+import { ArrayMap, bytes_to_string, DefaultMap, Device, env, MemoryView, string_to_bytes,vars,type BufferSpec, type Program } from '@jsgrad/jsgrad'
+import { BatchRequest, BufferAlloc, BufferFree, CopyIn, CopyOut, ProgramAlloc, ProgramExec, ProgramFree } from '../jsgrad/runtime/ops_cloud'
+import { bin, install, Tunnel } from 'cloudflared'
+import { parseArgs, z } from './parse'
 
 const args = parseArgs({
   port: z.number().default(8080).describe('Port'),

@@ -1,8 +1,8 @@
 #!/usr/bin/env -S deno run -A
-import { chromium } from 'npm:playwright'
-import esbuild from 'npm:esbuild'
+import { chromium } from 'playwright'
+import esbuild from 'esbuild'
 import process from 'node:process'
-import { string_to_bytes } from '../jsgrad/base.ts'
+import { string_to_bytes } from '@jsgrad/jsgrad'
 
 const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL', 'TQDM']
 

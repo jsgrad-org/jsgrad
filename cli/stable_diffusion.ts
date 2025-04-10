@@ -1,8 +1,8 @@
-import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '../jsgrad/base.ts'
-import { parseArgs, z } from './parse.ts'
-import { StableDiffusion } from '../models/stable_diffusion.ts'
-import { ClipTokenizer } from '../models/clip.ts'
-import sharp from 'npm:sharp'
+import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '@jsgrad/jsgrad'
+import { parseArgs, z } from './parse'
+import { StableDiffusion } from '@jsgrad/models/stable_diffusion'
+import { ClipTokenizer } from '@jsgrad/models/clip'
+import sharp from 'sharp'
 
 const args = parseArgs({
   steps: z.number().default(6).describe('Number of steps in diffusion'),

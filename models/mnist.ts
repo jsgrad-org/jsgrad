@@ -1,4 +1,4 @@
-import { type Layer, Tensor,BatchNorm, Conv2d, Linear, Model } from '../jsgrad/base.ts'
+import { type Layer, Tensor,BatchNorm, Conv2d, Linear, Model } from '@jsgrad/jsgrad'
 
 export class MNIST extends Model {
   override DEFAULT_LOAD = 'https://jsgrad.org/mnist.safetensors'

@@ -1,6 +1,6 @@
-import { Adam, get_parameters, GlobalCounters, mnist, Tensor, TinyJit, Tqdm } from '../jsgrad/base.ts'
-import { MNIST } from '../models/mnist.ts'
-import { parseArgs, z } from './parse.ts'
+import { Adam, get_parameters, GlobalCounters, mnist, Tensor, TinyJit, Tqdm } from '@jsgrad/jsgrad'
+import { MNIST } from '@jsgrad/models/mnist'
+import { parseArgs, z } from './parse'
 
 const args = parseArgs({
   steps: z.number().default(70).describe('Steps'),

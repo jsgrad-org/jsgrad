@@ -1,4 +1,4 @@
-import { range } from '../jsgrad/base.ts'
+import { range } from '@jsgrad/jsgrad'
 import data from './webgpu.json' with { type: 'json' }
 
 const rename = (name: string) => {
@@ -91,10 +91,10 @@ const getLibType = (type: Type): string => {
 }
 
 let content = `
-import * as c from './ctypes.ts'
-import { env } from '../jsgrad/env/index.ts'
+import * as c from './ctypes'
+import { env } from '@jsgrad/jsgrad'
 
-export * from './ctypes.ts'
+export * from './ctypes'
 
 let lib!: Awaited<ReturnType<typeof _init>>
 export const init = async (path: string) => lib = await _init(path)

@@ -1,9 +1,9 @@
-import esbuild from 'npm:esbuild'
-import ts from 'npm:typescript'
+import esbuild from 'esbuild'
+import ts from 'typescript'
 
 await Deno.remove('./dist', { recursive: true }).catch(() => {})
 
-const PATH = './jsgrad/mod.ts'
+const PATH = './jsgrad/index.ts'
 const MODELS = ['clip', 'gpt2', 'llama', 'llama3', 'whisper', 'stable_diffusion', 'mnist', 'tokenizer', 'unet', 'yolov8'].map((x) => `./models/${x}.ts`)
 
 // Importing envs

@@ -1,4 +1,4 @@
-import { ArrayMap, bytes_to_string, Embedding, env, idiv, LayerNorm, Linear, num, range, string_to_bytes, Tensor, zip } from '../jsgrad/base.ts'
+import { ArrayMap, bytes_to_string, Embedding, env, idiv, LayerNorm, Linear, num, range, string_to_bytes, Tensor, zip } from '@jsgrad/jsgrad'
 
 // Clip tokenizer, taken from https://github.com/openai/CLIP/blob/main/clip/simple_tokenizer.py (MIT license)
 const default_bpe = () => env.fetchSave('https://github.com/openai/CLIP/raw/main/clip/bpe_simple_vocab_16e6.txt.gz', 'weights/bpe_simple_vocab_16e6.txt.gz')
