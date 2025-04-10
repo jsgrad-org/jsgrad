@@ -1,21 +1,36 @@
-/** [](cell:markdown) */
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0" />
+  <title>Notebook</title>
+  <script type="module"
+    src="/src/main.tsx"></script>
+</head>
+
+<body>
+  <div id="notebook-root"> </div>
+  <code id="notebook-raw"
+    class="whitespace-pre text-xs">
+    /** [](cell:markdown) */
 /**
 First import and get the inputs
 */
 
 /** [](cell:code) */
-import { GPT } from '../models/gpt2.ts'
-import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '../jsgrad/base.ts'
-import { parseArgs, z } from './parse.ts'
-import { get_encoding } from 'npm:tiktoken'
+import { GPT } from '@jsgrad/jsgrad/gpt2'
+import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '@jsgrad/jsgrad'
+import { get_encoding } from 'tiktoken'
 
-const args = parseArgs({
-  steps: z.number().default(10).describe('number of steps to run'),
-  bs: z.number().default(4).describe('batch size'),
-  sequence_length: z.number().default(64).describe('sequence length'),
-  skip_test: z.boolean().optional().describe('skip test'),
-  seed: z.number().optional().describe('Seed'),
-})
+const args = {
+  steps: 10,
+  bs: 4,
+  sequence_length: 64,
+  skip_test: false,
+  seed:4
+}
 
 if (args.seed) Tensor.manual_seed(args.seed)
 
@@ -41,7 +56,7 @@ await model.load_pretrained()
 // init the tokenizer
 const enc = get_encoding('gpt2')
 
-const encode = (s: string) => enc.encode(s, ['<|endoftext|>'])
+const encode = (s: string) => enc.encode(s, ['&lt;|endoftext|>'])
 const decode = (l: Uint32Array) => enc.decode(l)
 
 /** [](cell:markdown) */
@@ -114,7 +129,7 @@ Testing
 
 /** [](cell:code) */
 if (!args.skip_test) {
-  const start = '<|endoftext|>'
+  const start = '&lt;|endoftext|>'
   const start_ids = encode(start)
   const x = new Tensor([...start_ids]).get(undefined, '...')
   const max_new_tokens = 16
@@ -124,3 +139,9 @@ if (!args.skip_test) {
   const res = bytes_to_string(decode(new Uint32Array(await y.get(0).tolist())))
   console.log(res)
 }
+
+    
+  </code>
+</body>
+
+</html>

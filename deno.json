@@ -15,7 +15,8 @@
     "./website",
     "./cli",
     "./dawn",
-    "./models"
+    "./models",
+    "./notebook"
   ],
   "nodeModulesDir": "auto",
   "fmt": {
