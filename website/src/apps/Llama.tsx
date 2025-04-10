@@ -1,4 +1,3 @@
-// @deno-types="npm:@types/react"
 import { useEffect, useRef, useState } from 'react'
 import { round, type TqdmProgress } from '@jsgrad/jsgrad'
 import { Llama3, type Llama3Message, type Llama3Usage } from '@jsgrad/models/llama3'
