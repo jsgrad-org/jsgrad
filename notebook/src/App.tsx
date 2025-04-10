@@ -8,8 +8,6 @@ type CellType = 'code' | 'markdown'
 type Cell = {
   type: CellType
   content: string
-  startLine: number
-  endLine: number
 }
 type Notebook = {
   cells: Cell[]
@@ -27,26 +25,12 @@ const codeToCells = (code: string): Cell[] => {
   const out: Cell[] = []
   const pattern = /\/\*\*\s*\[\]\(cell:(\w+)\)\s*\*\//g
   const splits = code.trim().split(pattern).slice(1)
-  let offset = 1
   for (let i = 0; i < splits.length; i += 2) {
     const type = splits[i] as CellType
     if (!CELL_TYPES.includes(type)) throw new Error(`Invalid cell type ${type}`)
     let content = splits[i + 1].trim()
     if (type === 'markdown') content = content.split('\n').slice(1, -1).join('\n')
-
-    let lines = content.split('\n').length // content
-    lines += 2 // block start and end
-    out.push({ type, content, startLine: offset + 1, endLine: offset + 1 + lines })
-    offset += lines + 2 // cell definition and trailing space
-  }
-  return out
-}
-const cellsToCode = (cells: Cell[]): string => {
-  let out = ''
-  for (const cell of cells) {
-    out += `/** [](cell:${cell.type}) */\n`
-    if (cell.type === 'code') out += `\n${cell.content}\n\n\n`
-    if (cell.type === 'markdown') out += `/**\n${cell.content}\n*/\n\n`
+    out.push({ type, content })
   }
   return out
 }
@@ -72,15 +56,21 @@ export const App = ({ code }: { code: string }) => {
 
 const Cells = () => {
   const { cells } = useNotebook()
+  let line = 1
   return (
     <div className="flex flex-col gap-6 bg-[#1e1e1e] text-white p-10">
       <CodeInit />
-      {cells.map((cell, i) => (
-        <div key={i} className="">
-          {cell.type === 'markdown' && <MarkdownBlock content={cell.content} />}
-          {cell.type === 'code' && <CodeBlock {...cell} />}
-        </div>
-      ))}
+      {cells.map((cell, i) => {
+        const start = line
+        const len = cell.content.split('\n').length + 2
+        if (cell.type === 'code') line += len
+        return (
+          <div key={i} className="">
+            {cell.type === 'markdown' && <MarkdownBlock content={cell.content} />}
+            {cell.type === 'code' && <CodeBlock start={start} end={start + len} />}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -93,9 +83,15 @@ export const CodeInit = () => {
     const uri = Uri.file('notebook.ts')
     let model = monaco.editor.getModel(uri)
     if (model) return
-    model = monaco.editor.createModel(cellsToCode(cells), 'typescript', uri)
+    const code = cells
+      .filter((x) => x.type === 'code')
+      .map((x) => `\n${x.content}\n`)
+      .join('\n')
+    model = monaco.editor.createModel(code, 'typescript', uri)
     model.onDidChangeContent((e) => {
-      console.log(e)
+      for (const change of e.changes) {
+        console.log(change.range, change.text, change.rangeLength, change.rangeOffset)
+      }
     })
 
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -134,32 +130,33 @@ export const CodeInit = () => {
 
   return null
 }
-export const CodeBlock = ({ startLine, endLine }: Cell) => {
-  const lineHeight = 19
+
+export const CodeBlock = ({ start, end }: { start: number; end: number }) => {
+  const lineHeight = 18
   return (
     <Editor
       className="border-2 border-gray-900 rounded-xl !shadow-none overflow-hidden"
       defaultPath={Uri.file('notebook.ts').toString()}
-      height={(endLine - startLine) * lineHeight}
+      height={(end - start) * lineHeight}
       onMount={(editor, monaco) => {
-        const range = new monaco.Range(startLine, 1, endLine, Number.MAX_SAFE_INTEGER)
+        const range = new monaco.Range(start, 1, end, Number.MAX_SAFE_INTEGER)
         editor.revealRange(range, 1)
         editor.onDidScrollChange((e) => {
           editor.revealRange(range, 1)
         })
-        // editor.addAction({
-        //   id: 'custom-select-all',
-        //   label: 'Select Cell Content',
-        //   keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA],
-        //   run: () => {
-        //     editor.setSelection(range)
-        //   },
-        // })
+        editor.addAction({
+          id: 'custom-select-all',
+          label: 'Select Cell Content',
+          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA],
+          run: () => {
+            editor.setSelection(range)
+          },
+        })
       }}
       options={{
         lineNumbers: (e) => {
-          if (e >= endLine - 1 || e<startLine) return null
-          return (e - startLine) as any
+          if (e >= end - 1 || e < start) return null
+          return (e - start) as any
         },
         stickyScroll: { enabled: false },
         wordWrap: 'off',
