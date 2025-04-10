@@ -1,4 +1,4 @@
-import { Device, dtypes, Embedding, env, get_state_dict, gguf_load, GlobalCounters, Linear, load_state_dict, perf, range, safe_load, Tensor, Tqdm, type TqdmOnProgress, vars, zip } from '@jsgrad/jsgrad'
+import { Device, dtypes, Embedding, env, get_state_dict, gguf_load, GlobalCounters, Linear, load_state_dict, perf, range, safe_load, Tensor, Tqdm, type TqdmOnProgress, vars, zip } from '@jsgrad/jsgrad/base'
 import { convert_from_gguf, convert_from_huggingface, fix_bf16, Transformer } from './llama.ts'
 import { Tokenizer } from './tokenizer.ts'
 
