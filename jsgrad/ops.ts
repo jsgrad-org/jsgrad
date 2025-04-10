@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-this-alias
 import type { Buffer } from './device.ts'
 import { DType, dtypes, ImageDType, PtrDType, truncate } from './dtype.ts'
 import { accumulate, add, and, cache_fn, constToNumeric, type ConstType, dedup, DefaultMap, div, flatten, floatString, ge, idiv, is_less_than, isConst, lshift, lt, mod, mul, ne, neg, NotImplemented, num, or, pairwise, polyN, prod, product, rshift, slice, sorted, sub, sum, vars, xor } from './helpers/helpers.ts'
@@ -1596,7 +1595,6 @@ export const cody_waite_reduction = (d: UOp): [UOp, UOp] => {
 // *** approximate sine on small angle. ***
 export const trig_poly = (d: UOp, coeff32: number[], coeff64: number[]) => d.mul(d.dtype === dtypes.float64 ? polyN(d.mul(d), coeff64) : polyN(d.mul(d), coeff32))
 // approximate sine on [-pi/2, pi/2]
-// deno-fmt-ignore
 export const sin_poly = (d: UOp): UOp => {
   return trig_poly(d,
     [2.6083159809786593541503e-06, -0.0001981069071916863322258, 0.00833307858556509017944336, -0.166666597127914428710938, 1.0],
@@ -1657,7 +1655,6 @@ export const xexp2 = ({ d }: { d: UOp }): UOp => {
   // a polynomial approximation with 13 non-zero terms in the range of [−(log 2)/2,(log 2)/2].
   let u
   if (d.dtype === dtypes.float64) {
-    // deno-fmt-ignore
     u = polyN(s, [0.4434359082926529454e-9, 0.7073164598085707425e-8, 0.1017819260921760451e-6, 0.1321543872511327615e-5, 0.1525273353517584730e-4,
                     0.1540353045101147808e-3, 0.1333355814670499073e-2, 0.9618129107597600536e-2, 0.5550410866482046596e-1, 0.2402265069591012214e+0,
                     0.6931471805599452862e+0, 0.1000000000000000000e+1])
@@ -1692,7 +1689,6 @@ export const xlog2 = ({ d }: { d: UOp }): UOp => {
   const x2 = x.mul(x)
   let t, s_hi, s_lo
   if (d.dtype === dtypes.float64) {
-    // deno-fmt-ignore
     t = polyN(x2, [0.2211941750456081490e+0, 0.2200768693152277689e+0, 0.2623708057488514656e+0, 0.3205977477944495502e+0,
                        0.4121985945485324709e+0, 0.5770780162997058982e+0, 0.96179669392608091449]);
     ;[s_hi, s_lo] = [e.add(x.mul(2.885390081777926774)), e.const_like(0)]

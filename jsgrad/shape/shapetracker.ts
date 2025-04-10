@@ -158,7 +158,6 @@ export class ShapeTracker {
     }
     return new ShapeTracker([...this.views, View.create(new_shape)])
   }
-  // deno-fmt-ignore
   mop = (op: Ops, arg: any) => {
     switch (op) {
       case Ops.RESHAPE: return this.reshape(arg);

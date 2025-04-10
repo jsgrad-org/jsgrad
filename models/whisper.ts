@@ -1,7 +1,6 @@
 import { vars,add, ArrayMap, concat_bytes, Conv1d, type Conv2d, Device, dtypes, Embedding, env, id, idiv, type Layer, LayerNorm, Linear, load_state_dict, mod, num, range, replace_state_dict, safe_load, type sint, sub, Tensor, TinyJit, UOp, type Variable, zip } from '@jsgrad/jsgrad/base'
 import {Tokenizer} from "./tokenizer.ts"
 
-// deno-fmt-ignore
 export const LANGUAGES = {
   "en": "english", "zh": "chinese", "de": "german", "es": "spanish", "ru": "russian", "ko": "korean", "fr": "french", "ja": "japanese", "pt": "portuguese", "tr": "turkish",
   "pl": "polish", "ca": "catalan", "nl": "dutch", "ar": "arabic", "sv": "swedish", "it": "italian", "id": "indonesian", "hi": "hindi", "fi": "finnish", "vi": "vietnamese",

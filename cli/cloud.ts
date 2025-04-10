@@ -1,4 +1,4 @@
-import { ArrayMap, bytes_to_string, DefaultMap, Device, env, MemoryView, string_to_bytes,vars,type BufferSpec, type Program } from '@jsgrad/jsgrad'
+import { ArrayMap, bytes_to_string, DefaultMap, Device, env, MemoryView, string_to_bytes,vars,type BufferSpec, type Program } from '@jsgrad/jsgrad/node'
 import { BatchRequest, BufferAlloc, BufferFree, CopyIn, CopyOut, ProgramAlloc, ProgramExec, ProgramFree } from '../jsgrad/runtime/ops_cloud'
 import { bin, install, Tunnel } from 'cloudflared'
 import { parseArgs, z } from './parse'

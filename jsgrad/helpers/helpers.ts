@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any no-control-regex camelcase no-process-global
 import type { MathTrait } from '../ops.ts'
 
 const FNV_OFFSET_BASIS_64 = 14695981039346656037n
@@ -814,7 +813,6 @@ export function* accumulate<T>(iterable: Iterable<T>, func?: (acc: T, val: T) =>
   }
 }
 
-// deno-fmt-ignore
 class _Vars {
   // @ts-ignore import.meta.env
   _env: Record<string, string | number> = (typeof import.meta?.env !== 'undefined' ? import.meta.env : (typeof process !== 'undefined' && process.env) ? process.env : {}) || {}

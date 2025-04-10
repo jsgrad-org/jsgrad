@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-this-alias
 import { type ConstType, DType, type DTypeLike, dtypes, ImageDType, least_upper_dtype, least_upper_float, sum_acc_dtype, to_dtype } from './dtype.ts'
 import { _METADATA, all_int, all_same, assert, bytes_to_bigint, dedup, div, flatten, fully_flatten, id, int_to_bytes, is_eq, isConst, list_str, max, Metadata, min, mod, NotImplemented, num, product, random_id, range, type Slice, slice, sorted, vars, WeakValueMap, zip } from './helpers/helpers.ts'
 import { identity_element, MathTrait, Ops, resolve, type sint, smax, smin, UOp, type Variable } from './ops.ts'
@@ -4359,7 +4358,6 @@ if (vars.TRACEMETA >= 1) {
   for (const [name, func] of instanceFuncs) (Tensor.prototype as any)[name] = wrapper(func, name)
 
   // @ts-ignore reassigning Tensor
-  // deno-lint-ignore no-class-assign
   Tensor = new Proxy(Tensor, {
     construct(target, args) {
       const instance = new target(...args)

@@ -2,7 +2,7 @@
   "version": "0.0.17",
   "scripts": {
     "test": "deno -A npm:vitest run --testTimeout 0",
-    "format": "deno fmt",
+    "format": "prettier --write .",
     "check": "tsc",
     "update": "deno -A scripts/update.ts",
     "build": "deno -A cli/build.ts",
