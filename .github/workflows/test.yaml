@@ -70,7 +70,7 @@ jobs:
         run: sudo apt update -y && sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
 
       - uses: denoland/setup-deno@v2
-        if: matrix.env == 'deno -A' || matrix.env == './cli/chrome.ts''
+        if: matrix.env == 'deno -A' || matrix.env == './cli/chrome.ts'
 
       - uses: oven-sh/setup-bun@v2
         if: matrix.env == 'bun -b'
