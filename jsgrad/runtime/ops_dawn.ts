@@ -2,7 +2,7 @@ import { bytes_to_string, isInt, range, round_up } from '../helpers/helpers.ts'
 import { Allocator, type BufferSpec, Compiled, Compiler, Program, type ProgramCallArgs } from './allocator.ts'
 import { WGSLRenderer } from '../renderer/wgsl.ts'
 import type { MemoryView } from '../helpers/memoryview.ts'
-import * as c from '../../dawn/bindings.ts'
+import * as c from './autogen/dawn/bindings.ts'
 import { env } from '../env/index.ts'
 
 const _wait = (future: c.Future) => {
