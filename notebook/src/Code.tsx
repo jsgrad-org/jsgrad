@@ -1,39 +1,54 @@
-import { Editor, useMonaco } from "@monaco-editor/react";
-import { useEffect, useState } from "react";
+import { Editor, useMonaco } from '@monaco-editor/react'
+import { useEffect } from 'react'
+
+type File = { type: 'directory'; name: string; files: File[] } | { type: 'file'; name: string; hash: string; size: number }
+type Meta = {
+  name: string
+  version: string
+  files: File[]
+}
 
 export const CodeInit = () => {
-  const monaco = useMonaco();
-  const [typesLoaded, setTypesLoaded] = useState(false);
+  const monaco = useMonaco()
 
   useEffect(() => {
-    if (!monaco || typesLoaded) return;
+    if (!monaco) return
+    const loadPackage = async (name: string) => {
+      const version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
+        .then((x) => x.json())
+        .then((x) => x.tags.latest)
+      const info: Meta = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}@${version}`).then((x) => x.json())
 
-    const loadTypes = async () => {
-      try {
-        
-        const base = await fetch("https://esm.sh/@jsgrad/jsgrad/types/jsgrad/base.d.ts").then((x) => x.text());
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(base, "file:///node_modules/@jsgrad/jsgrad/index.d.ts");
-
-        const tensor = await fetch("https://esm.sh/@jsgrad/jsgrad/types/jsgrad/tensor.d.ts").then((x) => x.text());
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(tensor, "file:///node_modules/@jsgrad/jsgrad/tensor.ts.d.ts");
-
-        setTypesLoaded(true); // Mark types as loaded
-      } catch (error) {
-        console.error("Failed to load type definitions:", error);
+      const types: string[] = []
+      const getTypes = (files: File[], path = '') => {
+        for (const file of files) {
+          if (file.type === 'file' && file.name.endsWith('.d.ts')) types.push(`${path}/${file.name}`)
+          else if (file.type === 'directory') getTypes(file.files, `${path}/${file.name}`)
+        }
       }
-    };
+      getTypes(info.files)
 
-    loadTypes();
-  }, [monaco, typesLoaded]);
+      const promises = types.map(async (x) => {
+        const content = await fetch(`https://cdn.jsdelivr.net/npm/${info.name}@${info.version}${x}`).then((x) => x.text())
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(content, `file:///node_modules/${name}${x}`)
+      })
+      const res = await Promise.all(promises)
+    }
 
-  return null;
-};
+    loadPackage('@jsgrad/jsgrad')
+    loadPackage('@jsgrad/models')
+    loadPackage('zod')
+    loadPackage('sharp')
+  }, [monaco])
 
-export const Code = ({ content }: { content: string }) => {
-  const monaco = useMonaco();
+  return null
+}
+
+export const Code = ({ content, index }: { index: number; content: string }) => {
+  const monaco = useMonaco()
 
   useEffect(() => {
-    if (!monaco) return;
+    if (!monaco) return
     // Ensure TypeScript compiler options are set
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.Latest,
@@ -41,25 +56,24 @@ export const Code = ({ content }: { content: string }) => {
       allowNonTsExtensions: true,
       moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       noEmit: true,
-    });
-  }, [monaco]);
+    })
+  }, [monaco])
 
   return (
     <Editor
-      className="border border-white rounded"
-      defaultPath="file:///"
+      defaultPath={`file:///${index}.ts`}
       defaultLanguage="typescript"
       defaultValue={content}
       height={90}
       onChange={(e) => console.log(e)}
       options={{
-        lineNumbers: "off",
+        lineNumbers: 'off',
         stickyScroll: { enabled: false },
-        wordWrap: "off",
+        wordWrap: 'off',
         minimap: { enabled: false },
         formatOnType: true,
       }}
       theme="vs-dark"
     />
-  );
-};
+  )
+}
