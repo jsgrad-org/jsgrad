@@ -32,7 +32,7 @@ jobs:
 
       - name: Test npm install
         run: |
-          VERSION=$(jq -r '.version' dist/package.json)
+          VERSION=$(jq -r '.version' dist/jsgrad/package.json)
           mkdir /tmp/node
           cd /tmp/node
           sleep 20
@@ -42,7 +42,7 @@ jobs:
 
       - name: Test deno install
         run: |
-          VERSION=$(jq -r '.version' dist/package.json)
+          VERSION=$(jq -r '.version' dist/jsgrad/package.json)
           mkdir /tmp/deno
           cd /tmp/deno
           sudo apt update -y && sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
