@@ -1,0 +1,9 @@
+{
+    "printWidth": 10000,
+    "semi": false,
+    "singleQuote": true,
+    "ignore": [
+      "jsgrad/runtime/autogen*",
+      "jsgrad/sha256.js"
+    ]
+  }

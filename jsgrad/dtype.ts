@@ -5,7 +5,7 @@ export type { ConstType } from './helpers/helpers.ts'
 
 export const bitcast = (data: (number | bigint | boolean)[], srcFmt: FmtStr, destFmt: FmtStr): any[] => {
   const src = new MemoryView.ARRAYS[srcFmt](data as any)
-  return [...new MemoryView.ARRAYS[destFmt](src.buffer)]
+  return [...new MemoryView.ARRAYS[destFmt](src.buffer as ArrayBuffer)]
 }
 
 export class DType {

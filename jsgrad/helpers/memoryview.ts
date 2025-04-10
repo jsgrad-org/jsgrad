@@ -234,7 +234,7 @@ export class MemoryView<F extends FmtStr = 'B'> {
     'q': BigInt64Array,
     'Q': BigUint64Array,
     // @ts-ignore Float16Array exists in deno
-    'e': typeof Float16Array !== 'undefined' ? Float16Array : Float32Array,
+    'e': typeof Float16Array !== 'undefined' ? Float16Array as any : Float32Array,
     'f': Float32Array,
     'd': Float64Array,
     '?': Uint8Array,

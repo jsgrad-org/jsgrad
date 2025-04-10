@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-publish:
+  publish:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -23,15 +23,16 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org/"
+      - run: npm i
 
       - name: Publish
-        run: deno task build && cd dist && npm publish
+        run: deno -A cli/publish.ts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Test npm install
         run: |
-          VERSION=$(jq -r '.version' dist/package.json)
+          VERSION=$(jq -r '.version' dist/jsgrad/package.json)
           mkdir /tmp/node
           cd /tmp/node
           sleep 20
@@ -41,7 +42,7 @@ jobs:
 
       - name: Test deno install
         run: |
-          VERSION=$(jq -r '.version' dist/package.json)
+          VERSION=$(jq -r '.version' dist/jsgrad/package.json)
           mkdir /tmp/deno
           cd /tmp/deno
           sudo apt update -y && sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers

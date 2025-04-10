@@ -1,7 +1,7 @@
 // https://arxiv.org/pdf/2112.10752.pdf
 // https://github.com/ekagra-ranjan/huggingface-blog/blob/main/stable_diffusion.md
 
-import { Conv2d, dtypes, GroupNorm, mul, Tensor } from '../jsgrad/base.ts'
+import { Conv2d, dtypes, GroupNorm, mul, Tensor } from '@jsgrad/jsgrad/base'
 import { ClipTextTransformer } from './clip.ts'
 import { UNetModel } from './unet.ts'
 

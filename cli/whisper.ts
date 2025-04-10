@@ -1,5 +1,5 @@
-import { init_whisper, LANGUAGES, MODELS, transcribe_file, type WhisperModel } from '../models/whisper.ts'
-import { parseArgs, z } from './parse.ts'
+import { init_whisper, LANGUAGES, MODELS, transcribe_file, type WhisperModel } from '@jsgrad/models/whisper'
+import { parseArgs, z } from './parse'
 
 const args = parseArgs({
   input: z.string().describe('Audio path or url'),

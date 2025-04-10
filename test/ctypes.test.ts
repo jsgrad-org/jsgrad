@@ -1,5 +1,5 @@
-import '../jsgrad/env-node.ts'
-import * as c from './ctypes.ts'
+import '@jsgrad/jsgrad/node'
+import * as c from '../jsgrad/runtime/autogen/dawn/ctypes.ts'
 import { expect, test } from 'vitest'
 
 const check = (ctype: c.Type<any>, val: any, buffer: ArrayBuffer) => {

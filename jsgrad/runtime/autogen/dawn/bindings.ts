@@ -1,7 +1,6 @@
 
 import * as c from './ctypes.ts'
-import { env } from '../jsgrad/env/index.ts'
-
+import { env } from '../../../env/index.ts'
 export * from './ctypes.ts'
 
 let lib!: Awaited<ReturnType<typeof _init>>

@@ -1,4 +1,3 @@
-import process from 'node:process'
 import { DISK } from '../runtime/ops_disk.ts'
 import { JS } from '../runtime/ops_js.ts'
 import { WASM } from '../runtime/ops_wasm.ts'
@@ -17,7 +16,7 @@ export class DenoEnv extends NodeEnv {
   override PLATFORM = process.platform
   override DEVICES = { CLANG, WEBGPU: vars.get_num('WGPU') ? WEBGPU : DAWN, WASM, JS, DISK, CLOUD, NULL }
   override dlopen = Deno.dlopen
-  override ptr = (buffer: ArrayBuffer, offset?: number) => offset ? Deno.UnsafePointer.offset(Deno.UnsafePointer.of(buffer) as any, offset) : Deno.UnsafePointer.of(buffer)
+  override ptr = (buffer: ArrayBuffer, offset?: number) => (offset ? Deno.UnsafePointer.offset(Deno.UnsafePointer.of(buffer) as any, offset) : Deno.UnsafePointer.of(buffer))
   override ptrToU64 = (ptr: any) => Deno.UnsafePointer.value(ptr)
   override u64ToPtr = (u64: any) => Deno.UnsafePointer.create(u64)
   override getCString = (ptr: any) => Deno.UnsafePointerView.getCString(ptr)

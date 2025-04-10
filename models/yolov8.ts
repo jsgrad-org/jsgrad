@@ -1,4 +1,4 @@
-import { BatchNorm2d, Conv2d, env, idiv, type Layer, mul, num, range, Tensor, zip } from '../jsgrad/base.ts'
+import { BatchNorm2d, Conv2d, env, idiv, type Layer, mul, num, range, Tensor, zip } from '@jsgrad/jsgrad/base'
 
 // utility functions for forward pass.
 const dist2bbox = (distance: Tensor, anchor_points: Tensor, xywh = true, dim = -1) => {
