@@ -1,4 +1,4 @@
-import { env, is_eq, Tensor } from '@jsgrad/jsgrad'
+import { env, is_eq, Tensor } from '@jsgrad/jsgrad/node'
 
 for (const device in env.DEVICES) {
   if (['DISK', 'CLOUD', 'NULL'].includes(device)) continue
