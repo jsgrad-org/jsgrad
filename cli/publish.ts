@@ -15,11 +15,13 @@ const PACKAGES = ['jsgrad', 'models']
 for (const path of PACKAGES) {
   console.log(`Publishing ${path}`)
   // package.json
-  const json = JSON.parse(await Deno.readTextFile(`./${path}/package.json`))
+  const { name, exports, ...others } = JSON.parse(await Deno.readTextFile(`./${path}/package.json`))
   const pack = {
-    ...json,
+    name,
     version,
     type: 'module',
+    exports: JSON.parse(JSON.stringify(exports).replaceAll('.ts', '.js')),
+    ...others,
   }
   await Deno.writeTextFile(`./dist/${path}/package.json`, JSON.stringify(pack, null, 2))
 
