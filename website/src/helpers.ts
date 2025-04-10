@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { bytes_to_string } from '../../jsgrad/helpers/helpers.ts'
+import { bytes_to_string } from '@jsgrad/jsgrad'
 
 export const getExample = async (file: string) => bytes_to_string(await fs.readFile(`src/examples/${file}`))
 export const getExamples = async () => {

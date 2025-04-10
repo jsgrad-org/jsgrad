@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "ES2023",
+            "DOM",
+            "ESNext"
+        ],
+        "strict": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "react",
+        "types": [
+            "@types/react",
+            "@types/react-dom",
+            "@webgpu/types",
+            "@types/deno",
+            "@types/node",
+            "@types/bun",
+            "./website/.astro/types.d.ts"
+        ],
+        "allowJs": true,
+        "declaration": true,
+        "outDir": "dist",
+        "module": "ESNext",
+        "target": "ESNext",
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "rewriteRelativeImportExtensions": true,
+        "moduleDetection": "force",
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "skipLibCheck": true,
+        "strictNullChecks": true
+    },
+    "exclude": ["./dist", "./tinygrad"]
+}

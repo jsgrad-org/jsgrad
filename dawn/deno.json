@@ -1,6 +1,0 @@
-{
-  "exports": {
-    ".": "./mod.ts",
-    "./bindings": "./bindings.ts"
-  }
-}

@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-this-alias
 import { dtypes } from '../dtype.ts'
 import { all_int, argsort, assert, cache, cache_fn, flatten, id, is_eq, isInt, list_str, next, num, range, sorted, WeakValueMap, zip } from '../helpers/helpers.ts'
 import { resolve, type sint, sint_to_uop, smax, smin, sym_infer, UOp, type Variable } from '../ops.ts'

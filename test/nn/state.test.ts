@@ -3,7 +3,7 @@ import { get_parameters, get_state_dict, gguf_load, safe_load } from '../../jsgr
 import { zip } from '../../jsgrad/helpers/helpers.ts'
 import { safe_save } from '../../jsgrad/nn/state.ts'
 import { python } from '../helpers.ts'
-import { MNIST } from '../../models/mnist.ts'
+import { MNIST } from '@jsgrad/models/mnist'
 import { expect, test } from 'vitest'
 import { Device } from '../../jsgrad/device.ts'
 

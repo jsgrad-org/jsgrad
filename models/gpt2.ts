@@ -1,4 +1,4 @@
-import { Embedding, env, idiv, LayerNorm, Linear, load_state_dict, num, range, safe_load, Tensor } from '../jsgrad/base.ts'
+import { Embedding, env, idiv, LayerNorm, Linear, load_state_dict, num, range, safe_load, Tensor } from '@jsgrad/jsgrad/base'
 
 type GPTConfig = {
   block_size: number

@@ -1,0 +1,19 @@
+{
+  "name": "@jsgrad/jsgrad",
+  "exports": {
+    ".": {
+      "default": "./index.ts",
+      "node": "./node.ts"
+    },
+    "./node": "./node.ts",
+    "./base": "./base.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/bun": "^1.2.9",
+    "@types/deno": "^2.2.0",
+    "@types/node": "^22.14.0",
+    "@webgpu/types": "^0.1.60",
+    "ffi-rs": "^1.2.10"
+  }
+}

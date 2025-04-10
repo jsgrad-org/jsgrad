@@ -23,9 +23,10 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org/"
+      - run: npm i
 
       - name: Publish
-        run: deno task build && cd dist && npm publish
+        run: deno -A cli/publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

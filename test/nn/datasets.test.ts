@@ -1,4 +1,4 @@
-import "../../jsgrad/env-node.ts"
+import "@jsgrad/jsgrad/node"
 import { mnist } from '../../jsgrad/base.ts'
 import { expect, test } from 'vitest'
 

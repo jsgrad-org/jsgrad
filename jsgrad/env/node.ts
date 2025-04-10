@@ -1,17 +1,16 @@
-import process from 'node:process'
-import os from 'node:os'
+import * as os from 'node:os'
 import { createHash } from 'node:crypto'
 import { type Dlopen, type FFICallback, WebEnv } from './web.ts'
 import { JS } from '../runtime/ops_js.ts'
 import { CLOUD } from '../runtime/ops_cloud.ts'
 import { memsize_to_str, random_id, string_to_bytes } from '../helpers/helpers.ts'
-import fs from 'node:fs/promises'
+import * as fs from 'node:fs/promises'
 import { statSync } from 'node:fs'
-import path from 'node:path'
+import * as path from 'node:path'
 import type { DatabaseSync } from 'node:sqlite'
 import { CLANG } from '../runtime/ops_clang.ts'
 import { exec } from 'node:child_process'
-import readline from 'node:readline'
+import * as readline from 'node:readline'
 import { DISK } from '../runtime/ops_disk.ts'
 import { Tqdm, type TqdmOnProgress } from '../helpers/tqdm.ts'
 import { NULL } from '../runtime/ops_null.ts'
@@ -24,13 +23,13 @@ export class NodeEnv extends WebEnv {
   override readFile = async (path: string) => new Uint8Array(await fs.readFile(path))
   override writeFile = fs.writeFile
   override remove = fs.unlink
-  override realPath = (...paths: string[]) => paths[0].startsWith('/') ? path.resolve(process.cwd(), ...paths) : path.resolve(...paths)
+  override realPath = (...paths: string[]) => (paths[0].startsWith('/') ? path.resolve(process.cwd(), ...paths) : path.resolve(...paths))
   override stat = fs.stat
   override statSync = statSync
   override writeStdout = (p: string) => process.stdout.write(string_to_bytes(p))
   override tempFile = async (ext?: string) => `/tmp/dg_tmp_${random_id()}${ext ? `.${ext}` : ''}`
   override homedir = os.homedir
-  override mkdir = async (path: string) => void await fs.mkdir(path, { recursive: true })
+  override mkdir = async (path: string) => void (await fs.mkdir(path, { recursive: true }))
   override args = () => process.argv.slice(2)
   override machine = () => os.machine()
   override exit = (code: number) => process.exit(code)
@@ -43,6 +42,7 @@ export class NodeEnv extends WebEnv {
     })
   }
   override dlopen: Dlopen = async (file, args) => {
+    // @ts-ignore
     const { open, load, DataType, close } = await import('ffi-rs')
     const library = random_id()
     open({ path: file as string, library })
@@ -54,15 +54,18 @@ export class NodeEnv extends WebEnv {
     }
     return {
       symbols: Object.fromEntries(
-        Object.entries(args).map(([name, args]: any) => [name, (...inputs: any[]) => {
-          load({
-            library,
-            funcName: name,
-            retType: DataType.Void,
-            paramsType: args.parameters.map((x: any) => ffiType(x)),
-            paramsValue: inputs,
-          })
-        }]),
+        Object.entries(args).map(([name, args]: any) => [
+          name,
+          (...inputs: any[]) => {
+            load({
+              library,
+              funcName: name,
+              retType: DataType.Void,
+              paramsType: args.parameters.map((x: any) => ffiType(x)),
+              paramsValue: inputs,
+            })
+          },
+        ]),
       ),
       close: () => close(library),
     }
@@ -80,7 +83,7 @@ export class NodeEnv extends WebEnv {
       rl.question(msg, (answer) => {
         resolve(answer)
         rl.close()
-      })
+      }),
     )
   }
 
@@ -126,12 +129,17 @@ export class NodeEnv extends WebEnv {
       path = this.realPath(dir, path)
       await this.mkdir(dir)
     } else path = this.realPath(path)
-    if (await this.stat(path).then((x) => x.isFile()).catch(() => undefined)) {
+    if (
+      await this.stat(path)
+        .then((x) => x.isFile())
+        .catch(() => undefined)
+    ) {
       return path
     }
     const res = await fetch(url)
     if (!res.ok) throw new Error(`Error ${res.status}`)
-    let size = Number(res.headers.get('content-length')), i = 0
+    let size = Number(res.headers.get('content-length')),
+      i = 0
     let data: Uint8Array
     if (size) {
       const reader = res.body?.getReader()

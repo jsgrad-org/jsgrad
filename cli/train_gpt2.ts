@@ -1,7 +1,7 @@
-import { GPT } from '../models/gpt2.ts'
-import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '../jsgrad/base.ts'
-import { parseArgs, z } from './parse.ts'
-import { get_encoding } from 'npm:tiktoken'
+import { GPT } from '@jsgrad/models/gpt2'
+import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '@jsgrad/jsgrad/node'
+import { parseArgs, z } from './parse'
+import { get_encoding } from 'tiktoken'
 
 const args = parseArgs({
   steps: z.number().default(10).describe('number of steps to run'),
@@ -60,7 +60,7 @@ function* get_batch() {
 
 // forward backward for a few iterations
 const data_iter = get_batch()
-const [x, y] = data_iter.next().value! // we'll overfit this batch below
+const [x, y] = data_iter.next().value as [Tensor, Tensor] // we'll overfit this batch below
 const optimizer = new AdamW(get_parameters(model), 1e-4, undefined, undefined, undefined, 0)
 
 const step = new TinyJit((x, y) => {
@@ -77,7 +77,7 @@ await Tensor.train(async () => {
     const loss = await step.call(x.contiguous(), y.contiguous())
     Device.default().synchronize()
     const t1 = performance.now()
-    console.log(`iteration ${i}, loss: ${(await loss.item()).toFixed(6)}, time: ${(t1 - t0).toFixed(3)}ms, ${(B * T / ((t1 - t0) / 1000)).toFixed(0)} tok/s`)
+    console.log(`iteration ${i}, loss: ${(await loss.item()).toFixed(6)}, time: ${(t1 - t0).toFixed(3)}ms, ${((B * T) / ((t1 - t0) / 1000)).toFixed(0)} tok/s`)
   }
 })
 
