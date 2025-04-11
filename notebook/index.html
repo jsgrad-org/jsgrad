@@ -37,13 +37,20 @@ console.log(await a.mul(c).tolist())
 
 /** [](cell:markdown) */
 /**
-Llama3
+Llama3 init
 */
 /** [](cell:code) */
 import { Llama3 } from "@jsgrad/models/llama3"
 
-const model = await Llama3.load({ size: "1B" })
+const model = await Llama3.load({ size: "1B", quantize: "float16" })
+
+/** [](cell:markdown) */
+/**
+Llama3 run
+*/
+/** [](cell:code) */
 const res = await model.chat({ messages: [{ role: "user", content: "Hi!" }] })
+
 console.log(res.message.content)
 </code>
 </body>
