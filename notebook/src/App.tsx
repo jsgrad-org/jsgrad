@@ -138,6 +138,7 @@ export const CodeInit = ({ code }: { code: string }) => {
   useEffect(() => {
     if (!monaco) return
     const loadPackage = async (name: string) => {
+      name = name.split('/').slice(0, 2).join('/')
       const version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
         .then((x) => x.json())
         .then((x) => x.tags.latest)
@@ -175,9 +176,7 @@ export const CodeInit = ({ code }: { code: string }) => {
 const runJS = async (code: string) => {
   code = code.trim()
 
-  if (/^\s*\{/.test(code) && /\}\s*$/.test(code)) {
-    code = `(${code})`
-  }
+  if (/^\s*\{/.test(code) && /\}\s*$/.test(code)) code = `(${code})`
 
   code = code.replaceAll('const ', 'window.')
   code = code.replaceAll('let ', 'window.')

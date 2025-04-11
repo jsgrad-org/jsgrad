@@ -34,6 +34,14 @@ Multiplying
 const c = new Tensor([1, 1, 1, 1, 1])
 
 await a.mul(c).tolist()
+/** [](cell:markdown) */
+/**
+Llama3
+*/
+/** [](cell:code) */
+import { Llama3 } from "@jsgrad/models/llama3"
+
+await Llama3.load({ size: "1B" })
 </code>
 </body>
 
