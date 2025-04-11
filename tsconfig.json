@@ -20,6 +20,7 @@
         "declaration": true,
         "outDir": "dist",
         "module": "ESNext",
+        "incremental": true,
         "target": "ESNext",
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,

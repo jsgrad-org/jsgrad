@@ -24,7 +24,7 @@ import { Tensor } from '@jsgrad/jsgrad'
 const a = new Tensor([1, 2, 3, 4, 5])
 const b = new Tensor([6, 7, 8, 9, 10])
 
-await a.add(b).tolist()
+console.log(await a.add(b).tolist())
 
 /** [](cell:markdown) */
 /**
@@ -33,7 +33,7 @@ Multiplying
 /** [](cell:code) */
 const c = new Tensor([1, 1, 1, 1, 1])
 
-await a.mul(c).tolist()
+console.log(await a.mul(c).tolist())
 /** [](cell:markdown) */
 /**
 Llama3
@@ -41,7 +41,9 @@ Llama3
 /** [](cell:code) */
 import { Llama3 } from "@jsgrad/models/llama3"
 
-await Llama3.load({ size: "1B" })
+const model = await Llama3.load({ size: "1B" })
+const res = await model.chat({ messages: [{ role: "user", content: "Hi!" }] })
+console.log(res.message.content)
 </code>
 </body>
 

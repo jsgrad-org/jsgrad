@@ -4,7 +4,8 @@
   "scripts": {
     "test": "deno -A npm:vitest run --testTimeout 0",
     "format": "prettier --write .",
-    "check": "tsc"
+    "check": "tsc --noEmit",
+    "build": "tsc"
   },
   "workspaces": [
     "./jsgrad",

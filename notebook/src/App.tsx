@@ -95,7 +95,7 @@ const Cells = () => {
   const { cells } = useNotebook()
   const startEnd = getStartEnd(cells)
   return (
-    <div className="flex flex-col gap-6 bg-[#1e1e1e] h-screen text-white p-10">
+    <div className="flex flex-col gap-6 bg-[#1e1e1e] h-full min-h-screen text-white p-10">
       <CodeInit code={cellsToString(cells)} />
       {cells.map((cell, i) => {
         return (
@@ -183,18 +183,17 @@ const runJS = async (code: string) => {
 
   code = code.replace(/import\s*{([^}]+)}\s*from\s*['"]([^'"]+)['"]/g, (_, imports, pkg) => {
     const cleanedImports = imports.trim().replace(/\s+/g, ' ')
-    return `const {${cleanedImports}} = await import("https://cdn.jsdelivr.net/npm/${pkg}/+esm")\nObject.assign(window,{${cleanedImports}})`
+    const imp = !import.meta.env.VITE_LOCAL_PACKAGES ? `const {${cleanedImports}} = await import("https://esm.sh/${pkg}")` : `const {${cleanedImports}} = await import("http://localhost:5173/${pkg}/index.js")`
+    return [imp, `Object.assign(window,{${cleanedImports}})`].join('\n')
   })
 
   try {
     const lines = code.split('\n').filter((line) => line.trim() !== '')
     if (lines.length === 0) return
 
-    const lastLine = lines[lines.length - 1].trim()
     const result = await eval(`
 (async () => {
   ${code}
-  return ${lastLine};
 })()`)
 
     if (result !== undefined && result !== null) console.log(result)
