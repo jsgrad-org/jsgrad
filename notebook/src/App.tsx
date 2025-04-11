@@ -1,6 +1,6 @@
-import { createContext, type ReactNode, useContext, useState } from 'react'
+import { createContext, type ReactNode, useContext, useRef, useState } from 'react'
 import { Editor, useMonaco } from '@monaco-editor/react'
-import { Uri } from 'monaco-editor'
+import { Uri, Range, KeyMod, KeyCode, editor } from 'monaco-editor'
 import { useEffect } from 'react'
 
 const CELL_TYPES = ['code', 'markdown']
@@ -11,7 +11,7 @@ type Cell = {
 }
 type Notebook = {
   cells: Cell[]
-  setCells: (c: Cell[]) => void
+  setCells: React.Dispatch<React.SetStateAction<Cell[]>>
 }
 
 type PackageFile = { type: 'directory'; name: string; files: PackageFile[] } | { type: 'file'; name: string; hash: string; size: number }
@@ -21,17 +21,29 @@ type PackageInfo = {
   files: PackageFile[]
 }
 
-const codeToCells = (code: string): Cell[] => {
+const pattern = /\/\*\*\s*\[\]\(cell:(\w+)\)\s*\*\//
+
+const codeToCells = (lines: string[]): Cell[] => {
   const out: Cell[] = []
-  const pattern = /\/\*\*\s*\[\]\(cell:(\w+)\)\s*\*\//g
-  const splits = code.trim().split(pattern).slice(1)
-  for (let i = 0; i < splits.length; i += 2) {
-    const type = splits[i] as CellType
-    if (!CELL_TYPES.includes(type)) throw new Error(`Invalid cell type ${type}`)
-    let content = splits[i + 1].trim()
-    if (type === 'markdown') content = content.split('\n').slice(1, -1).join('\n')
-    out.push({ type, content })
+  let type: CellType | undefined
+  let currentLines: string[] = []
+  const push = () => {
+    if (type === 'markdown') currentLines = currentLines.slice(1, -1)
+    out.push({ type: type!, content: currentLines.join('\n') })
   }
+
+  for (const line of lines) {
+    const match = line.match(pattern)
+    if (match) {
+      if (type) push()
+      currentLines = []
+      type = match[1] as CellType
+      if (!CELL_TYPES.includes(type)) throw new Error(`Invalid cell type ${type}`)
+    } else {
+      currentLines.push(line)
+    }
+  }
+  if (type) push()
   return out
 }
 
@@ -42,7 +54,7 @@ const useNotebook = () => {
   return res
 }
 export const NotebookProvider = ({ code, children }: { children: ReactNode; code: string }) => {
-  const [cells, setCells] = useState(() => codeToCells(code))
+  const [cells, setCells] = useState(() => codeToCells(code.split('\n')))
   return <NotebookContext.Provider value={{ cells, setCells }}>{children}</NotebookContext.Provider>
 }
 
@@ -53,21 +65,41 @@ export const App = ({ code }: { code: string }) => {
     </NotebookProvider>
   )
 }
+type StartEnd = { start: number; end: number }
+const getStartEnd = (cells: Cell[]) => {
+  let line = 1
+  const startEnd: StartEnd[] = []
+  for (const cell of cells) {
+    let len = cell.content.split('\n').length
+    if (cell.type === 'markdown') len += 2
+    startEnd.push({ start: line + 1, end: line + 1 + len })
+    line += len + 1
+  }
+  return startEnd
+}
+
+const cellsToString = (cells: Cell[]) => {
+  let chunks: string[] = []
+  for (const cell of cells) {
+    let chunk = `/** [](cell:${cell.type}) */\n`
+    if (cell.type === 'markdown') chunk += `/**\n${cell.content}\n*/`
+    if (cell.type === 'code') chunk += `${cell.content}`
+    chunks.push(chunk)
+  }
+  return chunks.join('\n')
+}
 
 const Cells = () => {
   const { cells } = useNotebook()
-  let line = 1
+  const startEnd = getStartEnd(cells)
   return (
     <div className="flex flex-col gap-6 bg-[#1e1e1e] text-white p-10">
       <CodeInit />
       {cells.map((cell, i) => {
-        const start = line
-        const len = cell.content.split('\n').length + 2
-        if (cell.type === 'code') line += len
         return (
           <div key={i} className="">
             {cell.type === 'markdown' && <MarkdownBlock content={cell.content} />}
-            {cell.type === 'code' && <CodeBlock start={start} end={start + len} />}
+            {cell.type === 'code' && <CodeBlock start={startEnd[i].start} end={startEnd[i].end} />}
           </div>
         )
       })}
@@ -77,21 +109,16 @@ const Cells = () => {
 
 export const CodeInit = () => {
   const monaco = useMonaco()
-  const { cells } = useNotebook()
+  const { cells, setCells } = useNotebook()
   useEffect(() => {
     if (!monaco) return
     const uri = Uri.file('notebook.ts')
     let model = monaco.editor.getModel(uri)
     if (model) return
-    const code = cells
-      .filter((x) => x.type === 'code')
-      .map((x) => `\n${x.content}\n`)
-      .join('\n')
-    model = monaco.editor.createModel(code, 'typescript', uri)
+    model = monaco.editor.createModel(cellsToString(cells), 'typescript', uri)
     model.onDidChangeContent((e) => {
-      for (const change of e.changes) {
-        console.log(change.range, change.text, change.rangeLength, change.rangeOffset)
-      }
+      const cells = codeToCells(model.getLinesContent())
+      setCells(cells)
     })
 
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -133,31 +160,42 @@ export const CodeInit = () => {
 
 export const CodeBlock = ({ start, end }: { start: number; end: number }) => {
   const lineHeight = 18
+  const ref = useRef<any>(null)
+  const range = useRef<Range>(null)
+  useEffect(() => {
+    range.current = new Range(start, 1, end - 1, Number.MAX_SAFE_INTEGER)
+    ref.current?.revealRange(range.current, 1)
+  }, [start, end])
   return (
     <Editor
-      className="border-2 border-gray-900 rounded-xl !shadow-none overflow-hidden"
       defaultPath={Uri.file('notebook.ts').toString()}
       height={(end - start) * lineHeight}
-      onMount={(editor, monaco) => {
-        const range = new monaco.Range(start, 1, end, Number.MAX_SAFE_INTEGER)
-        editor.revealRange(range, 1)
+      onMount={(editor) => {
+        ref.current = editor
+        range.current = new Range(start, 1, end - 1, Number.MAX_SAFE_INTEGER)
+
+        editor.revealRange(range.current, 1)
         editor.onDidScrollChange((e) => {
-          editor.revealRange(range, 1)
+          editor.revealRange(range.current!, 1)
         })
         editor.addAction({
           id: 'custom-select-all',
           label: 'Select Cell Content',
-          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA],
+          keybindings: [KeyMod.CtrlCmd | KeyCode.KeyA],
           run: () => {
-            editor.setSelection(range)
+            editor.setSelection(range.current!)
           },
+        })
+        editor.onDidChangeCursorPosition((e) => {
+          const pos = e.position
+          const start = range.current!.getStartPosition()
+          const end = range.current!.getEndPosition()
+          if (pos.isBefore(start)) editor.setPosition(start)
+          else if (end.isBefore(pos)) editor.setPosition(end)
         })
       }}
       options={{
-        lineNumbers: (e) => {
-          if (e >= end - 1 || e < start) return null
-          return (e - start) as any
-        },
+        lineNumbers: (e) => (e - start + 1) as any,
         stickyScroll: { enabled: false },
         wordWrap: 'off',
         minimap: { enabled: false },
@@ -165,7 +203,7 @@ export const CodeBlock = ({ start, end }: { start: number; end: number }) => {
         formatOnType: true,
         scrollbar: {
           vertical: 'hidden',
-          horizontal: 'hidden',
+          horizontal: 'auto',
           handleMouseWheel: false,
         },
         overviewRulerLanes: 0,
