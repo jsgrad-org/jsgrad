@@ -31,7 +31,7 @@ const codeToCells = (lines: string[]): Cell[] => {
   let type: CellType | undefined
   let currentLines: string[] = []
   const push = () => {
-    if (type === 'markdown') currentLines = currentLines.slice(1, -1)
+    if (type === 'markdown') currentLines = currentLines.join('\n').trim().split('\n').slice(1, -1)
     out.push({ type: type!, content: currentLines.join('\n') })
   }
 
