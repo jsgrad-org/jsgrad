@@ -12,3 +12,4 @@ __pycache__/
 weights/
 .playwright
 .vscode
+notebook/public/@jsgrad/

@@ -10,14 +10,8 @@ import { WASM } from '../runtime/ops_wasm.ts'
 import { NULL } from '../runtime/ops_null.ts'
 
 export type Stats = Pick<NodeStats, 'isFile' | 'size'>
-export type Dlopen = <const S extends Deno.ForeignLibraryInterface>(
-  filename: string | URL,
-  symbols: S,
-) => Deno.DynamicLibrary<S> | Promise<Deno.DynamicLibrary<S>>
-export type FFICallback = (
-  x: { parameters: Deno.NativeType[]; result: Deno.NativeResultType },
-  cb: (...a: any[]) => any,
-) => any
+export type Dlopen = <const S extends Deno.ForeignLibraryInterface>(filename: string | URL, symbols: S) => Deno.DynamicLibrary<S> | Promise<Deno.DynamicLibrary<S>>
+export type FFICallback = (x: { parameters: Deno.NativeType[]; result: Deno.NativeResultType }, cb: (...a: any[]) => any) => any
 
 // deno-fmt-ignore
 export class WebEnv {
@@ -25,11 +19,19 @@ export class WebEnv {
   PLATFORM = 'web'
   CPU_DEVICE: string = 'JS'
   DB_VERSION = 1
-  DEVICES:Record<string,typeof Compiled> = { WEBGPU, JS, WASM, CLOUD, NULL }
-  get OSX(){ return this.PLATFORM === 'darwin'}
-  get WINDOWS(){ return this.PLATFORM === 'win32'}
-  get CACHE_DIR (){ return `${vars.get('CACHE_DIR') || vars.get('XDG_CACHE_HOME') || (this.OSX ? `${this.homedir()}/Library/Caches` : `${this.homedir()}/.cache`)}/jsgrad` }
-  get CACHE_DB (){return vars.get('CACHE_DB') || `${this.CACHE_DIR}/jsgrad.db` }
+  DEVICES: Record<string, typeof Compiled> = { WEBGPU, JS, WASM, CLOUD, NULL }
+  get OSX() {
+    return this.PLATFORM === 'darwin'
+  }
+  get WINDOWS() {
+    return this.PLATFORM === 'win32'
+  }
+  get CACHE_DIR() {
+    return `${vars.get('CACHE_DIR') || vars.get('XDG_CACHE_HOME') || (this.OSX ? `${this.homedir()}/Library/Caches` : `${this.homedir()}/.cache`)}/jsgrad`
+  }
+  get CACHE_DB() {
+    return vars.get('CACHE_DB') || `${this.CACHE_DIR}/jsgrad.db`
+  }
 
   notImplemented = () => {
     throw new Error(`This feature is not available in ${this.NAME} environment`)
@@ -39,7 +41,7 @@ export class WebEnv {
   readTextFile = async (path: string): Promise<string> => new TextDecoder().decode(await this.readFile(path))
   writeTextFile = async (path: string, data: string) => await this.writeFile(path, new TextEncoder().encode(data))
 
-  private _cache = async () => await caches.open("jsgrad")
+  private _cache = async () => await caches.open('jsgrad')
   readFile = async (path: string): Promise<Uint8Array> => {
     const cache = await this._cache()
     const res = await cache.match(path)
@@ -53,29 +55,30 @@ export class WebEnv {
     const cache = await this._cache()
     await cache.delete(path)
   }
-  realPath =  (...paths: string[]): string =>paths.filter(Boolean).join("/")
+  realPath = (...paths: string[]): string => paths.filter(Boolean).join('/')
   stat = async (path: string): Promise<Stats> => {
     const res = await this.readFile(path)
-    return { isFile: ()=>!!res, size:res.length }
+    return { isFile: () => !!res, size: res.length }
   }
   statSync = (path: string): Stats => this.notImplemented()
-  tempFile = async (ext?: string): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}${ext ?`.${ext}`:""}`
-  mkdir = async (path:string): Promise<void> => {}
+  tempFile = async (ext?: string): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}${ext ? `.${ext}` : ''}`
+  mkdir = async (path: string): Promise<void> => {}
   fetchSave = async (url: string, path: string, dir?: string, onProgress?: TqdmOnProgress) => {
-    path = this.realPath(dir || "", path)
+    path = this.realPath(dir || '', path)
     const cache = await this._cache()
     const cached = await cache.match(path)
     if (cached) return path
 
     const res = await fetch(url)
     if (!res.ok) throw new Error(`Error ${res.status}`)
-    let size = Number(res.headers.get('content-length')), i = 0
-    let data:Uint8Array
+    let size = Number(res.headers.get('content-length')),
+      i = 0
+    let data: Uint8Array
     if (size) {
       const reader = res.body?.getReader()
       if (!reader) throw new Error('Response body not readable!')
       data = new Uint8Array(size)
-      const  t = new Tqdm(size, { onProgress, label: `Downloading ${path}`, format: memsize_to_str })
+      const t = new Tqdm(size, { onProgress, label: `Downloading ${path}`, format: memsize_to_str })
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -85,35 +88,43 @@ export class WebEnv {
           t.render(i)
         }
       }
-      this.writeStdout("\n")
+      this.writeStdout('\n')
     } else data = new Uint8Array(await res.arrayBuffer())
     await this.writeFile(path, data)
     return path
   }
 
   // SYSTEM
-  writeStdout = (p:string) => console.log(p+'\u200B')
+  _stdout = ['']
+  writeStdout = (p: string) => {
+    if (p === '\n') {
+      this._stdout = ['']
+      return
+    }
+    this._stdout[0] = p.replace('[1G', '')
+    console.log(this._stdout)
+  }
   homedir = () => '/home'
-  gunzip = async (buffer: ArrayBuffer):Promise<ArrayBuffer> => {
-    const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'));
-    return await new Response(stream).arrayBuffer();
+  gunzip = async (buffer: ArrayBuffer): Promise<ArrayBuffer> => {
+    const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'))
+    return await new Response(stream).arrayBuffer()
   }
   args = (): string[] => (window as any).args || []
-  machine = () => "browser"
-  exit = (code: number):never => {
+  machine = () => 'browser'
+  exit = (code: number): never => {
     throw new Error(`Exited with status code ${code}`)
   }
-  exec = (cmd:string): Promise<string> => this.notImplemented()
-  prompt = async (msg:string, def?: string) => prompt(msg, def)
+  exec = (cmd: string): Promise<string> => this.notImplemented()
+  prompt = async (msg: string, def?: string) => prompt(msg, def)
   sha256 = (data: Uint8Array): Uint8Array => new Uint8Array(new Sha256().update(data)!.arrayBuffer())
 
   // FFI
   dlopen: Dlopen = () => this.notImplemented()
-  ptr = (buffer: ArrayBuffer, offset?:number): any => this.notImplemented()
-  ptrToU64 = (ptr:any): bigint => this.notImplemented()
-  u64ToPtr = (u64:bigint):any =>this.notImplemented()
-  getCString = (ptr:any):string => this.notImplemented()
-  getArrayBuffer = (ptr: any, byteLength: number, offset?: number):ArrayBuffer => this.notImplemented()
+  ptr = (buffer: ArrayBuffer, offset?: number): any => this.notImplemented()
+  ptrToU64 = (ptr: any): bigint => this.notImplemented()
+  u64ToPtr = (u64: bigint): any => this.notImplemented()
+  getCString = (ptr: any): string => this.notImplemented()
+  getArrayBuffer = (ptr: any, byteLength: number, offset?: number): ArrayBuffer => this.notImplemented()
   callback: FFICallback = (x, cb): any => this.notImplemented()
 
   // STORAGE

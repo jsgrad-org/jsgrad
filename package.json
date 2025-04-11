@@ -1,16 +1,18 @@
 {
-  "version": "0.0.18",
+  "version": "0.0.19",
   "private": true,
   "scripts": {
     "test": "deno -A npm:vitest run --testTimeout 0",
     "format": "prettier --write .",
-    "check": "tsc"
+    "check": "tsc --noEmit",
+    "build": "tsc"
   },
   "workspaces": [
     "./jsgrad",
     "./website",
     "./cli",
-    "./models"
+    "./models",
+    "./notebook"
   ],
   "dependencies": {
     "@deno/vite-plugin": "^1.0.4",

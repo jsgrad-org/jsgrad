@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0" />
+  <title>Notebook</title>
+  <script type="module"
+    src="/src/main.tsx"></script>
+</head>
+
+<body>
+  <div id="notebook-root"> </div>
+  <code id="notebook-raw"
+    class="whitespace-pre text-xs">
+/** [](cell:markdown) */
+/**
+This is how you use jsgrad
+*/
+/** [](cell:code) */
+import { Tensor } from '@jsgrad/jsgrad'
+
+const a = new Tensor([1, 2, 3, 4, 5])
+const b = new Tensor([6, 7, 8, 9, 10])
+
+console.log(await a.add(b).tolist())
+
+/** [](cell:markdown) */
+/**
+Multiplying
+*/
+/** [](cell:code) */
+const c = new Tensor([1, 1, 1, 1, 1])
+
+console.log(await a.mul(c).tolist())
+
+/** [](cell:markdown) */
+/**
+Llama3
+*/
+/** [](cell:code) */
+import { Llama3 } from "@jsgrad/models/llama3"
+
+const model = await Llama3.load({ size: "1B" })
+const res = await model.chat({ messages: [{ role: "user", content: "Hi!" }] })
+console.log(res.message.content)
+</code>
+</body>
+
+</html>
