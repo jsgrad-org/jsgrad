@@ -1,1 +1,14 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+.prose code::before {
+  content: none !important;
+}
+.prose code::after {
+  content: none !important;
+}
+.prose code {
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.101);
+  border-radius: 8px;
+}

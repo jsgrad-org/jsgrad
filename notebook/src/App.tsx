@@ -2,8 +2,9 @@ import { createContext, type ReactNode, useContext, useRef, useState } from 'rea
 import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
-import { PlayIcon } from 'lucide-react'
+import { CodeIcon, PlayIcon, TextIcon, type LucideIcon } from 'lucide-react'
 import { Console, Hook, Unhook } from 'console-feed'
+import { marked } from 'marked'
 
 const CELL_TYPES = ['code', 'markdown']
 type CellType = 'code' | 'markdown'
@@ -73,9 +74,14 @@ const getStartEnd = (cells: Cell[]) => {
   const startEnd: StartEnd[] = []
   for (const cell of cells) {
     let len = cell.content.split('\n').length
-    if (cell.type === 'markdown') len += 2
-    startEnd.push({ start: line + 1, end: line + 1 + len })
-    line += len + 1
+    if (cell.type === 'code') {
+      startEnd.push({ start: line + 1, end: line + 1 + len })
+      line += len + 1
+    } else if (cell.type === 'markdown') {
+      len += 2
+      startEnd.push({ start: line + 2, end: line + len })
+      line += len + 1
+    }
   }
   return startEnd
 }
@@ -95,12 +101,12 @@ const Cells = () => {
   const { cells } = useNotebook()
   const startEnd = getStartEnd(cells)
   return (
-    <div className="flex flex-col gap-6 bg-[#1e1e1e] h-full min-h-screen text-white p-10">
+    <div className="flex flex-col h-full min-h-screen pt-10">
       <CodeInit code={cellsToString(cells)} />
       {cells.map((cell, i) => {
         return (
-          <div key={i} className="">
-            {cell.type === 'markdown' && <MarkdownBlock content={cell.content} />}
+          <div key={i} className="hover:bg-white/2 duration-200 py-2 px-10">
+            {cell.type === 'markdown' && <MarkdownBlock content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
             {cell.type === 'code' && <CodeBlock content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
           </div>
         )
@@ -201,16 +207,18 @@ const runJS = async (code: string) => {
     console.error(e)
   }
 }
+const Block = ({ children, onClick, Icon }: { Icon: LucideIcon; onClick: () => void; children: ReactNode }) => {
+  return (
+    <div className="flex gap-4 relative min-h-14">
+      <div className="absolute bottom-2 right-2 z-10 md:relative md:bottom-0 md:right-0 bg-[#1e1e1e] min-h-10 w-10 border border-white/10 shrink-0 flex items-center justify-center hover:bg-[#343434] cursor-pointer rounded-md" onClick={onClick}>
+        <Icon className="h-4" />
+      </div>
+      <div className="w-full my-auto">{children}</div>
+    </div>
+  )
+}
 export const CodeBlock = ({ start, end, content }: { content: string; start: number; end: number }) => {
-  const lineHeight = 18
-  const ref = useRef<any>(null)
-  const range = useRef<Range>(null)
   const [logs, setLogs] = useState<any[]>([])
-
-  useEffect(() => {
-    range.current = new Range(start, 1, end - 1, Number.MAX_SAFE_INTEGER)
-    ref.current?.revealRange(range.current, 1)
-  }, [start, end])
 
   const run = async () => {
     setLogs([])
@@ -221,73 +229,96 @@ export const CodeBlock = ({ start, end, content }: { content: string; start: num
     Unhook(hookedConsole)
   }
   return (
-    <div className="relative flex border border-white/10 rounded-md">
-      <div className="w-8 bg-white/5 flex items-center justify-center hover:bg-white/10 cursor-pointer" onClick={run}>
-        <PlayIcon className="h-4" />
-      </div>
-      <div className="w-full">
-        <Editor
-          defaultPath={Uri.file('notebook.ts').toString()}
-          height={(end - start) * lineHeight}
-          onMount={(editor) => {
-            ref.current = editor
-            range.current = new Range(start, 1, end - 1, Number.MAX_SAFE_INTEGER)
-
-            editor.revealRange(range.current, 1)
-            editor.onDidScrollChange((e) => {
-              editor.revealRange(range.current!, 1)
-            })
-            editor.addAction({
-              id: 'custom-select-all',
-              label: 'Select Cell Content',
-              keybindings: [KeyMod.CtrlCmd | KeyCode.KeyA],
-              run: () => {
-                editor.setSelection(range.current!)
-              },
-            })
-            editor.onDidChangeCursorPosition((e) => {
-              const pos = e.position
-              const start = range.current!.getStartPosition()
-              const end = range.current!.getEndPosition()
-              if (pos.isBefore(start)) editor.setPosition(start)
-              else if (end.isBefore(pos)) editor.setPosition(end)
-            })
+    <Block onClick={run} Icon={PlayIcon}>
+      <Code content={content} start={start} end={end} />
+      <div>
+        <Console
+          logs={logs}
+          variant="dark"
+          styles={{
+            LOG_BACKGROUND: 'transparent',
+            BASE_BACKGROUND_COLOR: 'transparent',
           }}
-          options={{
-            lineNumbers: (e) => (e - start + 1) as any,
-            stickyScroll: { enabled: false },
-            wordWrap: 'off',
-            minimap: { enabled: false },
-            lineHeight,
-            formatOnType: true,
-            scrollbar: {
-              vertical: 'hidden',
-              horizontal: 'auto',
-              handleMouseWheel: false,
-              useShadows: false,
-            },
-            overviewRulerLanes: 0,
-            lineDecorationsWidth: 1,
-            lineNumbersMinChars: 3,
-            overviewRulerBorder: false,
-          }}
-          theme="vs-dark"
         />
-        <div>
-          <Console
-            logs={logs}
-            variant="dark"
-            styles={{
-              LOG_BACKGROUND: 'transparent',
-              BASE_BACKGROUND_COLOR: 'transparent',
-            }}
-          />
-        </div>
       </div>
+    </Block>
+  )
+}
+export const Code = ({ start, end, content }: { content: string; start: number; end: number }) => {
+  const lineHeight = 18
+  const ref = useRef<any>(null)
+  const range = useRef<Range>(null)
+
+  useEffect(() => {
+    range.current = new Range(start, 1, end - 1, Number.MAX_SAFE_INTEGER)
+    ref.current?.revealRange(range.current, 1)
+  }, [start, end])
+
+  return (
+    <div className="border border-white/10 rounded-md p-1">
+      <Editor
+        keepCurrentModel
+        defaultPath={Uri.file('notebook.ts').toString()}
+        height={(end - start) * lineHeight}
+        onMount={(editor) => {
+          ref.current = editor
+          range.current = new Range(start, 1, end - 1, Number.MAX_SAFE_INTEGER)
+
+          editor.revealRange(range.current, 1)
+          editor.onDidScrollChange((e) => {
+            editor.revealRange(range.current!, 1)
+          })
+          editor.addAction({
+            id: 'custom-select-all',
+            label: 'Select Cell Content',
+            keybindings: [KeyMod.CtrlCmd | KeyCode.KeyA],
+            run: () => {
+              editor.setSelection(range.current!)
+            },
+          })
+          editor.onDidChangeCursorPosition((e) => {
+            const pos = e.position
+            const start = range.current!.getStartPosition()
+            const end = range.current!.getEndPosition()
+            if (pos.isBefore(start)) editor.setPosition(start)
+            else if (end.isBefore(pos)) editor.setPosition(end)
+          })
+        }}
+        options={{
+          lineNumbers: (e) => (e - start + 1) as any,
+          stickyScroll: { enabled: false },
+          wordWrap: 'off',
+          minimap: { enabled: false },
+          lineHeight,
+          formatOnType: true,
+          scrollbar: {
+            vertical: 'hidden',
+            horizontal: 'auto',
+            handleMouseWheel: false,
+            useShadows: false,
+          },
+          overviewRulerLanes: 0,
+          lineDecorationsWidth: 1,
+          lineNumbersMinChars: 3,
+          overviewRulerBorder: false,
+        }}
+        theme="vs-dark"
+      />
     </div>
   )
 }
 
-export const MarkdownBlock = ({ content }: { content: string }) => {
-  return <div>{content}</div>
+export const MarkdownBlock = ({ content, start, end }: { end: number; start: number; content: string }) => {
+  const [md, setMd] = useState('')
+  const [editor, setEditor] = useState(false)
+  useEffect(() => {
+    const effect = async () => setMd(await marked.parse(content))
+    effect()
+  }, [content])
+  return (
+    <Block Icon={!editor ? CodeIcon : TextIcon} onClick={() => setEditor((e) => !e)}>
+      {!editor && <div className="prose prose-invert py-1 max-w-[1000px]" dangerouslySetInnerHTML={{ __html: md }}></div>}
+      {editor && <Code content={content} start={start} end={end} />}
+    </Block>
+  )
 }
