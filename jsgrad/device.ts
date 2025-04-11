@@ -17,12 +17,16 @@ export class _Device {
     vars.set('DEVICE', dev)
     return dev
   }
+  set DEFAULT(dev: string) {
+    if (!env.DEVICES[dev.split(':')[0]]) throw new Error(`Invalid device ${dev}, expected one of ${Object.keys(env.DEVICES).join(', ')}`)
+    vars.set('DEVICE', dev)
+  }
   private _canonicalize = cache((device: string): string => {
     const d = device.split(':', 1)[0].toUpperCase()
     return d + device.slice(d.length).replace(':0', '')
   })
   // NOTE: you can't cache canonicalize in case Device.DEFAULT changes
-  canonicalize = (device?: string) => device !== undefined ? this._canonicalize(device) : Device.DEFAULT
+  canonicalize = (device?: string) => (device !== undefined ? this._canonicalize(device) : Device.DEFAULT)
   get(device: string): Compiled {
     if (this.opened.has(device)) return this.opened.get(device)!
     const ix = this.canonicalize(device)
@@ -34,11 +38,6 @@ export class _Device {
     return dev
   }
   default = () => this.get(this.DEFAULT)
-  setDefault = (dev: string) => {
-    if (!env.DEVICES[dev.split(':')[0]]) throw new Error(`Invalid device ${dev}, expected one of ${Object.keys(env.DEVICES).join(', ')}`)
-    vars.set('DEVICE', dev)
-    return dev
-  }
 }
 export const Device = new _Device()
 
@@ -86,7 +85,8 @@ export class Buffer<Buf extends object = object> {
     preallocate = false,
   ) {
     this._id = id(random_id())
-    if (dtype instanceof ImageDType) this.options = new BufferSpec(dtype) // TODO: image hack shouldn't be here. where should it be?
+    if (dtype instanceof ImageDType)
+      this.options = new BufferSpec(dtype) // TODO: image hack shouldn't be here. where should it be?
     else assert(dtype instanceof DType && !(dtype instanceof PtrDType))
     if (base === undefined) {
       if (offset !== 0) throw new Error("base buffers can't have offset")
@@ -109,9 +109,9 @@ export class Buffer<Buf extends object = object> {
   get lb_refcount() {
     return this.base._lb_refcount!
   }
-  ref = (cnt: number) => this.base._lb_refcount! += cnt
+  ref = (cnt: number) => (this.base._lb_refcount! += cnt)
   is_allocated = () => !!this._buf
-  ensure_allocated = (): Buffer<Buf> => !this.is_allocated() ? this.allocate() : this
+  ensure_allocated = (): Buffer<Buf> => (!this.is_allocated() ? this.allocate() : this)
   allocate = (opaque?: Buf, external_ptr?: bigint): Buffer<Buf> => {
     if (this.is_allocated()) throw new Error("can't allocate already allocated buffer")
     this.allocator = Device.get(this.device).allocator
@@ -176,7 +176,7 @@ export const is_dtype_supported = (dtype: DType, device?: string): boolean => {
   if (device === undefined) device = Device.DEFAULT
   if (dtype === dtypes.bfloat16) {
     // NOTE: this requires bf16 buffer support
-    return ['AMD'].includes(device) || ['CUDA', 'NV'].includes(device) && !vars.CI && !vars.get('PTX')
+    return ['AMD'].includes(device) || (['CUDA', 'NV'].includes(device) && !vars.CI && !vars.get('PTX'))
   }
   if (device === 'WEBGPU') return [dtypes.bool, dtypes.char, dtypes.uchar, dtypes.short, dtypes.ushort, dtypes.float, dtypes.int32, dtypes.uint32, dtypes.half].includes(dtype)
   // for CI GPU and OSX, cl_khr_fp16 isn't supported

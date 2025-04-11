@@ -11,7 +11,7 @@ export const Header = () => {
   const [dev, _setDev] = useState(Device.DEFAULT)
   const setDev = (dev: string) => {
     _setDev(dev)
-    Device.setDefault(dev)
+    Device.DEFAULT =dev
   }
   return (
     <div className='fixed h-16 pt-3 px-6 w-full z-50'>
