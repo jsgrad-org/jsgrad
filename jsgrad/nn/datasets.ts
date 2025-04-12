@@ -3,7 +3,7 @@ import { Tensor } from '../tensor.ts'
 import { tar_extract } from './state.ts'
 
 export const mnist = async (device = undefined, baseUrl?: string): Promise<[Tensor, Tensor, Tensor, Tensor]> => {
-  const base_url = baseUrl || 'https://storage.googleapis.com/cvdf-datasets/mnist/'
+  const base_url = baseUrl || 'https://huggingface.co/datasets/chuuy/greait/resolve/main/'
   const _mnist = (file: string) => Tensor.from_url(base_url + file)
   return await Promise.all([
     _mnist('train-images-idx3-ubyte.gz').then((x) => x.get({ from: 0x10 }).reshape(-1, 1, 28, 28).to(device)),

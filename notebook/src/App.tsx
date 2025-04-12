@@ -178,14 +178,23 @@ export const CodeInit = ({ code }: { code: string }) => {
 
   return null
 }
-
 const runJS = async (code: string) => {
   code = code.trim()
 
   if (/^\s*\{/.test(code) && /\}\s*$/.test(code)) code = `(${code})`
 
-  code = code.replaceAll('const ', 'window.')
-  code = code.replaceAll('let ', 'window.')
+  code = code.replace(/(?:const|let)\s+(\[([^\]]+)\]|\{([^}]+)\})\s*=\s*([^;\n]+)(;?)/g, (match, fullDestructure, arrayVars, objectVars, value, semi) => {
+    const vars = (objectVars || arrayVars)
+      .split(',')
+      .map((v: string) => v.trim().split('=')[0].trim())
+      .filter(Boolean)
+      .join(', ')
+
+    return `${match}\nObject.assign(window, {${vars}})${semi}`
+  })
+
+  // Handle regular const/let assignments
+  code = code.replaceAll(/(?:const|let)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=/g, 'window.$1 =')
 
   code = code.replace(/import\s*{([^}]+)}\s*from\s*['"]([^'"]+)['"]/g, (_, imports, pkg) => {
     const cleanedImports = imports.trim().replace(/\s+/g, ' ')
@@ -207,6 +216,7 @@ const runJS = async (code: string) => {
     console.error(e)
   }
 }
+
 const Block = ({ children, onClick, Icon }: { Icon: LucideIcon; onClick: () => void; children: ReactNode }) => {
   return (
     <div className="flex gap-4 relative min-h-14">
