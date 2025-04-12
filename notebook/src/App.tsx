@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { CodeIcon, PlayIcon, TextIcon, type LucideIcon } from 'lucide-react'
 import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
-import ts from "typescript"
+import ts from 'typescript'
 
 const CELL_TYPES = ['code', 'markdown']
 type CellType = 'code' | 'markdown'
@@ -103,7 +103,7 @@ const Cells = () => {
   const startEnd = getStartEnd(cells)
   return (
     <div className="flex flex-col h-full min-h-screen pt-10">
-      <CodeInit code={cellsToString(cells)} />
+      <CodeInit code={cellsToString(cells)} type="typescript" />
       {cells.map((cell, i) => {
         return (
           <div key={i} className="hover:bg-white/2 duration-200 py-2 px-10">
@@ -116,7 +116,8 @@ const Cells = () => {
   )
 }
 
-export const CodeInit = ({ code }: { code: string }) => {
+type CodeType = 'typescript' | 'javascript'
+export const CodeInit = ({ code, type }: { code: string; type: CodeType }) => {
   const monaco = useMonaco()
   const { setCells } = useNotebook()
 
@@ -126,13 +127,13 @@ export const CodeInit = ({ code }: { code: string }) => {
     const uri = Uri.file('notebook.ts')
     let model = monaco.editor.getModel(uri)
     if (model) return
-    model = monaco.editor.createModel(code, 'typescript', uri)
+    model = monaco.editor.createModel(code, type, uri)
     model.onDidChangeContent((e) => {
       const cells = codeToCells(model.getLinesContent())
       setCells(cells)
     })
 
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+    monaco.languages.typescript[`${type}Defaults`].setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.Latest,
       module: monaco.languages.typescript.ModuleKind.ESNext,
       allowNonTsExtensions: true,
@@ -161,7 +162,7 @@ export const CodeInit = ({ code }: { code: string }) => {
 
       const promises = types.map(async (x) => {
         const content = await fetch(`https://cdn.jsdelivr.net/npm/${info.name}@${info.version}${x}`).then((x) => x.text())
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(content, `file:///node_modules/${name}${x}`)
+        monaco.languages.typescript[`${type}Defaults`].addExtraLib(content, `file:///node_modules/${name}${x}`)
       })
       await Promise.all(promises)
     }
@@ -182,9 +183,9 @@ export const CodeInit = ({ code }: { code: string }) => {
 const runJS = async (code: string) => {
   code = code.trim()
   code = ts.transpile(code, {
-    target: ts.ScriptTarget.ESNext, 
-    module: ts.ModuleKind.ESNext,  
-  });
+    target: ts.ScriptTarget.ESNext,
+    module: ts.ModuleKind.ESNext,
+  })
 
   if (/^\s*\{/.test(code) && /\}\s*$/.test(code)) code = `(${code})`
 
@@ -245,7 +246,7 @@ export const CodeBlock = ({ start, end, content }: { content: string; start: num
   }
   return (
     <Block onClick={run} Icon={PlayIcon}>
-      <Code content={content} start={start} end={end} />
+      <Code content={content} start={start} end={end} run={run} />
       <div>
         <Console
           logs={logs}
@@ -259,7 +260,7 @@ export const CodeBlock = ({ start, end, content }: { content: string; start: num
     </Block>
   )
 }
-export const Code = ({ start, end, content }: { content: string; start: number; end: number }) => {
+export const Code = ({ start, end, content, run }: { run?: () => void; content: string; start: number; end: number }) => {
   const lineHeight = 18
   const ref = useRef<any>(null)
   const range = useRef<Range>(null)
@@ -291,6 +292,21 @@ export const Code = ({ start, end, content }: { content: string; start: number; 
               editor.setSelection(range.current!)
             },
           })
+          if (run) {
+            editor.addAction({
+              id: 'run',
+              label: 'Run cell',
+              contextMenuGroupId: 'run',
+              keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
+              run: () => run(),
+            })
+            editor.addAction({
+              id: 'save',
+              label: 'Save',
+              keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
+              run: () => run(),
+            })
+          }
           editor.onDidChangeCursorPosition((e) => {
             const pos = e.position
             const start = range.current!.getStartPosition()
@@ -305,7 +321,6 @@ export const Code = ({ start, end, content }: { content: string; start: number; 
           wordWrap: 'off',
           minimap: { enabled: false },
           lineHeight,
-          formatOnType: true,
           scrollbar: {
             vertical: 'hidden',
             horizontal: 'auto',
