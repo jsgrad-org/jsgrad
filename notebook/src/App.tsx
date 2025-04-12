@@ -157,7 +157,7 @@ const Cells = () => {
   }
   return (
     <div className="flex flex-col h-full min-h-screen pt-14">
-      <div className="flex fixed top-0 bg-[#1e1e1e] w-full border-b border-white/10 z-50 p-1 overflow-auto">
+      <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
         <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = 'https://notebook.jsgrad.org/new')} />
         <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToString(cells))} />
         <MenuButton Icon={ShareIcon} text="Share with base64" onClick={() => copy(`https://notebook.jsgrad.org?data=${btoa(cellsToString(cells))}`)} />
@@ -176,10 +176,14 @@ const Cells = () => {
         />
         <MenuButton Icon={CodeIcon} text={raw ? 'Edit blocks' : 'Edit raw'} onClick={() => setRaw((r) => !r)} />
         <MenuButton Icon={CirclePlayIcon} text="Run all" onClick={() => setQueue(() => [...cells.entries()].filter(([i, x]) => x.type === 'code').map(([i]) => i))} />
-        </div>
+      </div>
 
       <CodeInit type="typescript" />
-      {raw && <Code start={1} end={cellsToString(cells).split('\n').length + 1} />}
+      {raw && (
+        <div className="px-10">
+          <Code start={1} end={cellsToString(cells).split('\n').length + 1} />
+        </div>
+      )}
       {!raw &&
         cells.map((cell, i) => {
           return (
@@ -315,7 +319,7 @@ const SmallIcon = ({ onClick, Icon, description }: { description: string; Icon: 
   )
 }
 
-const Block = ({ index, children, onClick, Icon }: { index: number; Icon: (x: { className: string }) => ReactNode; onClick: () => void; children: ReactNode }) => {
+const Block = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; onClick: () => void; children: ReactNode }) => {
   const { cells, setCells } = useNotebook()
   const cell = cells[index]
   const monaco = useMonaco()
@@ -324,13 +328,9 @@ const Block = ({ index, children, onClick, Icon }: { index: number; Icon: (x: { 
     monaco!.editor.getModel(NOTEBOOK)!.setValue(cellsToString(cells))
   }
   return (
-    <div className="flex gap-4 relative min-h-14">
-      <div className="absolute bottom-2 right-2 z-10 md:relative md:bottom-0 md:right-0 bg-[#1e1e1e] min-h-10 w-10 border border-white/10 shrink-0 flex items-center justify-center hover:bg-[#343434] cursor-pointer rounded-md" onClick={onClick}>
-        <Icon className="h-4" />
-      </div>
-
-      <div className="w-full my-auto relative">
+      <div className="w-full relative">
         <div className="hidden group-hover:flex absolute top-2 right-2 z-20 shadow-sm shadow-white/10 border border-white/10 rounded-md">
+          <SmallIcon Icon={Icon} description={cell.type === 'code' ? 'Run cell' : 'Edit markdown'} onClick={onClick} />
           <SmallIcon
             Icon={ChevronUpIcon}
             description="Move up"
@@ -370,7 +370,6 @@ const Block = ({ index, children, onClick, Icon }: { index: number; Icon: (x: { 
         </div>
         {children}
       </div>
-    </div>
   )
 }
 
