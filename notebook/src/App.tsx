@@ -142,6 +142,7 @@ const cellsToString = (cells: Cell[]) => {
 
 const Cells = () => {
   const { cells, setQueue } = useNotebook()
+  const [raw, setRaw] = useState(false)
   const startEnd = getStartEnd(cells)
   return (
     <div className="flex flex-col h-full min-h-screen pt-10">
@@ -152,33 +153,41 @@ const Cells = () => {
         <button className="cursor-pointer" onClick={() => navigator.clipboard.writeText(cellsToString(cells))}>
           Copy notebook
         </button>
-        <button className="cursor-pointer" onClick={() => {}}>
+        <button className="cursor-pointer" onClick={() => navigator.clipboard.writeText(`https://notebook.jsgrad.org?data=${btoa(cellsToString(cells))}`)}>
           Share
         </button>
-        <button className="cursor-pointer" onClick={() => {}}>
+        <button
+          className="cursor-pointer"
+          onClick={async () => {
+            const body = cellsToString(cells)
+            const res = await fetch(`https://kv-notebook.jsgrad.org`, { body, method: 'POST' })
+            if (!res.ok) throw new Error(`Failed to save the hash!`)
+
+            const hash = await res.json().then((x) => x.hash)
+            const url = `https://notebook.jsgrad.org?hash=${hash}`
+            navigator.clipboard.writeText(url)
+            alert(`Copied to clipboard!\n\n${url}`)
+          }}
+        >
           Share with minimized URL
         </button>
         <a href="https://notebook.jsgrad.org/new">New</a>
-        <button className="cursor-pointer" onClick={() => {}}>
-          Open
-        </button>
-        <button className="cursor-pointer" onClick={() => {}}>
-          Reload
-        </button>
-        <button className="cursor-pointer" onClick={() => {}}>
+        <button className="cursor-pointer" onClick={() => setRaw((r) => !r)}>
           Raw
         </button>
       </div>
 
       <CodeInit type="typescript" />
-      {cells.map((cell, i) => {
-        return (
-          <div key={i} className="hover:bg-white/2 duration-200 py-2 px-10">
-            {cell.type === 'markdown' && <MarkdownBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
-            {cell.type === 'code' && <CodeBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
-          </div>
-        )
-      })}
+      {raw && <Code start={0} end={200} />}
+      {!raw &&
+        cells.map((cell, i) => {
+          return (
+            <div key={i} className="hover:bg-white/2 duration-200 py-2 px-10">
+              {cell.type === 'markdown' && <MarkdownBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
+              {cell.type === 'code' && <CodeBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
+            </div>
+          )
+        })}
     </div>
   )
 }
@@ -369,7 +378,7 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
   const isRunning = cellIsRunning[index]
   return (
     <Block index={index} onClick={run} Icon={!isRunning ? PlayIcon : Loader2Icon}>
-      <Code content={content} start={start} end={end} run={run} />
+      <Code start={start} end={end} run={run} />
       <div>
         <Console
           logs={logs}
@@ -383,7 +392,7 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
     </Block>
   )
 }
-export const Code = ({ start, end, content, run }: { run?: () => void; content: string; start: number; end: number }) => {
+export const Code = ({ start, end, run }: { run?: () => void; start: number; end: number }) => {
   const lineHeight = 18
   const ref = useRef<any>(null)
   const range = useRef<Range>(null)
@@ -471,7 +480,7 @@ export const MarkdownBlock = ({ index, content, start, end }: { index: number; e
   return (
     <Block index={index} Icon={!editor ? CodeIcon : TextIcon} onClick={() => setEditor((e) => !e)}>
       {!editor && <div className="prose prose-invert py-1 max-w-[1000px]" dangerouslySetInnerHTML={{ __html: md }}></div>}
-      {editor && <Code content={content} start={start} end={end} />}
+      {editor && <Code start={start} end={end} />}
     </Block>
   )
 }
