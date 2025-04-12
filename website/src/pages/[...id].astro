@@ -5,11 +5,9 @@ import { getCollection } from 'astro:content'
 
 export const getStaticPaths = async () => {
   const data = await getCollection('notebooks')
-  console.log('ds', data)
   return data.map((x: any) => ({ params: { id: x.id === 'index' ? undefined : x.id }, props: x }))
 }
 const code = Astro.props.data.content
-console.log({ code })
 ---
 
 <Layout>
