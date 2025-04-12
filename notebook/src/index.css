@@ -13,7 +13,3 @@
   border-radius: 8px;
   white-space: nowrap;
 }
-
-.icon {
-  @apply cursor-pointer w-7 h-7 p-1 hover:bg-white/5;
-}
