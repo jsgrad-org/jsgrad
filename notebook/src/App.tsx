@@ -2,7 +2,7 @@ import { createContext, type ReactNode, useContext, useRef, useState } from 'rea
 import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
-import { ChevronDown, ChevronUpIcon, CodeIcon, CopyPlusIcon, Loader2Icon, PlayIcon, RefreshCwIcon, RefreshCwOffIcon, RotateCcwIcon, TextIcon, XIcon } from 'lucide-react'
+import { ChevronDown, ChevronUpIcon, CirclePlayIcon, CodeIcon, CopyIcon, CopyPlusIcon, Loader2Icon, PlayIcon, PlusIcon, RefreshCwIcon, RefreshCwOffIcon, RotateCcwIcon, ShareIcon, TextIcon, XIcon } from 'lucide-react'
 import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
 import ts from 'typescript'
@@ -139,25 +139,31 @@ const cellsToString = (cells: Cell[]) => {
   }
   return chunks.join('\n')
 }
-
+const MenuButton = ({ Icon, text, onClick }: { Icon: Icon; text: string; onClick: () => void }) => {
+  return (
+    <button className="cursor-pointer shrink-0 flex gap-1 items-center text-sm hover:bg-white/10 py-1 pl-1 pr-2 rounded-md" onClick={onClick}>
+      <Icon className="h-4" />
+      {text}
+    </button>
+  )
+}
 const Cells = () => {
   const { cells, setQueue } = useNotebook()
   const [raw, setRaw] = useState(false)
   const startEnd = getStartEnd(cells)
+  const copy = (text: string) => {
+    navigator.clipboard.writeText(text)
+    alert('Copied to clipboard!')
+  }
   return (
-    <div className="flex flex-col h-full min-h-screen pt-10">
-      <div className="flex gap-2">
-        <button className="cursor-pointer" onClick={() => setQueue(() => [...cells.entries()].filter(([i, x]) => x.type === 'code').map(([i]) => i))}>
-          Run all
-        </button>
-        <button className="cursor-pointer" onClick={() => navigator.clipboard.writeText(cellsToString(cells))}>
-          Copy notebook
-        </button>
-        <button className="cursor-pointer" onClick={() => navigator.clipboard.writeText(`https://notebook.jsgrad.org?data=${btoa(cellsToString(cells))}`)}>
-          Share
-        </button>
-        <button
-          className="cursor-pointer"
+    <div className="flex flex-col h-full min-h-screen pt-14">
+      <div className="flex fixed top-0 bg-[#1e1e1e] w-full border-b border-white/10 z-50 p-1 overflow-auto">
+        <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = 'https://notebook.jsgrad.org/new')} />
+        <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToString(cells))} />
+        <MenuButton Icon={ShareIcon} text="Share with base64" onClick={() => copy(`https://notebook.jsgrad.org?data=${btoa(cellsToString(cells))}`)} />
+        <MenuButton
+          Icon={ShareIcon}
+          text="Share with hash"
           onClick={async () => {
             const body = cellsToString(cells)
             const res = await fetch(`https://kv-notebook.jsgrad.org`, { body, method: 'POST' })
@@ -165,17 +171,12 @@ const Cells = () => {
 
             const hash = await res.json().then((x) => x.hash)
             const url = `https://notebook.jsgrad.org?hash=${hash}`
-            navigator.clipboard.writeText(url)
-            alert(`Copied to clipboard!\n\n${url}`)
+            copy(url)
           }}
-        >
-          Share with minimized URL
-        </button>
-        <a href="https://notebook.jsgrad.org/new">New</a>
-        <button className="cursor-pointer" onClick={() => setRaw((r) => !r)}>
-          Raw
-        </button>
-      </div>
+        />
+        <MenuButton Icon={CodeIcon} text={raw ? 'Edit blocks' : 'Edit raw'} onClick={() => setRaw((r) => !r)} />
+        <MenuButton Icon={CirclePlayIcon} text="Run all" onClick={() => setQueue(() => [...cells.entries()].filter(([i, x]) => x.type === 'code').map(([i]) => i))} />
+        </div>
 
       <CodeInit type="typescript" />
       {raw && <Code start={1} end={cellsToString(cells).split('\n').length + 1} />}
@@ -303,7 +304,7 @@ const runJS = async (code: string) => {
     console.error(e)
   }
 }
-type Icon = (x: { className: string; onClick: () => void }) => ReactNode
+type Icon = (x: { className?: string; onClick?: () => void }) => ReactNode
 
 const SmallIcon = ({ onClick, Icon, description }: { description: string; Icon: Icon; onClick: () => void }) => {
   return (
