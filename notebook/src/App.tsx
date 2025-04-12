@@ -2,7 +2,7 @@ import { createContext, Fragment, type ReactNode, useContext, useRef, useState }
 import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
-import { ChevronDown, ChevronUpIcon, CirclePlayIcon, CodeIcon, CopyIcon, CopyPlusIcon, Loader2Icon, PlayIcon, PlusIcon, RefreshCwIcon, RefreshCwOffIcon, RotateCcwIcon, ShareIcon, TextIcon, XIcon } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, CirclePlayIcon, CodeIcon, CopyIcon, CopyPlusIcon, Loader2Icon, PlayIcon, PlusIcon, RefreshCwIcon, RefreshCwOffIcon, ShareIcon, TextIcon, XIcon } from 'lucide-react'
 import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
 import ts from 'typescript'
@@ -313,7 +313,7 @@ type Icon = (x: { className?: string; onClick?: () => void }) => ReactNode
 const SmallIcon = ({ onClick, Icon, description }: { description: string; Icon: Icon; onClick: () => void }) => {
   return (
     <button className="relative cursor-pointer p-1.5 bg-[#1e1e1e] hover:bg-[#2d2d2d] group/icon rounded-sm">
-      <Icon className="h-5 w-5" onClick={onClick} />
+      <Icon className="h-4 w-4" onClick={onClick} />
       <span className="absolute hidden whitespace-nowrap bottom-[105%] left-[50%] text-sm -translate-x-1/2 group-hover/icon:block">{description}</span>
     </button>
   )
@@ -345,47 +345,49 @@ const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; o
   }
   return (
     <div className="group hover:bg-white/2 duration-200 relative p-3">
-      <div className="section relative w-full">
-        <div className="hidden group-hover:flex absolute top-2 right-2 z-20 shadow-sm shadow-white/10 border border-white/10 rounded-md">
-          <SmallIcon Icon={Icon} description={cell.type === 'code' ? 'Run cell' : 'Edit markdown'} onClick={onClick} />
-          <SmallIcon
-            Icon={ChevronUpIcon}
-            description="Move up"
-            onClick={() => {
-              if (index === 0) return
-              ;[cells[index - 1], cells[index]] = [cells[index], cells[index - 1]]
+      <div className="section">
+        <div className="relative w-full">
+          <div className="hidden group-hover:flex absolute top-1.5 right-1.5 z-20 shadow-sm shadow-white/10 border border-white/10 rounded-md">
+            <SmallIcon Icon={Icon} description={cell.type === 'code' ? 'Run cell' : 'Edit markdown'} onClick={onClick} />
+            <SmallIcon
+              Icon={ArrowUpIcon}
+              description="Move up"
+              onClick={() => {
+                if (index === 0) return
+                ;[cells[index - 1], cells[index]] = [cells[index], cells[index - 1]]
 
-              set(cells)
-            }}
-          />
-          <SmallIcon
-            Icon={ChevronDown}
-            description="Move down"
-            onClick={() => {
-              if (index === cells.length - 1) return
-              ;[cells[index + 1], cells[index]] = [cells[index], cells[index + 1]]
+                set(cells)
+              }}
+            />
+            <SmallIcon
+              Icon={ArrowDownIcon}
+              description="Move down"
+              onClick={() => {
+                if (index === cells.length - 1) return
+                ;[cells[index + 1], cells[index]] = [cells[index], cells[index + 1]]
 
-              set(cells)
-            }}
-          />
-          <SmallIcon
-            Icon={cell.runOnLoad ? RefreshCwOffIcon : RefreshCwIcon}
-            description={cell.runOnLoad ? 'Disable running on start' : 'Enable running on start'}
-            onClick={() => {
-              set(cells.map((x, i) => (i !== index ? x : { ...x, runOnLoad: x.runOnLoad ? undefined : 'true' })))
-            }}
-          />
-          <SmallIcon
-            Icon={cell.type === 'code' ? TextIcon : CodeIcon}
-            description={cell.type === 'code' ? 'Change to markdown cell' : 'Change to code cell'}
-            onClick={() => {
-              set(cells.map((x, i) => (i !== index ? x : { ...x, type: x.type === 'code' ? 'markdown' : 'code' })))
-            }}
-          />
-          <SmallIcon Icon={CopyPlusIcon} description="Clone cell" onClick={() => set([...cells.slice(0, index + 1), ...cells.slice(index)])} />
-          <SmallIcon Icon={XIcon} description="Delete cell" onClick={() => set([...cells.slice(0, index), ...cells.slice(index + 1)])} />
+                set(cells)
+              }}
+            />
+            <SmallIcon
+              Icon={cell.runOnLoad ? RefreshCwOffIcon : RefreshCwIcon}
+              description={cell.runOnLoad ? 'Disable running on start' : 'Enable running on start'}
+              onClick={() => {
+                set(cells.map((x, i) => (i !== index ? x : { ...x, runOnLoad: x.runOnLoad ? undefined : 'true' })))
+              }}
+            />
+            <SmallIcon
+              Icon={cell.type === 'code' ? TextIcon : CodeIcon}
+              description={cell.type === 'code' ? 'Change to markdown cell' : 'Change to code cell'}
+              onClick={() => {
+                set(cells.map((x, i) => (i !== index ? x : { ...x, type: x.type === 'code' ? 'markdown' : 'code' })))
+              }}
+            />
+            <SmallIcon Icon={CopyPlusIcon} description="Clone cell" onClick={() => set([...cells.slice(0, index + 1), ...cells.slice(index)])} />
+            <SmallIcon Icon={XIcon} description="Delete cell" onClick={() => set([...cells.slice(0, index), ...cells.slice(index + 1)])} />
+          </div>
+          {children}
         </div>
-        {children}
       </div>
       <AddCell bottom add={(type) => set([...cells.slice(0, index + 1), { type, content: '' }, ...cells.slice(index + 1)])} />
     </div>
