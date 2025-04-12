@@ -14,7 +14,7 @@
   <div id="notebook-root"> </div>
   <code id="notebook-raw"
     class="whitespace-pre text-xs">
-/** [](cell:markdown) */
+/** [](type:markdown) */
 /**
 # jsgrad - Fast and Simple ML for JS
 
@@ -23,7 +23,7 @@ Based on [tinygrad](https://github.com/tinygrad/tinygrad), 0 dependencies, runs 
 [GitHub](https://github.com/jsgrad-org/jsgrad) (100% open source with MIT licence), [Discord](https://discord.gg/scGGBNe9Ag), [X](https://x.com/jsgrad_org)
 
 */
-/** [](cell:markdown) */
+/** [](type:markdown) */
 /**
 ## Basic usage
 
@@ -31,7 +31,7 @@ You can install the package with `npm install @jsgrad/jsgrad` or use directly fr
 
 ...and then use it like this:
 */
-/** [](cell:code) */
+/** [](type:code,runOnLoad:true) */
 import { Tensor } from '@jsgrad/jsgrad'
 
 const a = new Tensor([1, 2, 3, 4, 5])
@@ -39,7 +39,7 @@ const b = new Tensor([6, 7, 8, 9, 10])
 
 console.log(await a.add(b).tolist())
 
-/** [](cell:markdown) */
+/** [](type:markdown) */
 /**
 ## Runtimes
 
@@ -47,12 +47,12 @@ We are prioritizing supporting web runtimes like WebGPU and WASM at first, but y
 
 To change the device to WEBGPU for example, you can run the program with `DEVICE=WEBGPU` flag or set `Device.DEFAULT = "WEBGPU"`.
 */
-/** [](cell:code) */
+/** [](type:code) */
 import { env } from '@jsgrad/jsgrad'
 
 console.log(`Your current device/browser supports: ${Object.keys(env.DEVICES).join(", ")}`)
 
-/** [](cell:code) */
+/** [](type:code) */
 const runtimes = {
   WEBGPU: { chrome: 1, firefox: "with a flag", safari: "with a flag", deno: 1, node:"planned", bun:"planned", tinygrad: 1, },
   CLANG: { deno: 1, node: 1, bun: 1, tinygrad: 1 },
@@ -72,7 +72,7 @@ const runtimes = {
 console.log("All supported runtimes:")
 console.table(runtimes)
 
-/** [](cell:markdown) */
+/** [](type:markdown) */
 /**
 ## Inference
 
@@ -80,17 +80,17 @@ With jsgrad you can use the latest AI models everywhere you can run JS.
 
 See our online [Llama 3 1B chat example](/chat), [yolov8 example](/yolo) or Llama 3 code example here:
 */
-/** [](cell:code) */
+/** [](type:code) */
 import { Llama3 } from "@jsgrad/models/llama3"
 
 const llama3 = await Llama3.load({ size: "1B", quantize: "float16" })
 
-/** [](cell:code) */
+/** [](type:code) */
 const res = await llama3.chat({ messages: [{ role: 'user', content: 'Hi!' }] })
 
 console.log(res.message.content, res.usage)
 
-/** [](cell:markdown) */
+/** [](type:markdown) */
 /**
 ## Training
 
@@ -98,7 +98,7 @@ You can also easily train with jsgrad.
 
 See our [mnist training example](/mnist), [gpt2 training example](/gpt2) or see the mnist training example here:
 */
-/** [](cell:code) */
+/** [](type:code) */
 import { Adam, get_parameters, mnist, TinyJit, Tqdm } from '@jsgrad/jsgrad'
 import { MNIST } from '@jsgrad/models/mnist'
 
@@ -110,6 +110,7 @@ const opt = new Adam(get_parameters(model))
 const train_step = new TinyJit(() => Tensor.train(async () => {
   opt.zero_grad()
   const samples = Tensor.randint([512], undefined, X_train.shape_num[0])
+  // TODO: fix this on WEBGPU, tracking issue https://github.com/jsgrad-org/jsgrad/issues/66
   const loss = model.call(X_train.get(samples)).sparse_categorical_crossentropy(Y_train.get(samples)).backward()
   await opt.step()
   return loss
@@ -124,7 +125,7 @@ for (const i of t) {
   if (i % 10 === 9) test_acc = await get_test_acc.call().then((x) => x.item())
   t.set_description(`loss: ${await loss.item().then((x) => x.toFixed(2))}, test_accuracy: ${test_acc.toFixed(2)}`)
 }
-/** [](cell:markdown) */
+/** [](type:markdown) */
 /**
 ## CLOUD
 
@@ -135,7 +136,7 @@ set the jsgrad device to CLOUD:https://url_to_your_gpu.com and now the computati
 With CLOUD device you could publish your models as a website and users could bring their own GPU (or buy GPU time) to your site.
 
 */
-/** [](cell:code) */
+/** [](type:code) */
 import { vars } from '@jsgrad/jsgrad'
 
 // TODO: update this with demo CLOUD:https://cloud.jsgrad.org device 
@@ -144,7 +145,7 @@ await vars.withAsync({ DEVICE: "WEBGPU" }, async () => {
   const b = Tensor.rand([10])
   console.log(a.device, a.shape, await a.matmul(b).tolist())
 })
-/** [](cell:markdown) */
+/** [](type:markdown) */
 /**
 ## Notebooks
 
