@@ -49,5 +49,5 @@ textarea {
 }
 
 .section {
-  @apply px-6 w-full max-w-[1200px] mx-auto;
+  @apply px-3 md:px-6 w-full max-w-[1200px] mx-auto;
 }
