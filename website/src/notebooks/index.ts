@@ -133,6 +133,6 @@ await vars.withAsync({ DEVICE: "WEBGPU" }, async () => {
 /**
 ## Notebooks
 
-This page is written in our own web notebook, you can create, share and get more info at [notebook.jsgrad.org](https://notebook.jsgrad.org). 
+This page is written in our own web notebook, you can create, share and get more info at [jsgrad.org/nb](https://jsgrad.org/nb). 
 
 */

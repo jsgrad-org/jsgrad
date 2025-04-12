@@ -66,7 +66,7 @@ const Cells = () => {
   return (
     <div className="flex flex-col h-full min-h-screen pt-16">
       <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
-        <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = `${notebookBaseUrl}/nb`)} />
+        <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = notebookBaseUrl)} />
         <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToCode(cells))} />
         <MenuButton
           Icon={ShareIcon}
