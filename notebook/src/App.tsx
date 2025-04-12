@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { CodeIcon, PlayIcon, TextIcon, type LucideIcon } from 'lucide-react'
 import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
+import ts from "typescript"
 
 const CELL_TYPES = ['code', 'markdown']
 type CellType = 'code' | 'markdown'
@@ -136,7 +137,6 @@ export const CodeInit = ({ code }: { code: string }) => {
       module: monaco.languages.typescript.ModuleKind.ESNext,
       allowNonTsExtensions: true,
       moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-
       noEmit: true,
     })
   }, [monaco])
@@ -178,8 +178,13 @@ export const CodeInit = ({ code }: { code: string }) => {
 
   return null
 }
+
 const runJS = async (code: string) => {
   code = code.trim()
+  code = ts.transpile(code, {
+    target: ts.ScriptTarget.ESNext, 
+    module: ts.ModuleKind.ESNext,  
+  });
 
   if (/^\s*\{/.test(code) && /\}\s*$/.test(code)) code = `(${code})`
 
