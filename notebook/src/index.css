@@ -13,3 +13,7 @@
   border-radius: 8px;
   white-space: nowrap;
 }
+
+.section {
+  @apply px-6 w-full max-w-[1200px] mx-auto;
+}

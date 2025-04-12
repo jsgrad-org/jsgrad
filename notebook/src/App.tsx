@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useContext, useRef, useState } from 'react'
+import { createContext, Fragment, type ReactNode, useContext, useRef, useState } from 'react'
 import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
@@ -156,7 +156,7 @@ const Cells = () => {
     alert('Copied to clipboard!')
   }
   return (
-    <div className="flex flex-col h-full min-h-screen pt-14">
+    <div className="flex flex-col h-full min-h-screen pt-16">
       <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
         <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = 'https://notebook.jsgrad.org/new')} />
         <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToString(cells))} />
@@ -180,17 +180,17 @@ const Cells = () => {
 
       <CodeInit type="typescript" />
       {raw && (
-        <div className="px-10">
+        <div className="section">
           <Code start={1} end={cellsToString(cells).split('\n').length + 1} />
         </div>
       )}
       {!raw &&
         cells.map((cell, i) => {
           return (
-            <div key={i} className="hover:bg-white/2 duration-200 py-2 px-10 group">
+            <Fragment key={i}>
               {cell.type === 'markdown' && <MarkdownBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
               {cell.type === 'code' && <CodeBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
-            </div>
+            </Fragment>
           )
         })}
     </div>
@@ -319,7 +319,23 @@ const SmallIcon = ({ onClick, Icon, description }: { description: string; Icon: 
   )
 }
 
-const Block = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; onClick: () => void; children: ReactNode }) => {
+const AddCell = ({ bottom, add }: { bottom?: boolean; add: (c: CellType) => void }) => {
+  return (
+    <div className={`absolute w-full h-[1px]  ${bottom ? 'bottom-0 -translate-y-1/2' : 'top-0 translate-y-1/2'}  rounded-full opacity-0 group-hover:opacity-100 duration-200 z-20`}>
+      <div className="absolute text-xs bg-[#1e1e1e] rounded-full border border-white/20 left-1/2 -translate-x-1/2 -translate-y-1/2 flex overflow-hidden">
+        <button className="cursor-pointer w-20 hover:bg-white/5 p-0.5" onClick={() => add('code')}>
+          Code
+        </button>
+        <div className="h-5 w-[1px] shrink-0 bg-white/20"></div>
+        <button className="cursor-pointer w-20 hover:bg-white/5 p-0.5" onClick={() => add('markdown')}>
+          Markdown
+        </button>
+      </div>
+    </div>
+  )
+}
+
+const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; onClick: () => void; children: ReactNode }) => {
   const { cells, setCells } = useNotebook()
   const cell = cells[index]
   const monaco = useMonaco()
@@ -328,7 +344,8 @@ const Block = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; 
     monaco!.editor.getModel(NOTEBOOK)!.setValue(cellsToString(cells))
   }
   return (
-      <div className="w-full relative">
+    <div className="group hover:bg-white/2 duration-200 relative p-3">
+      <div className="section relative w-full">
         <div className="hidden group-hover:flex absolute top-2 right-2 z-20 shadow-sm shadow-white/10 border border-white/10 rounded-md">
           <SmallIcon Icon={Icon} description={cell.type === 'code' ? 'Run cell' : 'Edit markdown'} onClick={onClick} />
           <SmallIcon
@@ -370,6 +387,8 @@ const Block = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; 
         </div>
         {children}
       </div>
+      <AddCell bottom add={(type) => set([...cells.slice(0, index + 1), { type, content: '' }, ...cells.slice(index + 1)])} />
+    </div>
   )
 }
 
@@ -379,7 +398,7 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
   const logs = cellLogs[index]
   const isRunning = cellIsRunning[index]
   return (
-    <Block index={index} onClick={run} Icon={!isRunning ? PlayIcon : ({ className }) => <Loader2Icon className={className + ' animate-spin'} />}>
+    <Cell index={index} onClick={run} Icon={!isRunning ? PlayIcon : ({ className }) => <Loader2Icon className={className + ' animate-spin'} />}>
       <Code start={start} end={end} run={run} />
       <div>
         <Console
@@ -391,7 +410,7 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
           }}
         />
       </div>
-    </Block>
+    </Cell>
   )
 }
 export const Code = ({ start, end, run }: { run?: () => void; start: number; end: number }) => {
@@ -480,9 +499,9 @@ export const MarkdownBlock = ({ index, content, start, end }: { index: number; e
     effect()
   }, [content])
   return (
-    <Block index={index} Icon={!editor ? CodeIcon : TextIcon} onClick={() => setEditor((e) => !e)}>
-      {!editor && <div className="prose prose-invert py-1 max-w-[1000px]" dangerouslySetInnerHTML={{ __html: md }}></div>}
+    <Cell index={index} Icon={!editor ? CodeIcon : TextIcon} onClick={() => setEditor((e) => !e)}>
+      {!editor && <div className="prose prose-invert max-w-full" dangerouslySetInnerHTML={{ __html: md }}></div>}
       {editor && <Code start={start} end={end} />}
-    </Block>
+    </Cell>
   )
 }
