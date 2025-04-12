@@ -18,17 +18,19 @@ export const Notebook = (args: { kvBaseUrl: string; notebookBaseUrl: string }) =
       const params = new URLSearchParams(window.location.search)
 
       const hash = params.get('hash')
+      const data = params.get('data')
       if (hash) {
-        const res = await fetch(`${args.kvBaseUrl}?hash=${hash}`)
-        if (!res.ok) throw new Error(`Incalid hash`)
+        const res = await fetch(`${args.kvBaseUrl}?hash=${encodeURIComponent(hash)}`)
+        if (!res.ok) throw new Error(`Invalid hash`)
         setNotebook(codeToNotebook((await res.text()).split('\n')))
         return
       }
 
-      const data = params.get('data')
-      if (data) return setNotebook(codeToNotebook(atob(data).split('\n')))
+      else if (data) {
+        return setNotebook(codeToNotebook(atob(decodeURIComponent(data)).split('\n')))
+      }
 
-      setNotebook({ cells: [{ type: 'code', content: '' }] })
+      setNotebook({ cells: [{ type: 'code', content: '// Write code here \n' }] })
     }
     effect()
   }, [])
@@ -64,13 +66,13 @@ const Cells = () => {
   return (
     <div className="flex flex-col h-full min-h-screen pt-16">
       <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
-        <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = `${notebookBaseUrl}/new`)} />
+        <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = `${notebookBaseUrl}/nb`)} />
         <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToCode(cells))} />
         <MenuButton
           Icon={ShareIcon}
           text="Save with base64"
           onClick={() => {
-            const url = `${notebookBaseUrl}?data=${btoa(cellsToCode(cells))}`
+            const url = `${notebookBaseUrl}?data=${encodeURIComponent(btoa(cellsToCode(cells)))}`
             window.history.pushState({}, '', url)
             copy(url)
           }}
@@ -84,7 +86,7 @@ const Cells = () => {
             if (!res.ok) throw new Error(`Failed to save the hash!`)
 
             const hash = await res.json().then((x) => x.hash)
-            const url = `${notebookBaseUrl}?hash=${hash}`
+            const url = `${notebookBaseUrl}?hash=${encodeURIComponent(hash)}`
             window.history.pushState({}, '', url)
             copy(url)
           }}

@@ -115,7 +115,7 @@ for (const i of t) {
 
 Our CLOUD device is compatible with tinygrad CLOUD, 
 so you can start a tinygrad CLOUD server, 
-set the jsgrad device to CLOUD:https://url_to_your_gpu.com and now the computation runs on any tinygrad runtime on your server.
+set the jsgrad device to CLOUD:https://url-to-your-gpu.com and now the computation runs on any tinygrad runtime on your server.
 
 With CLOUD device you could publish your models as a website and users could bring their own GPU (or buy GPU time) to your site.
 
