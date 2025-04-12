@@ -4,7 +4,7 @@
 @theme {
   --font-primary: 'Inter Variable', 'sans-serif';
   --font-secondary: 'Audiowide';
-  --color-dark: #121212;
+  --color-dark: #1e1e1e;
 }
 
 input,
@@ -33,4 +33,21 @@ textarea {
 
 .scrollbar-hide::-webkit-scrollbar {
   width: 0px;
+}
+
+.prose code::before {
+  content: none !important;
+}
+.prose code::after {
+  content: none !important;
+}
+.prose code {
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.101);
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.section {
+  @apply px-6 w-full max-w-[1200px] mx-auto;
 }

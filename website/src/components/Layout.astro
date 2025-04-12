@@ -3,7 +3,6 @@ import "../global.css";
 import "@fontsource/audiowide";
 import "@fontsource-variable/inter";
 import { Toaster } from "sonner";
-import { Header } from "../components/Header";
 ---
 
 <html lang="en">
@@ -17,9 +16,8 @@ import { Header } from "../components/Header";
     <meta name="generator" content={Astro.generator} />
     <title>jsgrad - Fast and Simple ML for JS</title>
   </head>
-  <body class="bg-[#121212] text-white relative flex flex-col font-primary scroll-mt-16">
-    <Toaster theme="dark" toastOptions={{ style: { background: "#121212" } }} client:load />
-    <Header client:load />
+  <body class="bg-dark text-white relative flex flex-col font-primary scroll-mt-16">
+    <Toaster theme="dark" toastOptions={{ style: { background: "#1e1e1e" } }} client:load />
     <slot />
   </body>
 </html>
