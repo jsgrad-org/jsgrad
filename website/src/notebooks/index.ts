@@ -1,20 +1,3 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="color-scheme" content="dark" />
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0" />
-  <title>Notebook</title>
-  <script type="module"
-    src="/src/main.tsx"></script>
-</head>
-
-<body style="background: #1e1e1e; color: white;">
-  <div id="notebook-root"> </div>
-  <code id="notebook-raw"
-    class="whitespace-pre text-xs">
 /** [](type:markdown) */
 /**
 # jsgrad - Fast and Simple ML for JS
@@ -120,11 +103,11 @@ const train_step = new TinyJit(() => Tensor.train(async () => {
 const get_test_acc = new TinyJit(() => model.call(X_test).argmax(1).eq(Y_test).mean().mul(100))
 
 let test_acc = NaN
-const t = new Tqdm&lt;number&gt;(70)
+const t = new Tqdm<number>(70)
 for (const i of t) {
   const loss = await train_step.call()
   if (i % 10 === 9) test_acc = await get_test_acc.call().then((x) => x.item())
-  t.set_description(`loss: ${await loss.item().then((x) => x.toFixed(2))}, test_accuracy: ${test_acc.toFixed(2)}`)
+  t.set_description(`loss: ${await loss.item().then((x: any) => x.toFixed(2))}, test_accuracy: ${test_acc.toFixed(2)}`)
 }
 /** [](type:markdown) */
 /**
@@ -132,7 +115,7 @@ for (const i of t) {
 
 Our CLOUD device is compatible with tinygrad CLOUD, 
 so you can start a tinygrad CLOUD server, 
-set the jsgrad device to CLOUD:https://url_to_your_gpu.com and now the computation runs on any tinygrad runtime on your server.
+set the jsgrad device to CLOUD:https://url-to-your-gpu.com and now the computation runs on any tinygrad runtime on your server.
 
 With CLOUD device you could publish your models as a website and users could bring their own GPU (or buy GPU time) to your site.
 
@@ -153,7 +136,3 @@ await vars.withAsync({ DEVICE: "WEBGPU" }, async () => {
 This page is written in our own web notebook, you can create, share and get more info at [notebook.jsgrad.org](https://notebook.jsgrad.org). 
 
 */
-</code>
-</body>
-
-</html>
