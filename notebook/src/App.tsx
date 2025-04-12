@@ -2,7 +2,7 @@ import { createContext, type ReactNode, useContext, useRef, useState } from 'rea
 import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
-import { CodeIcon, Loader2Icon, PlayIcon, TextIcon, type LucideIcon } from 'lucide-react'
+import { ChevronDown, ChevronUpIcon, CodeIcon, CopyPlusIcon, Loader2Icon, PlayIcon, RefreshCwIcon, RefreshCwOffIcon, RotateCcwIcon, TextIcon, XIcon } from 'lucide-react'
 import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
 import ts from 'typescript'
@@ -182,7 +182,7 @@ const Cells = () => {
       {!raw &&
         cells.map((cell, i) => {
           return (
-            <div key={i} className="hover:bg-white/2 duration-200 py-2 px-10">
+            <div key={i} className="hover:bg-white/2 duration-200 py-2 px-10 group">
               {cell.type === 'markdown' && <MarkdownBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
               {cell.type === 'code' && <CodeBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
             </div>
@@ -304,7 +304,7 @@ const runJS = async (code: string) => {
   }
 }
 
-const Block = ({ index, children, onClick, Icon }: { index: number; Icon: LucideIcon; onClick: () => void; children: ReactNode }) => {
+const Block = ({ index, children, onClick, Icon }: { index: number; Icon: (x: { className: string }) => ReactNode; onClick: () => void; children: ReactNode }) => {
   const { cells, setCells } = useNotebook()
   const cell = cells[index]
   const monaco = useMonaco()
@@ -312,6 +312,8 @@ const Block = ({ index, children, onClick, Icon }: { index: number; Icon: Lucide
     setCells(cells)
     monaco!.editor.getModel(NOTEBOOK)!.setValue(cellsToString(cells))
   }
+  const TypeIcon = cell.type === 'code' ? TextIcon : CodeIcon
+  const RunOnLoadIcon = cell.runOnLoad ? RefreshCwOffIcon : RefreshCwIcon
   return (
     <div className="flex gap-4 relative min-h-14">
       <div className="absolute bottom-2 right-2 z-10 md:relative md:bottom-0 md:right-0 bg-[#1e1e1e] min-h-10 w-10 border border-white/10 shrink-0 flex items-center justify-center hover:bg-[#343434] cursor-pointer rounded-md" onClick={onClick}>
@@ -319,51 +321,39 @@ const Block = ({ index, children, onClick, Icon }: { index: number; Icon: Lucide
       </div>
 
       <div className="w-full my-auto relative">
-        <div className="flex gap-2 absolute top-0 right-0 z-20">
-          <button className="cursor-pointer" onClick={() => set([...cells.slice(0, index + 1), ...cells.slice(index)])}>
-            duplicate
-          </button>
-          <button className="cursor-pointer" onClick={() => set([...cells.slice(0, index), ...cells.slice(index + 1)])}>
-            remove
-          </button>
-          <button
-            className="cursor-pointer"
+        <div className="hidden group-hover:flex absolute top-2 right-2 z-20 shadow-sm shadow-white/10 border border-white/10 rounded-md overflow-hidden">
+          <ChevronUpIcon
+            className="icon"
             onClick={() => {
               if (index === 0) return
               ;[cells[index - 1], cells[index]] = [cells[index], cells[index - 1]]
 
               set(cells)
             }}
-          >
-            up
-          </button>
-          <button
-            className="cursor-pointer"
+          />
+          <ChevronDown
+            className="icon"
             onClick={() => {
               if (index === cells.length - 1) return
               ;[cells[index + 1], cells[index]] = [cells[index], cells[index + 1]]
 
               set(cells)
             }}
-          >
-            down
-          </button>
-          <button
-            className="cursor-pointer"
-            onClick={() => {
-              set(cells.map((x, i) => (i !== index ? x : { ...x, type: x.type === 'code' ? 'markdown' : 'code' })))
-            }}
-          >
-            type
-          </button>
-          <button
-            className="cursor-pointer"
+          />
+          <RunOnLoadIcon
+            className="icon"
             onClick={() => {
               set(cells.map((x, i) => (i !== index ? x : { ...x, runOnLoad: x.runOnLoad ? undefined : 'true' })))
             }}
-          >
-            run on start
-          </button>
+          />
+           <TypeIcon
+            className="icon"
+            onClick={() => {
+              set(cells.map((x, i) => (i !== index ? x : { ...x, type: x.type === 'code' ? 'markdown' : 'code' })))
+            }}
+          />
+          <CopyPlusIcon className="icon" onClick={() => set([...cells.slice(0, index + 1), ...cells.slice(index)])} />
+          <XIcon className="icon" onClick={() => set([...cells.slice(0, index), ...cells.slice(index + 1)])} />
         </div>
         {children}
       </div>
@@ -377,7 +367,7 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
   const logs = cellLogs[index]
   const isRunning = cellIsRunning[index]
   return (
-    <Block index={index} onClick={run} Icon={!isRunning ? PlayIcon : Loader2Icon}>
+    <Block index={index} onClick={run} Icon={!isRunning ? PlayIcon : ({ className }) => <Loader2Icon className={className + ' animate-spin'} />}>
       <Code start={start} end={end} run={run} />
       <div>
         <Console
