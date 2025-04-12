@@ -1,8 +1,12 @@
 ---
-import "../global.css";
-import "@fontsource/audiowide";
-import "@fontsource-variable/inter";
-import { Toaster } from "sonner";
+import '../global.css'
+import '@fontsource/audiowide'
+import '@fontsource-variable/inter'
+import { Toaster } from 'sonner'
+
+export type Props = {
+  title?: string
+}
 ---
 
 <html lang="en">
@@ -14,10 +18,10 @@ import { Toaster } from "sonner";
     <link rel="icon" type="image" href="/favicon.png" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>jsgrad - Fast and Simple ML for JS</title>
+    <title>{Astro.props.title ?? 'jsgrad - Fast and Simple ML for JS'}</title>
   </head>
   <body class="bg-dark text-white relative flex flex-col font-primary scroll-mt-16">
-    <Toaster theme="dark" toastOptions={{ style: { background: "#1e1e1e" } }} client:load />
+    <Toaster theme="dark" toastOptions={{ style: { background: '#1e1e1e' } }} client:load />
     <slot />
   </body>
 </html>

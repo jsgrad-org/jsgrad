@@ -1,6 +1,6 @@
 import { Hook, Unhook } from 'console-feed'
 import { createContext, type ReactNode, useState, useEffect, useContext } from 'react'
-import { codeToCells, type Cell } from './helpers'
+import { type Cell, type Notebook } from './helpers'
 
 import ts from 'typescript'
 
@@ -47,7 +47,7 @@ const runJS = async (code: string) => {
   }
 }
 
-export type Notebook = {
+export type NotebookContext = {
   cells: Cell[]
   setCells: React.Dispatch<React.SetStateAction<Cell[]>>
   queue: number[]
@@ -57,17 +57,21 @@ export type Notebook = {
   cellLogs: Record<number, any[]>
 }
 
-const NotebookContext = createContext<Notebook | undefined>(undefined)
+const NotebookContext = createContext<NotebookContext | undefined>(undefined)
 
-export const NotebookProvider = ({ code, children }: { children: ReactNode; code: string }) => {
-  const [cells, setCells] = useState(() => codeToCells(code.split('\n')))
+export const NotebookProvider = ({ notebook, children }: { notebook: Notebook; children: ReactNode }) => {
+  const [cells, setCells] = useState(notebook.cells)
   const [queue, setQueue] = useState<number[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [cellLogs, setCellLogs] = useState<Record<number, any[]>>({})
   const [cellIsRunning, setCellIsRunning] = useState<Record<number, boolean>>({})
+
+  useEffect(() => setQueue([...cells.entries()].filter(([_, x]) => x.runOnLoad).map(([i]) => i)), [])
+
   useEffect(() => {
-    setQueue([...cells.entries()].filter(([_, x]) => x.runOnLoad).map(([i]) => i))
-  }, [])
+    if (notebook.title) document.title= notebook.title
+  }, [notebook.title])
+
   useEffect(() => {
     if (isRunning || !queue.length) return
 

@@ -6,14 +6,14 @@ import { ArrowDownIcon, ArrowUpIcon, CirclePlayIcon, CodeIcon, CopyIcon, CopyPlu
 import { Console } from 'console-feed'
 import { marked } from 'marked'
 import { toast } from 'sonner'
-import { cellsToString, codeToCells, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes } from './helpers'
+import { cellsToCode, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes, type Notebook as NotebookType, codeToNotebook } from './helpers'
 import { NotebookProvider, useNotebook } from './context'
 
 const NOTEBOOK = Uri.file('notebook.ts')
 
-export const App = ({ code }: { code: string }) => {
+export const NotebookWrapper = (notebook: NotebookType) => {
   return (
-    <NotebookProvider code={code}>
+    <NotebookProvider notebook={notebook}>
       <Cells />
     </NotebookProvider>
   )
@@ -40,13 +40,13 @@ const Cells = () => {
     <div className="flex flex-col h-full min-h-screen pt-16">
       <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
         <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = 'https://notebook.jsgrad.org/new')} />
-        <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToString(cells))} />
-        <MenuButton Icon={ShareIcon} text="Share with base64" onClick={() => copy(`https://notebook.jsgrad.org?data=${btoa(cellsToString(cells))}`)} />
+        <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToCode(cells))} />
+        <MenuButton Icon={ShareIcon} text="Share with base64" onClick={() => copy(`https://notebook.jsgrad.org?data=${btoa(cellsToCode(cells))}`)} />
         <MenuButton
           Icon={ShareIcon}
           text="Share with hash"
           onClick={async () => {
-            const body = cellsToString(cells)
+            const body = cellsToCode(cells)
             const res = await fetch(`https://kv-notebook.jsgrad.org`, { body, method: 'POST' })
             if (!res.ok) throw new Error(`Failed to save the hash!`)
 
@@ -62,7 +62,7 @@ const Cells = () => {
       <CodeInit type="typescript" />
       {raw && (
         <div className="section">
-          <Code start={1} end={cellsToString(cells).split('\n').length + 1} />
+          <Code start={1} end={cellsToCode(cells).split('\n').length + 1} />
         </div>
       )}
       {!raw &&
@@ -81,7 +81,7 @@ const Cells = () => {
 export const CodeInit = ({ type }: { type: CodeType }) => {
   const monaco = useMonaco()
   const { cells, setCells } = useNotebook()
-  const code = cellsToString(cells)
+  const code = cellsToCode(cells)
 
   useEffect(() => {
     if (!monaco) return
@@ -91,7 +91,7 @@ export const CodeInit = ({ type }: { type: CodeType }) => {
 
     model = monaco.editor.createModel(code, type, NOTEBOOK)
     model.onDidChangeContent((e) => {
-      const cells = codeToCells(model.getLinesContent())
+      const { cells } = codeToNotebook(model.getLinesContent())
       setCells(cells)
     })
   }, [monaco])
@@ -161,7 +161,7 @@ const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; o
   const monaco = useMonaco()
   const set = (cells: Cell[]) => {
     setCells(cells)
-    monaco!.editor.getModel(NOTEBOOK)!.setValue(cellsToString(cells))
+    monaco!.editor.getModel(NOTEBOOK)!.setValue(cellsToCode(cells))
   }
   return (
     <div className="group hover:bg-white/2 duration-200 relative p-3">

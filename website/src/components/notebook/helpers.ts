@@ -6,18 +6,22 @@ export type Cell = {
   runOnLoad?: 'true'
   content: string
 }
+export type Notebook = {
+  title?: string
+  cells: Cell[]
+}
 
 const CELL_TYPES = ['code', 'markdown']
 
 const headerPattern = /\/\*\*\s*\[\]\((.*?)\)\s*\*\//
 
-export const codeToCells = (lines: string[]): Cell[] => {
-  const out: Cell[] = []
+export const codeToNotebook = (lines: string[]): Notebook => {
+  const cells: Cell[] = []
   let cell: Cell | undefined
   let currentLines: string[] = []
   const push = () => {
     if (cell!.type === 'markdown') currentLines = currentLines.join('\n').trim().split('\n').slice(1, -1)
-    out.push({ ...cell!, content: currentLines.join('\n') })
+    cells.push({ ...cell!, content: currentLines.join('\n') })
   }
 
   for (const line of lines) {
@@ -32,7 +36,8 @@ export const codeToCells = (lines: string[]): Cell[] => {
     }
   }
   if (cell) push()
-  return out
+  const title = cells[0]?.content.startsWith('#') ? cells[0]?.content.split('\n')[0].replaceAll('#', '') : undefined
+  return { cells, title }
 }
 
 export const getStartEnd = (cells: Cell[]) => {
@@ -52,7 +57,7 @@ export const getStartEnd = (cells: Cell[]) => {
   return startEnd
 }
 
-export const cellsToString = (cells: Cell[]) => {
+export const cellsToCode = (cells: Cell[]) => {
   let chunks: string[] = []
   for (const cell of cells) {
     const args = [`type:${cell.type}`, cell.runOnLoad ? `runOnLoad:true` : '']

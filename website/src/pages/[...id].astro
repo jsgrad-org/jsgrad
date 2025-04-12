@@ -1,15 +1,16 @@
 ---
-import { App } from '../components/notebook/index'
+import { NotebookWrapper } from '../components/notebook/index'
 import Layout from '../components/Layout.astro'
 import { getCollection } from 'astro:content'
+import type { Notebook } from '../components/notebook/helpers'
 
 export const getStaticPaths = async () => {
   const data = await getCollection('notebooks')
-  return data.map((x: any) => ({ params: { id: x.id === 'index' ? undefined : x.id }, props: x }))
+  return data.map((x: any) => ({ params: { id: x.id === 'index' ? undefined : x.id }, props: x as Notebook }))
 }
-const code = Astro.props.data.content
+const notebook = Astro.props.data as Notebook
 ---
 
 <Layout>
-  <App code={code} client:only />
+  <NotebookWrapper {...notebook} client:only />
 </Layout>

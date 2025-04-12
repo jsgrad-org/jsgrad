@@ -2,6 +2,7 @@
 import { defineCollection, z } from 'astro:content'
 import fs from 'node:fs'
 import path from 'node:path'
+import { codeToNotebook } from './components/notebook/helpers'
 
 const getFiles = (dir: string) => {
   let results: string[] = []
@@ -17,12 +18,27 @@ const getFiles = (dir: string) => {
 const notebooks = defineCollection({
   loader: async () => {
     const names = getFiles('src/notebooks')
-    const files = names.map((name) => ({
-      id: name.replace('src/notebooks/', '').replace('.ts', ''),
-      content: new TextDecoder().decode(fs.readFileSync(name)),
-    }))
+    const files = names.map((name) => {
+      const content = new TextDecoder().decode(fs.readFileSync(name))
+      const data = codeToNotebook(content.split('\n'))
+      return {
+        id: name.replace('src/notebooks/', '').replace('.ts', ''),
+        ...data,
+      }
+    })
     return files
   },
+  schema: z.object({
+    id: z.string(),
+    title: z.string().optional(),
+    cells: z
+      .object({
+        type: z.enum(['code', 'markdown']),
+        runOnLoad: z.literal('true').optional(),
+        content: z.string(),
+      })
+      .array(),
+  }),
 })
 
 export const collections = { notebooks }
