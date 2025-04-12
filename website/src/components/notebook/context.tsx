@@ -55,11 +55,13 @@ export type NotebookContext = {
   isRunning: boolean
   cellIsRunning: Record<number, boolean>
   cellLogs: Record<number, any[]>
+  notebookBaseUrl: string
+  kvBaseUrl: string
 }
 
 const NotebookContext = createContext<NotebookContext | undefined>(undefined)
 
-export const NotebookProvider = ({ notebook, children }: { notebook: Notebook; children: ReactNode }) => {
+export const NotebookProvider = ({ notebook, children, notebookBaseUrl, kvBaseUrl }: { notebook: Notebook; notebookBaseUrl: string; kvBaseUrl: string; children: ReactNode }) => {
   const [cells, setCells] = useState(notebook.cells)
   const [queue, setQueue] = useState<number[]>([])
   const [isRunning, setIsRunning] = useState(false)
@@ -69,7 +71,7 @@ export const NotebookProvider = ({ notebook, children }: { notebook: Notebook; c
   useEffect(() => setQueue([...cells.entries()].filter(([_, x]) => x.runOnLoad).map(([i]) => i)), [])
 
   useEffect(() => {
-    if (notebook.title) document.title= notebook.title
+    if (notebook.title) document.title = notebook.title
   }, [notebook.title])
 
   useEffect(() => {
@@ -98,7 +100,23 @@ export const NotebookProvider = ({ notebook, children }: { notebook: Notebook; c
 
     void Unhook(hookedConsole)
   }
-  return <NotebookContext.Provider value={{ cells, setCells, queue, setQueue, cellIsRunning, cellLogs, isRunning }}>{children}</NotebookContext.Provider>
+  return (
+    <NotebookContext.Provider
+      value={{
+        cells,
+        setCells,
+        queue,
+        setQueue,
+        cellIsRunning,
+        cellLogs,
+        isRunning,
+        notebookBaseUrl,
+        kvBaseUrl,
+      }}
+    >
+      {children}
+    </NotebookContext.Provider>
+  )
 }
 
 export const useNotebook = () => {

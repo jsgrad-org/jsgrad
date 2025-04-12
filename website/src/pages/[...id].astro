@@ -12,5 +12,5 @@ const notebook = Astro.props.data as Notebook
 ---
 
 <Layout>
-  <NotebookWrapper {...notebook} client:only />
+  <NotebookWrapper notebook={notebook} notebookBaseUrl={Astro.url.origin} kvBaseUrl="https://kv-notebook.jsgrad.org" client:only />
 </Layout>

@@ -11,9 +11,9 @@ import { NotebookProvider, useNotebook } from './context'
 
 const NOTEBOOK = Uri.file('notebook.ts')
 
-export const NotebookWrapper = (notebook: NotebookType) => {
+export const NotebookWrapper = (args: { kvBaseUrl: string; notebookBaseUrl: string; notebook: NotebookType }) => {
   return (
-    <NotebookProvider notebook={notebook}>
+    <NotebookProvider {...args}>
       <Cells />
     </NotebookProvider>
   )
@@ -29,7 +29,7 @@ const MenuButton = ({ Icon, text, onClick }: { Icon: Icon; text: string; onClick
 }
 
 const Cells = () => {
-  const { cells, setQueue } = useNotebook()
+  const { cells, setQueue, notebookBaseUrl, kvBaseUrl } = useNotebook()
   const [raw, setRaw] = useState(false)
   const startEnd = getStartEnd(cells)
   const copy = (text: string) => {
@@ -39,19 +39,19 @@ const Cells = () => {
   return (
     <div className="flex flex-col h-full min-h-screen pt-16">
       <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
-        <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = 'https://notebook.jsgrad.org/new')} />
+        <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = `${notebookBaseUrl}/new`)} />
         <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToCode(cells))} />
-        <MenuButton Icon={ShareIcon} text="Share with base64" onClick={() => copy(`https://notebook.jsgrad.org?data=${btoa(cellsToCode(cells))}`)} />
+        <MenuButton Icon={ShareIcon} text="Share with base64" onClick={() => copy(`${notebookBaseUrl}?data=${btoa(cellsToCode(cells))}`)} />
         <MenuButton
           Icon={ShareIcon}
           text="Share with hash"
           onClick={async () => {
             const body = cellsToCode(cells)
-            const res = await fetch(`https://kv-notebook.jsgrad.org`, { body, method: 'POST' })
+            const res = await fetch(kvBaseUrl, { body, method: 'POST' })
             if (!res.ok) throw new Error(`Failed to save the hash!`)
 
             const hash = await res.json().then((x) => x.hash)
-            const url = `https://notebook.jsgrad.org?hash=${hash}`
+            const url = `${notebookBaseUrl}?hash=${hash}`
             copy(url)
           }}
         />
