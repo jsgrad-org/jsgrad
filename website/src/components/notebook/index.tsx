@@ -11,6 +11,31 @@ import { NotebookProvider, useNotebook } from './context'
 
 const NOTEBOOK = Uri.file('notebook.ts')
 
+export const Notebook = (args: { kvBaseUrl: string; notebookBaseUrl: string }) => {
+  const [notebook, setNotebook] = useState<NotebookType>()
+  useEffect(() => {
+    const effect = async () => {
+      const params = new URLSearchParams(window.location.search)
+
+      const hash = params.get('hash')
+      if (hash) {
+        const res = await fetch(`${args.kvBaseUrl}?hash=${hash}`)
+        if (!res.ok) throw new Error(`Incalid hash`)
+        setNotebook(codeToNotebook((await res.text()).split('\n')))
+        return
+      }
+
+      const data = params.get('data')
+      if (data) return setNotebook(codeToNotebook(atob(data).split('\n')))
+
+      setNotebook({ cells: [{ type: 'code', content: '' }] })
+    }
+    effect()
+  }, [])
+  if (!notebook) return <p>Loading...</p>
+  return <NotebookWrapper {...args} notebook={notebook} />
+}
+
 export const NotebookWrapper = (args: { kvBaseUrl: string; notebookBaseUrl: string; notebook: NotebookType }) => {
   return (
     <NotebookProvider {...args}>
@@ -41,10 +66,18 @@ const Cells = () => {
       <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
         <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = `${notebookBaseUrl}/new`)} />
         <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToCode(cells))} />
-        <MenuButton Icon={ShareIcon} text="Share with base64" onClick={() => copy(`${notebookBaseUrl}?data=${btoa(cellsToCode(cells))}`)} />
         <MenuButton
           Icon={ShareIcon}
-          text="Share with hash"
+          text="Save with base64"
+          onClick={() => {
+            const url = `${notebookBaseUrl}?data=${btoa(cellsToCode(cells))}`
+            window.history.pushState({}, '', url)
+            copy(url)
+          }}
+        />
+        <MenuButton
+          Icon={ShareIcon}
+          text="Save with hash"
           onClick={async () => {
             const body = cellsToCode(cells)
             const res = await fetch(kvBaseUrl, { body, method: 'POST' })
@@ -52,6 +85,7 @@ const Cells = () => {
 
             const hash = await res.json().then((x) => x.hash)
             const url = `${notebookBaseUrl}?hash=${hash}`
+            window.history.pushState({}, '', url)
             copy(url)
           }}
         />

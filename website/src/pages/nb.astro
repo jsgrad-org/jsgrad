@@ -1,0 +1,8 @@
+---
+import { Notebook } from '../components/notebook/index'
+import Layout from '../components/Layout.astro'
+---
+
+<Layout>
+  <Notebook notebookBaseUrl={`${Astro.url.origin}/nb`} kvBaseUrl="https://kv-notebook.jsgrad.org" client:only />
+</Layout>
