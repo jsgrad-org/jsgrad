@@ -10,7 +10,7 @@ It will use [tinyshakespeare](https://raw.githubusercontent.com/karpathy/char-rn
 /** [](type:code) */
 import { GPT } from '@jsgrad/models/gpt2'
 import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '@jsgrad/jsgrad'
-import { parseArgs, z } from '@jsgrad/jsgrad'
+import { parseArgs, z } from '@jsgrad/jsgrad/args'
 import { get_encoding } from 'tiktoken'
 
 const args = parseArgs({
