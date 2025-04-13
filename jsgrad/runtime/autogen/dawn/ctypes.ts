@@ -51,9 +51,7 @@ export class Type<
   _loadFromPtr(ptr: Pointer<typeof this>, offset = 0): typeof this {
     if (ptr._value) {
       const buffer = env.getArrayBuffer(ptr._native, this._byteLength, offset)
-      new Uint8Array(this._buffer, this._offset, this._byteLength).set(
-        new Uint8Array(buffer),
-      )
+      new Uint8Array(this._buffer, this._offset, this._byteLength).set(new Uint8Array(buffer))
     }
     return this
   }
@@ -178,7 +176,7 @@ export class Struct<Value extends Record<string, Type<any>>> extends Type<
 > {
   protected override __set(val: Partial<Value>) {
     for (const [k, v] of Object.entries(val)) {
-      this._value[k]._set(v.value)
+      this._value[k]._set(v._value)
     }
   }
   protected override __native = () => this._buffer
