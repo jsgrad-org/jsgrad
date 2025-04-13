@@ -5,6 +5,7 @@
       "default": "./index.ts",
       "node": "./node.ts"
     },
+    "./web": "./index.ts",
     "./node": "./node.ts",
     "./base": "./base.ts"
   },
