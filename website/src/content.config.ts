@@ -15,14 +15,15 @@ const getFiles = (dir: string) => {
   return results
 }
 
+const PATH = `src/content`
 const notebooks = defineCollection({
   loader: async () => {
-    const names = getFiles('src/notebooks')
+    const names = getFiles(PATH)
     const files = names.map((name) => {
       const content = new TextDecoder().decode(fs.readFileSync(name))
       const data = codeToNotebook(content.split('\n'))
       return {
-        id: name.replace('src/notebooks/', '').replace('.ts', ''),
+        id: name.replace(`${PATH}/`, '').replace('.ts', ''),
         ...data,
       }
     })

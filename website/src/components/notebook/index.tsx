@@ -1,13 +1,13 @@
-import { Fragment, type ReactNode, useRef, useState } from 'react'
+import { createContext, Fragment, type ReactNode, useContext, useRef, useState } from 'react'
 import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
-import { ArrowDownIcon, ArrowUpIcon, CirclePlayIcon, CodeIcon, CopyIcon, CopyPlusIcon, Loader2Icon, PlayIcon, PlusIcon, RefreshCwIcon, RefreshCwOffIcon, ShareIcon, TextIcon, XIcon } from 'lucide-react'
-import { Console } from 'console-feed'
+import { ArrowDownIcon, ArrowUpIcon, CirclePlayIcon, CodeIcon, CopyIcon, CopyPlusIcon, Loader2Icon, PlayIcon, PlusIcon, RefreshCwIcon, RefreshCwOffIcon, SaveIcon, ShareIcon, TextIcon, XIcon } from 'lucide-react'
+import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
 import { toast } from 'sonner'
 import { cellsToCode, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes, type Notebook as NotebookType, codeToNotebook } from './helpers'
-import { NotebookProvider, useNotebook } from './context'
+import { runJS } from './runner'
 
 const NOTEBOOK = Uri.file('notebook.ts')
 
@@ -24,23 +24,165 @@ export const Notebook = (args: { kvBaseUrl: string; notebookBaseUrl: string }) =
         if (!res.ok) throw new Error(`Invalid hash`)
         setNotebook(codeToNotebook((await res.text()).split('\n')))
         return
-      }
-
-      else if (data) {
+      } else if (data) {
         return setNotebook(codeToNotebook(atob(decodeURIComponent(data)).split('\n')))
       }
 
       setNotebook({ cells: [{ type: 'code', content: '// Write code here \n' }] })
     }
+
     effect()
+    window.addEventListener('popstate', effect)
+    return () => window.removeEventListener('popstate', effect)
   }, [])
   if (!notebook) return <p>Loading...</p>
   return <NotebookWrapper {...args} notebook={notebook} />
 }
 
+export type NotebookContext = {
+  cells: Cell[]
+  setCells: React.Dispatch<React.SetStateAction<Cell[]>>
+  queue: number[]
+  setQueue: React.Dispatch<React.SetStateAction<number[]>>
+  isRunning: boolean
+  cellIsRunning: Record<number, boolean>
+  cellLogs: Record<number, any[]>
+  notebookBaseUrl: string
+  kvBaseUrl: string
+}
+
+const NotebookContext = createContext<NotebookContext | undefined>(undefined)
+
+const save = (cells: Cell[], notebookBaseUrl: string) => {
+  const url = `${notebookBaseUrl}?data=${encodeURIComponent(btoa(cellsToCode(cells)))}`
+  window.history.pushState({}, '', url)
+  return url
+}
+
+const useAsyncEffect = (fn: () => Promise<void>, deps: any[]) => useEffect(() => void fn(), deps)
+
+export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kvBaseUrl }: { type: CodeType; notebook: NotebookType; notebookBaseUrl: string; kvBaseUrl: string; children: ReactNode }) => {
+  const monaco = useMonaco()
+  const [cells, setCells] = useState(notebook.cells)
+  const [queue, setQueue] = useState<number[]>([])
+  const [isRunning, setIsRunning] = useState(false)
+  const [cellLogs, setCellLogs] = useState<Record<number, any[]>>({})
+  const [cellIsRunning, setCellIsRunning] = useState<Record<number, boolean>>({})
+  const [importedPackages, setImportedPackages] = useState<string[]>([])
+
+  // Pushing every runOnLoad to the queue
+  useEffect(() => setQueue([...cells.entries()].filter(([_, x]) => x.runOnLoad).map(([i]) => i)), [])
+
+  // Updating the cells and code when notebook changes
+  useEffect(() => {
+    setCells(notebook.cells)
+    monaco?.editor.getModel(NOTEBOOK)?.setValue(cellsToCode(notebook.cells))
+  }, [notebook.cells, monaco])
+
+  // Updating the title
+  useEffect(() => {
+    if (notebook.title) document.title = notebook.title
+  }, [notebook.title])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleSave = (e: any) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        save(cells, notebookBaseUrl)
+      }
+    }
+    window.addEventListener('keydown', handleSave)
+    return () => window.removeEventListener('keydown', handleSave)
+  }, [cells, notebookBaseUrl])
+
+  // Running queue
+  useAsyncEffect(async () => {
+    if (isRunning || !queue.length) return
+
+    const index = queue.shift()!
+
+    const cell = cells[index]
+    if (!cell || cell.type !== 'code') throw new Error(`Trying to run markdown block!`)
+
+    setIsRunning(true)
+    setCellIsRunning((x) => ({ ...x, [index]: true }))
+    setCellLogs((x) => ({ ...x, [index]: [] }))
+
+    const hookedConsole = Hook(window.console, (log) => setCellLogs((x) => ({ ...x, [index]: [...(x[index] || []), log] })), false)
+
+    await runJS(cell.content)
+
+    setIsRunning(false)
+    setCellIsRunning((x) => ({ ...x, [index]: false }))
+
+    void Unhook(hookedConsole)
+  }, [queue, isRunning])
+
+  // Initializing notebook
+  useEffect(() => {
+    if (!monaco) return
+    let model = monaco.editor.getModel(NOTEBOOK)
+    if (!model) model = monaco.editor.createModel(cellsToCode(cells), type, NOTEBOOK)
+    model.onDidChangeContent((e) => {
+      const { cells } = codeToNotebook(model.getLinesContent())
+      setCells(cells)
+    })
+    monaco.languages.typescript[`${type}Defaults`].setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.Latest,
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+      allowNonTsExtensions: true,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      noEmit: true,
+    })
+  }, [monaco])
+
+  // Importing types
+  useEffect(() => {
+    if (!monaco) return
+    const code = cellsToCode(cells)
+    const packages = [...code.matchAll(/import\s*{[^}]+}\s*from\s*['"]([^'"]+)['"]/g)].map((match) => match[1])
+    Promise.all(
+      packages
+        .filter((x) => !importedPackages.includes(x))
+        .map(async (x) => {
+          const res = await fetchTypes(x)
+          for (const { name, content } of res) {
+            monaco.languages.typescript[`${type}Defaults`].addExtraLib(content, `file:///node_modules/${name}`)
+          }
+          setImportedPackages((i) => [...i, x])
+        }),
+    )
+  }, [cells, monaco])
+
+  return (
+    <NotebookContext.Provider
+      value={{
+        cells,
+        setCells,
+        queue,
+        setQueue,
+        cellIsRunning,
+        cellLogs,
+        isRunning,
+        notebookBaseUrl,
+        kvBaseUrl,
+      }}
+    >
+      {children}
+    </NotebookContext.Provider>
+  )
+}
+
+export const useNotebook = () => {
+  const res = useContext(NotebookContext)
+  if (!res) throw new Error(`You can access NotebookContext only in the provider`)
+  return res
+}
+
 export const NotebookWrapper = (args: { kvBaseUrl: string; notebookBaseUrl: string; notebook: NotebookType }) => {
   return (
-    <NotebookProvider {...args}>
+    <NotebookProvider type="typescript" {...args}>
       <Cells />
     </NotebookProvider>
   )
@@ -68,18 +210,10 @@ const Cells = () => {
       <div className="flex fixed top-0 backdrop-blur-lg bg-[#1e1e1e]/50 w-full border-b border-white/10 z-50 p-1 overflow-auto">
         <MenuButton Icon={PlusIcon} text="New" onClick={() => (window.location.href = notebookBaseUrl)} />
         <MenuButton Icon={CopyIcon} text="Copy content" onClick={() => copy(cellsToCode(cells))} />
+        <MenuButton Icon={SaveIcon} text="Save" onClick={() => save(cells, notebookBaseUrl)} />
         <MenuButton
           Icon={ShareIcon}
-          text="Save with base64"
-          onClick={() => {
-            const url = `${notebookBaseUrl}?data=${encodeURIComponent(btoa(cellsToCode(cells)))}`
-            window.history.pushState({}, '', url)
-            copy(url)
-          }}
-        />
-        <MenuButton
-          Icon={ShareIcon}
-          text="Save with hash"
+          text="Share"
           onClick={async () => {
             const body = cellsToCode(cells)
             const res = await fetch(kvBaseUrl, { body, method: 'POST' })
@@ -88,14 +222,12 @@ const Cells = () => {
             const hash = await res.json().then((x) => x.hash)
             const url = `${notebookBaseUrl}?hash=${encodeURIComponent(hash)}`
             window.history.pushState({}, '', url)
-            copy(url)
+            toast(`Copied url to clipboard!`)
           }}
         />
         <MenuButton Icon={CodeIcon} text={raw ? 'Edit blocks' : 'Edit raw'} onClick={() => setRaw((r) => !r)} />
         <MenuButton Icon={CirclePlayIcon} text="Run all" onClick={() => setQueue(() => [...cells.entries()].filter(([i, x]) => x.type === 'code').map(([i]) => i))} />
       </div>
-
-      <CodeInit type="typescript" />
       {raw && (
         <div className="section">
           <Code start={1} end={cellsToCode(cells).split('\n').length + 1} />
@@ -112,56 +244,6 @@ const Cells = () => {
         })}
     </div>
   )
-}
-
-export const CodeInit = ({ type }: { type: CodeType }) => {
-  const monaco = useMonaco()
-  const { cells, setCells } = useNotebook()
-  const code = cellsToCode(cells)
-
-  useEffect(() => {
-    if (!monaco) return
-
-    let model = monaco.editor.getModel(NOTEBOOK)
-    if (model) return
-
-    model = monaco.editor.createModel(code, type, NOTEBOOK)
-    model.onDidChangeContent((e) => {
-      const { cells } = codeToNotebook(model.getLinesContent())
-      setCells(cells)
-    })
-  }, [monaco])
-
-  useEffect(() => {
-    if (!monaco) return
-
-    monaco.languages.typescript[`${type}Defaults`].setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.Latest,
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      allowNonTsExtensions: true,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      noEmit: true,
-    })
-  }, [monaco])
-  const [imported, setImported] = useState<string[]>([])
-  useEffect(() => {
-    if (!monaco) return
-
-    const packages = [...code.matchAll(/import\s*{[^}]+}\s*from\s*['"]([^'"]+)['"]/g)].map((match) => match[1])
-    Promise.all(
-      packages
-        .filter((x) => !imported.includes(x))
-        .map(async (x) => {
-          const res = await fetchTypes(x)
-          for (const { name, content } of res) {
-            monaco.languages.typescript[`${type}Defaults`].addExtraLib(content, `file:///node_modules/${name}`)
-          }
-          setImported((i) => [...i, x])
-        }),
-    )
-  }, [code, monaco])
-
-  return null
 }
 
 type Icon = (x: { className?: string; onClick?: () => void }) => ReactNode
@@ -309,12 +391,6 @@ export const Code = ({ start, end, run }: { run?: () => void; start: number; end
               label: 'Run cell',
               contextMenuGroupId: 'run',
               keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
-              run: () => run(),
-            })
-            editor.addAction({
-              id: 'save',
-              label: 'Save',
-              keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
               run: () => run(),
             })
           }
