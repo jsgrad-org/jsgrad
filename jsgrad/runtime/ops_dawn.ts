@@ -10,8 +10,8 @@ const _wait = (future: c.Future) => {
   if (res._value !== c.WaitStatus.Success._value) throw new Error('Future failed')
 }
 const from_wgpu_str = (_str: c.StringView): string => {
-  if (_str.$length._value <= 1) return ''
-  const buf = env.getArrayBuffer(_str.$data._native, Number(_str.$length._value))
+  if (_str.length <= 1) return ''
+  const buf = env.getArrayBuffer(_str.$data._native, Number(_str.length))
   return new TextDecoder().decode(buf)
 }
 const to_wgpu_str = (str: string) => {
@@ -29,13 +29,13 @@ type CallBack = typeof c.BufferMapCallbackInfo2 | typeof c.PopErrorScopeCallback
 const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['_set']>[0]>>> => {
   return await new Promise((resolve) => {
     const cb = new cb_class()
-    cb.$mode._set(c.CallbackMode.WaitAnyOnly._value)
-    cb.$callback._set((...args) => {
+    cb.mode = c.CallbackMode.WaitAnyOnly._value
+    cb.callback = (...args: any[]) => {
       for (let i = 0; i < args.length; i++) {
         args[i] = args[i] instanceof c.StringView ? from_wgpu_str(args[i] as any) : args[i]
       }
       resolve(args as any)
-    })
+    }
     _wait(async_fn(cb as any))
   })
 }
@@ -94,7 +94,7 @@ class WebGPUProgram extends Program {
       chain: c.ChainedStruct.new({ sType: c.SType.ShaderSourceWGSL }),
     })
     const module = new c.ShaderModuleDescriptor()
-    module.$nextInChain._set(shader._ptr()._value)
+    module.nextInChain = shader._ptr()._value
     // Check compiler error
     c.devicePushErrorScope(DAWN.device, c.ErrorFilter.Validation)
     const shader_module = c.deviceCreateShaderModule(DAWN.device, module._ptr())
@@ -201,13 +201,11 @@ class WebGPUProgram extends Program {
           usage: c.BufferUsage.new(c.BufferUsage_QueryResolve._value | c.BufferUsage_CopySrc._value),
         })._ptr(),
       )
-      comp_pass_desc.$timestampWrites._set(
-        c.ComputePassTimestampWrites.new({
-          querySet: query_set,
-          beginningOfPassWriteIndex: c.U32.new(0),
-          endOfPassWriteIndex: c.U32.new(1),
-        })._ptr()._value,
-      )
+      comp_pass_desc.timestampWrites = c.ComputePassTimestampWrites.new({
+        querySet: query_set,
+        beginningOfPassWriteIndex: c.U32.new(0),
+        endOfPassWriteIndex: c.U32.new(1),
+      })._ptr()._value
     }
     // Begin compute pass
     const compute_pass = c.commandEncoderBeginComputePass(command_encoder, comp_pass_desc._ptr())
@@ -277,7 +275,7 @@ export class DAWN extends Compiled {
     await c.init(PATH)
 
     const desc = new c.InstanceDescriptor()
-    desc.$features.$timedWaitAnyEnable._set(1)
+    desc.$features.timedWaitAnyEnable = 1
 
     DAWN.instance = c.createInstance(desc._ptr())
     if (!DAWN.instance._value) throw new Error(`Failed creating instance!`)
@@ -288,8 +286,8 @@ export class DAWN extends Compiled {
     const supported_features = new c.SupportedFeatures()
     c.adapterGetFeatures(adapter, supported_features._ptr())
     const supported: c.FeatureName[] = []
-    for (let i = 0n; i < supported_features.$featureCount._value; i++) {
-      supported.push(new c.FeatureName()._loadFromPtr(c.Pointer.new(supported_features.$features._value + i)))
+    for (let i = 0n; i < supported_features.featureCount; i++) {
+      supported.push(new c.FeatureName()._loadFromPtr(c.Pointer.new(supported_features.features + i)))
     }
     const features = [c.FeatureName.TimestampQuery, c.FeatureName.ShaderF16].filter((feat) => supported.some((s) => s._value === feat._value))
     const dev_desc = c.DeviceDescriptor.new({ requiredFeatureCount: c.Size.new(BigInt(features.length)), requiredFeatures: c.createArray(features)._ptr() })
@@ -297,7 +295,7 @@ export class DAWN extends Compiled {
     const supported_limits = new c.SupportedLimits()
     c.adapterGetLimits(adapter, supported_limits._ptr())
     const limits = c.RequiredLimits.new({ limits: supported_limits.$limits })
-    dev_desc.$requiredLimits._set(limits._ptr()._value)
+    dev_desc.requiredLimits = limits._ptr()._value
 
     // Requesting a device
     const [dev_status, device, dev_msg] = await _run(c.RequestDeviceCallbackInfo, (cb) => c.adapterRequestDeviceF(adapter, dev_desc._ptr(), cb))

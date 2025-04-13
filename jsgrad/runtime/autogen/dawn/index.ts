@@ -8,8 +8,8 @@ const _wait = (future: c.Future) => {
   if (res._value !== c.WaitStatus.Success._value) throw new Error('Future failed')
 }
 const from_wgpu_str = (_str: c.StringView): string => {
-  if (_str.$length._value <= 1) return ''
-  const buf = env.getArrayBuffer(_str.$data._native, Number(_str.$length._value))
+  if (_str.length <= 1) return ''
+  const buf = env.getArrayBuffer(_str.$data._native, Number(_str.length))
   return new TextDecoder().decode(buf)
 }
 const to_wgpu_str = (str: string) => {
@@ -27,13 +27,13 @@ type CallBack = typeof c.BufferMapCallbackInfo2 | typeof c.PopErrorScopeCallback
 const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['_set']>[0]>>> => {
   return await new Promise((resolve) => {
     const cb = new cb_class()
-    cb.$mode._set(c.CallbackMode.WaitAnyOnly._value)
-    cb.$callback._set((...args) => {
+    cb.mode = c.CallbackMode.WaitAnyOnly._value
+    cb.callback = (...args: any[]) => {
       for (let i = 0; i < args.length; i++) {
         args[i] = args[i] instanceof c.StringView ? from_wgpu_str(args[i] as any) : args[i]
       }
       resolve(args as any)
-    })
+    }
     _wait(async_fn(cb as any))
   })
 }
@@ -117,42 +117,42 @@ export const FeatureName = new Map<c.FeatureName, string>([
 class SupportedLimits implements GPUSupportedLimits {
   constructor(private _supportedLimits: c.SupportedLimits) {}
   __brand = 'GPUSupportedLimits' as const
-  get maxTextureDimension1D() { return this._supportedLimits.$limits.$maxTextureDimension1D._value }
-  get maxTextureDimension2D() { return this._supportedLimits.$limits.$maxTextureDimension2D._value }
-  get maxTextureDimension3D() { return this._supportedLimits.$limits.$maxTextureDimension3D._value }
-  get maxTextureArrayLayers() { return this._supportedLimits.$limits.$maxTextureArrayLayers._value }
-  get maxBindGroups() { return this._supportedLimits.$limits.$maxBindGroups._value }
-  get maxBindGroupsPlusVertexBuffers() { return this._supportedLimits.$limits.$maxBindGroupsPlusVertexBuffers._value }
-  get maxBindingsPerBindGroup() { return this._supportedLimits.$limits.$maxBindingsPerBindGroup._value }
-  get maxDynamicUniformBuffersPerPipelineLayout() { return this._supportedLimits.$limits.$maxDynamicUniformBuffersPerPipelineLayout._value }
-  get maxDynamicStorageBuffersPerPipelineLayout() { return this._supportedLimits.$limits.$maxDynamicStorageBuffersPerPipelineLayout._value }
-  get maxSampledTexturesPerShaderStage() { return this._supportedLimits.$limits.$maxSampledTexturesPerShaderStage._value }
-  get maxSamplersPerShaderStage() { return this._supportedLimits.$limits.$maxSamplersPerShaderStage._value }
-  get maxStorageBuffersPerShaderStage() { return this._supportedLimits.$limits.$maxStorageBuffersPerShaderStage._value }
-  get maxStorageTexturesPerShaderStage() { return this._supportedLimits.$limits.$maxStorageTexturesPerShaderStage._value }
-  get maxUniformBuffersPerShaderStage() { return this._supportedLimits.$limits.$maxUniformBuffersPerShaderStage._value }
-  get maxUniformBufferBindingSize() { return Number(this._supportedLimits.$limits.$maxUniformBufferBindingSize._value) }
-  get maxStorageBufferBindingSize() { return Number(this._supportedLimits.$limits.$maxStorageBufferBindingSize._value) }
-  get minUniformBufferOffsetAlignment() { return this._supportedLimits.$limits.$minUniformBufferOffsetAlignment._value }
-  get minStorageBufferOffsetAlignment() { return this._supportedLimits.$limits.$minStorageBufferOffsetAlignment._value }
-  get maxVertexBuffers() { return this._supportedLimits.$limits.$maxVertexBuffers._value }
-  get maxBufferSize() { return Number(this._supportedLimits.$limits.$maxBufferSize._value) }
-  get maxVertexAttributes() { return this._supportedLimits.$limits.$maxVertexAttributes._value }
-  get maxVertexBufferArrayStride() { return this._supportedLimits.$limits.$maxVertexBufferArrayStride._value }
-  get maxInterStageShaderComponents() { return this._supportedLimits.$limits.$maxInterStageShaderComponents._value }
-  get maxInterStageShaderVariables() { return this._supportedLimits.$limits.$maxInterStageShaderVariables._value }
-  get maxColorAttachments() { return this._supportedLimits.$limits.$maxColorAttachments._value }
-  get maxColorAttachmentBytesPerSample() { return this._supportedLimits.$limits.$maxColorAttachmentBytesPerSample._value }
-  get maxComputeWorkgroupStorageSize() { return this._supportedLimits.$limits.$maxComputeWorkgroupStorageSize._value }
-  get maxComputeInvocationsPerWorkgroup() { return this._supportedLimits.$limits.$maxComputeInvocationsPerWorkgroup._value }
-  get maxComputeWorkgroupSizeX() { return this._supportedLimits.$limits.$maxComputeWorkgroupSizeX._value }
-  get maxComputeWorkgroupSizeY() { return this._supportedLimits.$limits.$maxComputeWorkgroupSizeY._value }
-  get maxComputeWorkgroupSizeZ() { return this._supportedLimits.$limits.$maxComputeWorkgroupSizeZ._value }
-  get maxComputeWorkgroupsPerDimension() { return this._supportedLimits.$limits.$maxComputeWorkgroupsPerDimension._value }
-  get maxStorageBuffersInVertexStage() { return this._supportedLimits.$limits.$maxStorageBuffersInVertexStage._value }
-  get maxStorageTexturesInVertexStage() { return this._supportedLimits.$limits.$maxStorageTexturesInVertexStage._value }
-  get maxStorageBuffersInFragmentStage() { return this._supportedLimits.$limits.$maxStorageBuffersInFragmentStage._value }
-  get maxStorageTexturesInFragmentStage() { return this._supportedLimits.$limits.$maxStorageTexturesInFragmentStage._value }
+  get maxTextureDimension1D() { return this._supportedLimits.$limits.maxTextureDimension1D }
+  get maxTextureDimension2D() { return this._supportedLimits.$limits.maxTextureDimension2D }
+  get maxTextureDimension3D() { return this._supportedLimits.$limits.maxTextureDimension3D }
+  get maxTextureArrayLayers() { return this._supportedLimits.$limits.maxTextureArrayLayers }
+  get maxBindGroups() { return this._supportedLimits.$limits.maxBindGroups }
+  get maxBindGroupsPlusVertexBuffers() { return this._supportedLimits.$limits.maxBindGroupsPlusVertexBuffers }
+  get maxBindingsPerBindGroup() { return this._supportedLimits.$limits.maxBindingsPerBindGroup }
+  get maxDynamicUniformBuffersPerPipelineLayout() { return this._supportedLimits.$limits.maxDynamicUniformBuffersPerPipelineLayout }
+  get maxDynamicStorageBuffersPerPipelineLayout() { return this._supportedLimits.$limits.maxDynamicStorageBuffersPerPipelineLayout }
+  get maxSampledTexturesPerShaderStage() { return this._supportedLimits.$limits.maxSampledTexturesPerShaderStage }
+  get maxSamplersPerShaderStage() { return this._supportedLimits.$limits.maxSamplersPerShaderStage }
+  get maxStorageBuffersPerShaderStage() { return this._supportedLimits.$limits.maxStorageBuffersPerShaderStage }
+  get maxStorageTexturesPerShaderStage() { return this._supportedLimits.$limits.maxStorageTexturesPerShaderStage }
+  get maxUniformBuffersPerShaderStage() { return this._supportedLimits.$limits.maxUniformBuffersPerShaderStage }
+  get maxUniformBufferBindingSize() { return Number(this._supportedLimits.$limits.maxUniformBufferBindingSize) }
+  get maxStorageBufferBindingSize() { return Number(this._supportedLimits.$limits.maxStorageBufferBindingSize) }
+  get minUniformBufferOffsetAlignment() { return this._supportedLimits.$limits.minUniformBufferOffsetAlignment }
+  get minStorageBufferOffsetAlignment() { return this._supportedLimits.$limits.minStorageBufferOffsetAlignment }
+  get maxVertexBuffers() { return this._supportedLimits.$limits.maxVertexBuffers }
+  get maxBufferSize() { return Number(this._supportedLimits.$limits.maxBufferSize) }
+  get maxVertexAttributes() { return this._supportedLimits.$limits.maxVertexAttributes }
+  get maxVertexBufferArrayStride() { return this._supportedLimits.$limits.maxVertexBufferArrayStride }
+  get maxInterStageShaderComponents() { return this._supportedLimits.$limits.maxInterStageShaderComponents }
+  get maxInterStageShaderVariables() { return this._supportedLimits.$limits.maxInterStageShaderVariables }
+  get maxColorAttachments() { return this._supportedLimits.$limits.maxColorAttachments }
+  get maxColorAttachmentBytesPerSample() { return this._supportedLimits.$limits.maxColorAttachmentBytesPerSample }
+  get maxComputeWorkgroupStorageSize() { return this._supportedLimits.$limits.maxComputeWorkgroupStorageSize }
+  get maxComputeInvocationsPerWorkgroup() { return this._supportedLimits.$limits.maxComputeInvocationsPerWorkgroup }
+  get maxComputeWorkgroupSizeX() { return this._supportedLimits.$limits.maxComputeWorkgroupSizeX }
+  get maxComputeWorkgroupSizeY() { return this._supportedLimits.$limits.maxComputeWorkgroupSizeY }
+  get maxComputeWorkgroupSizeZ() { return this._supportedLimits.$limits.maxComputeWorkgroupSizeZ }
+  get maxComputeWorkgroupsPerDimension() { return this._supportedLimits.$limits.maxComputeWorkgroupsPerDimension }
+  get maxStorageBuffersInVertexStage() { return this._supportedLimits.$limits.maxStorageBuffersInVertexStage }
+  get maxStorageTexturesInVertexStage() { return this._supportedLimits.$limits.maxStorageTexturesInVertexStage }
+  get maxStorageBuffersInFragmentStage() { return this._supportedLimits.$limits.maxStorageBuffersInFragmentStage }
+  get maxStorageTexturesInFragmentStage() { return this._supportedLimits.$limits.maxStorageTexturesInFragmentStage }
 }
 
 class Adapter implements GPUAdapter {
@@ -164,10 +164,9 @@ class Adapter implements GPUAdapter {
   get features(): GPUSupportedFeatures {
     const supported_features = new c.SupportedFeatures()
     c.adapterGetFeatures(this._adapter, supported_features._ptr())
-    supported_features.$features
     const features = new Set<string>()
-    for (let i = 0n; i < supported_features.$featureCount._value; i++) {
-      features.add(FeatureName.get(new c.FeatureName()._loadFromPtr(c.Pointer.new(supported_features.$features._value + i)))!)
+    for (let i = 0n; i < supported_features.featureCount; i++) {
+      features.add(FeatureName.get(new c.FeatureName()._loadFromPtr(c.Pointer.new(supported_features.features + i)))!)
     }
     return features
   }
@@ -207,7 +206,7 @@ export const requestAdapter = async (options?: GPURequestAdapterOptions): Promis
   await c.init(PATH)
 
   const desc = new c.InstanceDescriptor()
-  desc.$features.$timedWaitAnyEnable._set(1)
+  desc.$features.timedWaitAnyEnable = 1
   instance = c.createInstance(desc._ptr())
   if (!instance._value) throw new Error(`Failed creating instance!`)
 
