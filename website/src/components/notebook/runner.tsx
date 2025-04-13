@@ -1,20 +1,24 @@
 import ts from 'typescript'
 
+export const tscOptions = {
+  target: ts.ScriptTarget.ESNext as 99,
+  module: ts.ModuleKind.ESNext as 99,
+  moduleResolution: ts.ModuleResolutionKind.Node10 as 2,
+  isolatedModules: false,
+  noUnusedLocals: false,
+  noUnusedParameters: false,
+  verbatimModuleSyntax: true,
+  strict: true,
+  strictNullChecks: true,
+}
+
 export const runJS = async (code: string) => {
   code = code.trim()
   code = code
     .split('\n')
     .filter((x) => !x.trim().startsWith('//'))
     .join('\n')
-  code = ts.transpile(code, {
-    target: ts.ScriptTarget.Latest,
-    module: ts.ModuleKind.ESNext,
-    isolatedModules: false,
-    noUnusedLocals: false,
-    noUnusedParameters: false,
-    verbatimModuleSyntax:true
-
-  })
+  code = ts.transpile(code, tscOptions)
   code = code.replace('export {};', '')
 
   if (/^\s*\{/.test(code) && /\}\s*$/.test(code)) code = `(${code})`

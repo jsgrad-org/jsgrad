@@ -7,7 +7,8 @@
     },
     "./web": "./index.ts",
     "./node": "./node.ts",
-    "./base": "./base.ts"
+    "./base": "./base.ts",
+    "./args": "./args.ts"
   },
   "license": "MIT",
   "dependencies": {

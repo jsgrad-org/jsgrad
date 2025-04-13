@@ -7,7 +7,7 @@ import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
 import { toast } from 'sonner'
 import { cellsToCode, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes, type Notebook as NotebookType, codeToNotebook } from './helpers'
-import { runJS } from './runner'
+import { runJS, tscOptions } from './runner'
 
 const NOTEBOOK = Uri.file('notebook.ts')
 
@@ -128,13 +128,7 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
       const { cells } = codeToNotebook(model.getLinesContent())
       setCells(cells)
     })
-    monaco.languages.typescript[`${type}Defaults`].setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.Latest,
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      allowNonTsExtensions: true,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      noEmit: true,
-    })
+    monaco.languages.typescript[`${type}Defaults`].setCompilerOptions(tscOptions)
   }, [monaco])
 
   // Importing types

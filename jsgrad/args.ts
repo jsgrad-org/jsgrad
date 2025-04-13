@@ -1,7 +1,7 @@
 import { colored } from './helpers/helpers.ts'
 import { env } from './env/index.ts'
 
-abstract class Type<TsType> {
+export abstract class Type<TsType> {
   required = true
   description: string | undefined
   defaultValue: TsType | undefined
@@ -29,13 +29,13 @@ abstract class Type<TsType> {
     return this
   }
 }
-class ZodNumber extends Type<number> {
+export class ZodNumber extends Type<number> {
   name = 'number'
   _parse = (value: any) => {
     if (typeof value !== 'number') throw new Error(`${value} is not number`)
   }
 }
-class ZodEnum<T extends string> extends Type<T> {
+export class ZodEnum<T extends string> extends Type<T> {
   name = ''
   constructor(public options: T[]) {
     super()
@@ -47,13 +47,13 @@ class ZodEnum<T extends string> extends Type<T> {
     }
   }
 }
-class ZodString extends Type<string> {
+export class ZodString extends Type<string> {
   name = 'string'
   _parse = (value: any) => {
     if (typeof value !== 'string') throw new Error(`${value} is not string`)
   }
 }
-class ZodBoolean extends Type<boolean> {
+export class ZodBoolean extends Type<boolean> {
   name = 'boolean'
   _parse = (value: any) => {
     if (typeof value !== 'boolean') throw new Error(`${value} is not boolean`)
@@ -66,10 +66,10 @@ export const z = {
   boolean: () => new ZodBoolean(),
 }
 
-type Schema = Record<string, Type<any>>
-type ExtractType<T> = T extends Type<infer U> ? U : never
-type ParsedSchema<T extends Schema> = { [K in keyof T]: ExtractType<T[K]> }
-type ParsingError = { message: string; path: string[] }
+export type Schema = Record<string, Type<any>>
+export type ExtractType<T> = T extends Type<infer U> ? U : never
+export type ParsedSchema<T extends Schema> = { [K in keyof T]: ExtractType<T[K]> }
+export type ParsingError = { message: string; path: string[] }
 export const parse = <T extends Schema>(
   value: any,
   schema: T,
