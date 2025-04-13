@@ -92,26 +92,30 @@ export type PackageInfo = {
 }
 
 export const fetchTypes = async (pkg: string) => {
-  let { name, version } = parsePackageString(pkg)
-  if (!version) {
-    version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
-      .then((x) => x.json())
-      .then((x) => x.tags.latest)
-  }
-  const info: PackageInfo = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}@${version}`).then((x) => x.json())
-
-  const types: string[] = []
-  const getTypes = (files: PackageFile[], path = '') => {
-    for (const file of files) {
-      if (file.type === 'file' && file.name.endsWith('.d.ts')) types.push(`${path}/${file.name}`)
-      else if (file.type === 'directory') getTypes(file.files, `${path}/${file.name}`)
+  try {
+    let { name, version } = parsePackageString(pkg)
+    if (!version) {
+      version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
+        .then((x) => x.json())
+        .then((x) => x.tags.latest)
     }
-  }
-  getTypes(info.files)
+    const info: PackageInfo = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}@${version}`).then((x) => x.json())
 
-  const promises = types.map(async (x) => {
-    const content = await fetch(`https://cdn.jsdelivr.net/npm/${name}@${version}${x}`).then((x) => x.text())
-    return { name: name + x, content }
-  })
-  return await Promise.all(promises)
+    const types: string[] = []
+    const getTypes = (files: PackageFile[], path = '') => {
+      for (const file of files) {
+        if (file.type === 'file' && file.name.endsWith('.d.ts')) types.push(`${path}/${file.name}`)
+        else if (file.type === 'directory') getTypes(file.files, `${path}/${file.name}`)
+      }
+    }
+    getTypes(info.files)
+
+    const promises = types.map(async (x) => {
+      const content = await fetch(`https://cdn.jsdelivr.net/npm/${name}@${version}${x}`).then((x) => x.text())
+      return { name: name + x, content }
+    })
+    return await Promise.all(promises)
+  } catch (e) {
+    return []
+  }
 }

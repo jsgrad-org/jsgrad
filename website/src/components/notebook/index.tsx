@@ -252,7 +252,7 @@ const SmallIcon = ({ onClick, Icon, description }: { description: string; Icon: 
   return (
     <button className="relative cursor-pointer p-1.5 bg-[#1e1e1e] hover:bg-[#2d2d2d] group/icon rounded-sm">
       <Icon className="h-4 w-4" onClick={onClick} />
-      <span className="absolute hidden whitespace-nowrap bottom-[105%] left-[50%] text-sm -translate-x-1/2 group-hover/icon:block">{description}</span>
+      <span className="absolute hidden whitespace-nowrap top-[105%] left-[50%] text-sm -translate-x-1/2 group-hover/icon:block">{description}</span>
     </button>
   )
 }
@@ -285,7 +285,7 @@ const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; o
     <div className="group hover:bg-white/2 duration-200 relative p-3">
       <div className="section">
         <div className="relative w-full">
-          <div className="hidden group-hover:flex absolute top-1.5 right-1.5 z-20 shadow-sm shadow-white/10 border border-white/10 rounded-md">
+          <div className="hidden group-hover:flex absolute -top-[34px]  right-0 z-20 shadow-sm shadow-white/10 border border-white/10 rounded-md">
             <SmallIcon Icon={Icon} description={cell.type === 'code' ? 'Run cell' : 'Edit markdown'} onClick={onClick} />
             <SmallIcon
               Icon={ArrowUpIcon}
