@@ -1,4 +1,5 @@
-import { colored, env } from '@jsgrad/jsgrad/node'
+import { colored } from './helpers/helpers.ts'
+import { env } from './env/index.ts'
 
 abstract class Type<TsType> {
   required = true
@@ -42,9 +43,7 @@ class ZodEnum<T extends string> extends Type<T> {
   }
   _parse = (value: any) => {
     if (!this.options.includes(value)) {
-      throw new Error(
-        `Invalid enum, received: ${value}, options: ${this.options}`,
-      )
+      throw new Error(`Invalid enum, received: ${value}, options: ${this.options}`)
     }
   }
 }
@@ -74,10 +73,12 @@ type ParsingError = { message: string; path: string[] }
 export const parse = <T extends Schema>(
   value: any,
   schema: T,
-): { success: true; data: ParsedSchema<T> } | {
-  success: false
-  errors: ParsingError[]
-} => {
+):
+  | { success: true; data: ParsedSchema<T> }
+  | {
+      success: false
+      errors: ParsingError[]
+    } => {
   const errors: ParsingError[] = []
   if (value === undefined) {
     errors.push({ message: `Can't parse, value is undefined`, path: [] })
@@ -102,11 +103,7 @@ const help = (schema: Schema): string => {
   let res = `${schema.description || 'help:'}\n\noptions:\n`
   const lines: string[][] = []
   for (const [k, v] of Object.entries(schema)) {
-    lines.push([
-      colored(`--${k}`, 'blue'),
-      colored(v.name, 'green'),
-      `${v.description || ''}${v.defaultValue ? colored(` (default: ${v.defaultValue})`, 'yellow') : v.required ? colored(` (required)`, 'red') : ''}`,
-    ])
+    lines.push([colored(`--${k}`, 'blue'), colored(v.name, 'green'), `${v.description || ''}${v.defaultValue ? colored(` (default: ${v.defaultValue})`, 'yellow') : v.required ? colored(` (required)`, 'red') : ''}`])
   }
   const maxLengths = lines[0].map((_, i) => Math.max(...lines.map((line) => line[i].length)))
   res += lines.map((line) => line.map((line, i) => line.padEnd(maxLengths[i] + 2)).join('')).join('\n') + '\n'
@@ -117,7 +114,8 @@ export const parseArgs = <T extends Schema>(schema: T): ParsedSchema<T> => {
   const args = env.args().join(' ').split('--').filter(Boolean)
   const obj: Record<string, unknown> = {}
   for (const arg of args) {
-    const [key, ...values] = arg.split(/[ |=]/), value = values.join(' ')
+    const [key, ...values] = arg.split(/[ |=]/),
+      value = values.join(' ')
 
     if (value === 'true' || value === '' || value === undefined) {
       obj[key] = true
@@ -131,8 +129,6 @@ export const parseArgs = <T extends Schema>(schema: T): ParsedSchema<T> => {
   }
   const res = parse(obj, schema)
   if (res.success) return res.data
-  console.log(
-    res.errors.map((x) => colored(`Error with '${x.path.join('.')}': ${x.message}`, 'red')).join('\n') + '\n\n' + help(schema),
-  )
+  console.log(res.errors.map((x) => colored(`Error with '${x.path.join('.')}': ${x.message}`, 'red')).join('\n') + '\n\n' + help(schema))
   return env.exit(1) as any
 }
