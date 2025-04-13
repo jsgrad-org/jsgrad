@@ -52,9 +52,9 @@ for (const line of data) {
   byteSizes[line.name] = byteLength
   const alignment = line['bit-alignment'] / 8
   const type = line.fields.length ? `{ ${line.fields.map((x: any) => `${x.name}: ${getType(x.type)}`).join('; ')} }` : `{}`
-  const fields = line.fields.map((x: any) => `get $${rename(x.name)}(){ return new ${getType(x.type)}(this.buffer, this.offset + ${x['bit-offset'] / 8}) }`).join('\n  ')
-  const _valueFn = !line.fields.length ? undefined : `protected override _value = () => ({${line.fields.map((x: any) => `${rename(x.name)}: this.$${rename(x.name)}`).join(', ')}})`
-  const newFn = `static new = (val: Partial<${type}>) => new ${rename(line.name)}().set(val)`
+  const fields = line.fields.map((x: any) => `get $${rename(x.name)}(){ return new ${getType(x.type)}(this._buffer, this._offset + ${x['bit-offset'] / 8}) }`).join('\n  ')
+  const _valueFn = !line.fields.length ? undefined : `protected override __value = () => ({${line.fields.map((x: any) => `${rename(x.name)}: this.$${rename(x.name)}`).join(', ')}})`
+  const newFn = `static new = (val: Partial<${type}>) => new ${rename(line.name)}()._set(val)`
   structs[line.name] = `export class ${rename(line.name)} extends c.Struct<${type}> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, ${byteLength}, ${alignment})
@@ -91,10 +91,9 @@ const getLibType = (type: Type): string => {
 }
 
 let content = `
-import * as c from './ctypes'
-import { env } from '@jsgrad/jsgrad'
-
-export * from './ctypes'
+import * as c from './ctypes.ts'
+import { env } from '../../../env/index.ts'
+export * from './ctypes.ts'
 
 let lib!: Awaited<ReturnType<typeof _init>>
 export const init = async (path: string) => lib = await _init(path)
@@ -111,7 +110,7 @@ for (const line of data) {
 }
 
 const callbacks: string[] = []
-const header = await Deno.readTextFile('dawn/webgpu.h')
+const header = await Deno.readTextFile('jsgrad/runtime/autogen/dawn/webgpu.h')
 const getCallbackParameters = (fnName: string): { name: string; type: Type }[] => {
   const txt = header.split(`(*${fnName})(`)[1].split(`) WGPU_FUNCTION_ATTRIBUTE;`)[0]
   const out: { name: string; type: Type }[] = []
@@ -139,8 +138,8 @@ for (const line of data) {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, [${parameters.map((x) => getLibType(x.type)).join(', ')}])
   }
-  protected override _fn = (fn: (${types}) => void) => (${parameters.map((x) => `${x.name}: any`).join(', ')}) => void fn(${parameters.map((x) => `new ${getType(x.type)}().setNative(${x.name})`).join(', ')})
-  static new = (fn: (${types}) => void) => new ${rename(line.name)}().set(fn)
+  protected override _fn = (fn: (${types}) => void) => (${parameters.map((x) => `${x.name}: any`).join(', ')}) => void fn(${parameters.map((x) => `new ${getType(x.type)}()._setNative(${x.name})`).join(', ')})
+  static new = (fn: (${types}) => void) => new ${rename(line.name)}()._set(fn)
 }`)
 }
 
@@ -148,11 +147,11 @@ const functions: string[] = []
 for (const line of data) {
   if (line.tag !== 'function') continue
   const ret = line['return-type']
-  functions.push(`export const ${rename(line.name)} = (${line.parameters.map((x: any) => `${x.name}: ${getType(x.type)}`).join(', ')}): ${getType(ret)} => new ${getType(ret)}().setNative(lib.symbols.${line.name}(${line.parameters.map((x: any) => `${x.name}.native`).join(', ')}))`)
+  functions.push(`export const ${rename(line.name)} = (${line.parameters.map((x: any) => `${x.name}: ${getType(x.type)}`).join(', ')}): ${getType(ret)} => new ${getType(ret)}()._setNative(lib.symbols.${line.name}(${line.parameters.map((x: any) => `${x.name}._native`).join(', ')}))`)
 }
 
 content += Object.entries({ consts, enums, structs: Object.values(structs), types, callbacks, functions })
   .map(([k, v]) => `// ${k}\n${v.join('\n')}`).join('\n\n')
 content += '\n'
 
-Deno.writeTextFile('dawn/bindings.ts', content)
+Deno.writeTextFile('jsgrad/runtime/autogen/dawn/bindings.ts', content)

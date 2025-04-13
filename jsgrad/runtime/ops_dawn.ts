@@ -6,31 +6,31 @@ import * as c from './autogen/dawn/bindings.ts'
 import { env } from '../env/index.ts'
 
 const _wait = (future: c.Future) => {
-  const res = c.instanceWaitAny(DAWN.instance, c.Size.new(1n), c.FutureWaitInfo.new({ future }).ptr(), c.U64.new(2n ** 64n - 1n))
-  if (res.value !== c.WaitStatus.Success.value) throw new Error('Future failed')
+  const res = c.instanceWaitAny(DAWN.instance, c.Size.new(1n), c.FutureWaitInfo.new({ future })._ptr(), c.U64.new(2n ** 64n - 1n))
+  if (res._value !== c.WaitStatus.Success._value) throw new Error('Future failed')
 }
 const from_wgpu_str = (_str: c.StringView): string => {
-  if (_str.$length.value <= 1) return ''
-  const buf = env.getArrayBuffer(_str.$data.native, Number(_str.$length.value))
+  if (_str.$length._value <= 1) return ''
+  const buf = env.getArrayBuffer(_str.$data._native, Number(_str.$length._value))
   return new TextDecoder().decode(buf)
 }
 const to_wgpu_str = (str: string) => {
   const data = new TextEncoder().encode(str)
   const _str = new c.Type(data.buffer as ArrayBuffer, 0, data.length, 8)
-  return c.StringView.new({ data: _str.ptr(), length: c.Size.new(BigInt(_str.byteLength)) })
+  return c.StringView.new({ data: _str._ptr(), length: c.Size.new(BigInt(_str._byteLength)) })
 }
 
 const write_buffer = (device: c.Device, buf: c.Buffer, offset: number, src: Uint8Array) => {
-  c.queueWriteBuffer(c.deviceGetQueue(device), buf, c.U64.new(BigInt(offset)), new c.Pointer().setNative(env.ptr(src.buffer as ArrayBuffer)), c.Size.new(BigInt(src.length)))
+  c.queueWriteBuffer(c.deviceGetQueue(device), buf, c.U64.new(BigInt(offset)), new c.Pointer()._setNative(env.ptr(src.buffer as ArrayBuffer)), c.Size.new(BigInt(src.length)))
 }
 
 type ReplaceStringView<T extends any[]> = { [K in keyof T]: T[K] extends c.StringView ? string : T[K] }
 type CallBack = typeof c.BufferMapCallbackInfo2 | typeof c.PopErrorScopeCallbackInfo | typeof c.CreateComputePipelineAsyncCallbackInfo2 | typeof c.RequestAdapterCallbackInfo | typeof c.RequestDeviceCallbackInfo | typeof c.QueueWorkDoneCallbackInfo2
-const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['set']>[0]>>> => {
+const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['_set']>[0]>>> => {
   return await new Promise((resolve) => {
     const cb = new cb_class()
-    cb.$mode.set(c.CallbackMode.WaitAnyOnly.value)
-    cb.$callback.set((...args) => {
+    cb.$mode._set(c.CallbackMode.WaitAnyOnly._value)
+    cb.$callback._set((...args) => {
       for (let i = 0; i < args.length; i++) {
         args[i] = args[i] instanceof c.StringView ? from_wgpu_str(args[i] as any) : args[i]
       }
@@ -41,31 +41,31 @@ const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType
 }
 
 const copy_buffer_to_buffer = (dev: c.Device, src: c.Buffer, src_offset: number, dst: c.Buffer, dst_offset: number, size: c.U64) => {
-  const encoder = c.deviceCreateCommandEncoder(dev, new c.CommandEncoderDescriptor().ptr())
+  const encoder = c.deviceCreateCommandEncoder(dev, new c.CommandEncoderDescriptor()._ptr())
   c.commandEncoderCopyBufferToBuffer(encoder, src, c.U64.new(BigInt(src_offset)), dst, c.U64.new(BigInt(dst_offset)), size)
-  const cb = c.commandEncoderFinish(encoder, new c.CommandBufferDescriptor().ptr())
-  c.queueSubmit(c.deviceGetQueue(dev), c.Size.new(1n), cb.ptr())
+  const cb = c.commandEncoderFinish(encoder, new c.CommandBufferDescriptor()._ptr())
+  c.queueSubmit(c.deviceGetQueue(dev), c.Size.new(1n), cb._ptr())
   c.commandBufferRelease(cb)
   c.commandEncoderRelease(encoder)
 }
 const read_buffer = async (dev: c.Device, buf: c.Buffer) => {
   const size = c.bufferGetSize(buf)
   const desc = c.BufferDescriptor.new({
-    size: c.U64.new(size.value),
-    usage: c.BufferUsage.new(c.BufferUsage_CopyDst.value | c.BufferUsage_MapRead.value),
+    size: c.U64.new(size._value),
+    usage: c.BufferUsage.new(c.BufferUsage_CopyDst._value | c.BufferUsage_MapRead._value),
     mappedAtCreation: c.Bool.new(0),
   })
-  const tmp_buffer = c.deviceCreateBuffer(dev, desc.ptr())
+  const tmp_buffer = c.deviceCreateBuffer(dev, desc._ptr())
   copy_buffer_to_buffer(dev, buf, 0, tmp_buffer, 0, size)
 
-  const [status, msg] = await _run(c.BufferMapCallbackInfo2, (cb) => c.bufferMapAsync2(tmp_buffer, c.MapMode.new(c.MapMode_Read.value), c.Size.new(0n), size, cb))
-  if (status.value !== c.BufferMapAsyncStatus.Success.value) throw new Error(`Async failed: ${msg}`)
+  const [status, msg] = await _run(c.BufferMapCallbackInfo2, (cb) => c.bufferMapAsync2(tmp_buffer, c.MapMode.new(c.MapMode_Read._value), c.Size.new(0n), size, cb))
+  if (status._value !== c.BufferMapAsyncStatus.Success._value) throw new Error(`Async failed: ${msg}`)
 
   const void_ptr = c.bufferGetConstMappedRange(tmp_buffer, c.Size.new(0n), size)
-  const buf_copy = new c.Type(new ArrayBuffer(Number(size.value)), 0, Number(size.value)).replaceWithPtr(void_ptr)
+  const buf_copy = new c.Type(new ArrayBuffer(Number(size._value)), 0, Number(size._value))._replaceWithPtr(void_ptr)
   c.bufferUnmap(tmp_buffer)
   c.bufferDestroy(tmp_buffer)
-  return buf_copy.bytes
+  return buf_copy._bytes
 }
 
 const pop_error = async (device: c.Device) => {
@@ -74,8 +74,8 @@ const pop_error = async (device: c.Device) => {
 }
 
 const create_uniform = (wgpu_device: c.Device, val: number) => {
-  const desc = c.BufferDescriptor.new({ size: c.U64.new(4n), usage: c.BufferUsage.new(c.BufferUsage_Uniform.value | c.BufferUsage_CopyDst.value) })
-  const buf = c.deviceCreateBuffer(wgpu_device, desc.ptr())
+  const desc = c.BufferDescriptor.new({ size: c.U64.new(4n), usage: c.BufferUsage.new(c.BufferUsage_Uniform._value | c.BufferUsage_CopyDst._value) })
+  const buf = c.deviceCreateBuffer(wgpu_device, desc._ptr())
   const bytes = new Uint8Array(4)
   if (isInt(val)) new DataView(bytes.buffer).setInt32(0, val, true)
   else new DataView(bytes.buffer).setFloat32(0, val, true)
@@ -94,10 +94,10 @@ class WebGPUProgram extends Program {
       chain: c.ChainedStruct.new({ sType: c.SType.ShaderSourceWGSL }),
     })
     const module = new c.ShaderModuleDescriptor()
-    module.$nextInChain.set(shader.ptr().value)
+    module.$nextInChain._set(shader._ptr()._value)
     // Check compiler error
     c.devicePushErrorScope(DAWN.device, c.ErrorFilter.Validation)
-    const shader_module = c.deviceCreateShaderModule(DAWN.device, module.ptr())
+    const shader_module = c.deviceCreateShaderModule(DAWN.device, module._ptr())
     const err = await pop_error(DAWN.device)
     if (err) throw new Error(`Shader compilation failed: ${err}`)
     res.prg = shader_module
@@ -109,13 +109,13 @@ class WebGPUProgram extends Program {
 
     // WebGPU does not allow using the same buffer for input and output
     for (const i of range(1, bufs.length)) {
-      if (bufs[i].value === bufs[0].value) {
+      if (bufs[i]._value === bufs[0]._value) {
         tmp_bufs[0] = c.deviceCreateBuffer(
           DAWN.device,
           c.BufferDescriptor.new({
             size: c.bufferGetSize(bufs[0]),
             usage: c.bufferGetUsage(bufs[0]),
-          }).ptr(),
+          })._ptr(),
         )
         buf_patch = true
       }
@@ -124,14 +124,14 @@ class WebGPUProgram extends Program {
     // Creating bind group layout
     let binding_layouts = [c.BindGroupLayoutEntry.new({
       binding: c.U32.new(0),
-      visibility: c.ShaderStage.new(c.ShaderStage_Compute.value),
+      visibility: c.ShaderStage.new(c.ShaderStage_Compute._value),
       buffer: c.BufferBindingLayout.new({ type: c.BufferBindingType.Uniform }),
     })]
     for (const i of range(tmp_bufs.length + vals.length)) {
       binding_layouts.push(
         c.BindGroupLayoutEntry.new({
           binding: c.U32.new(i + 1),
-          visibility: c.ShaderStage.new(c.ShaderStage_Compute.value),
+          visibility: c.ShaderStage.new(c.ShaderStage_Compute._value),
           buffer: c.BufferBindingLayout.new({ type: i >= tmp_bufs.length ? c.BufferBindingType.Uniform : c.BufferBindingType.Storage }),
         }),
       )
@@ -142,8 +142,8 @@ class WebGPUProgram extends Program {
       DAWN.device,
       c.BindGroupLayoutDescriptor.new({
         entryCount: c.Size.new(BigInt(binding_layouts.length)),
-        entries: c.createArray(binding_layouts).ptr(),
-      }).ptr(),
+        entries: c.createArray(binding_layouts)._ptr(),
+      })._ptr(),
     )]
     const bg_layout_err = await pop_error(DAWN.device)
     if (bg_layout_err) throw new Error(`Error creating bind group layout: ${bg_layout_err}`)
@@ -151,11 +151,11 @@ class WebGPUProgram extends Program {
     // Creating pipeline layout
     const pipeline_layout_desc = c.PipelineLayoutDescriptor.new({
       bindGroupLayoutCount: c.Size.new(BigInt(bind_group_layouts.length)),
-      bindGroupLayouts: c.createArray(bind_group_layouts).ptr(),
+      bindGroupLayouts: c.createArray(bind_group_layouts)._ptr(),
     })
 
     c.devicePushErrorScope(DAWN.device, c.ErrorFilter.Validation)
-    const pipeline_layout = c.deviceCreatePipelineLayout(DAWN.device, pipeline_layout_desc.ptr())
+    const pipeline_layout = c.deviceCreatePipelineLayout(DAWN.device, pipeline_layout_desc._ptr())
     const pipe_err = await pop_error(DAWN.device)
     if (pipe_err) throw new Error(`Error creating pipeline layout: ${pipe_err}`)
 
@@ -172,9 +172,9 @@ class WebGPUProgram extends Program {
       )
     }
 
-    const bind_group_desc = c.BindGroupDescriptor.new({ layout: bind_group_layouts[0], entryCount: c.Size.new(BigInt(bindings.length)), entries: c.createArray(bindings).ptr() })
+    const bind_group_desc = c.BindGroupDescriptor.new({ layout: bind_group_layouts[0], entryCount: c.Size.new(BigInt(bindings.length)), entries: c.createArray(bindings)._ptr() })
     c.devicePushErrorScope(DAWN.device, c.ErrorFilter.Validation)
-    const bind_group = c.deviceCreateBindGroup(DAWN.device, bind_group_desc.ptr())
+    const bind_group = c.deviceCreateBindGroup(DAWN.device, bind_group_desc._ptr())
 
     const bind_err = await pop_error(DAWN.device)
     if (bind_err) throw new Error(`Error creating bind group: ${bind_err}`)
@@ -185,32 +185,32 @@ class WebGPUProgram extends Program {
       compute: c.ComputeState.new({ module: this.prg, entryPoint: to_wgpu_str(this.name) }),
     })
     c.devicePushErrorScope(DAWN.device, c.ErrorFilter.Validation)
-    const [status, compute_pipeline, msg] = await _run(c.CreateComputePipelineAsyncCallbackInfo2, (cb) => c.deviceCreateComputePipelineAsync2(DAWN.device, compute_desc.ptr(), cb))
-    if (status.value !== c.CreatePipelineAsyncStatus.Success.value) throw new Error(`${status}: ${msg}, ${await pop_error(DAWN.device)}`)
+    const [status, compute_pipeline, msg] = await _run(c.CreateComputePipelineAsyncCallbackInfo2, (cb) => c.deviceCreateComputePipelineAsync2(DAWN.device, compute_desc._ptr(), cb))
+    if (status._value !== c.CreatePipelineAsyncStatus.Success._value) throw new Error(`${status}: ${msg}, ${await pop_error(DAWN.device)}`)
 
-    const command_encoder = c.deviceCreateCommandEncoder(DAWN.device, new c.CommandEncoderDescriptor().ptr())
+    const command_encoder = c.deviceCreateCommandEncoder(DAWN.device, new c.CommandEncoderDescriptor()._ptr())
     const comp_pass_desc = new c.ComputePassDescriptor()
 
     let query_set: c.QuerySet, query_buf: c.Buffer
     if (wait) {
-      query_set = c.deviceCreateQuerySet(DAWN.device, c.QuerySetDescriptor.new({ type: c.QueryType.Timestamp, count: c.U32.new(2) }).ptr())
+      query_set = c.deviceCreateQuerySet(DAWN.device, c.QuerySetDescriptor.new({ type: c.QueryType.Timestamp, count: c.U32.new(2) })._ptr())
       query_buf = c.deviceCreateBuffer(
         DAWN.device,
         c.BufferDescriptor.new({
           size: c.U64.new(16n),
-          usage: c.BufferUsage.new(c.BufferUsage_QueryResolve.value | c.BufferUsage_CopySrc.value),
-        }).ptr(),
+          usage: c.BufferUsage.new(c.BufferUsage_QueryResolve._value | c.BufferUsage_CopySrc._value),
+        })._ptr(),
       )
-      comp_pass_desc.$timestampWrites.set(
+      comp_pass_desc.$timestampWrites._set(
         c.ComputePassTimestampWrites.new({
           querySet: query_set,
           beginningOfPassWriteIndex: c.U32.new(0),
           endOfPassWriteIndex: c.U32.new(1),
-        }).ptr().value,
+        })._ptr()._value,
       )
     }
     // Begin compute pass
-    const compute_pass = c.commandEncoderBeginComputePass(command_encoder, comp_pass_desc.ptr())
+    const compute_pass = c.commandEncoderBeginComputePass(command_encoder, comp_pass_desc._ptr())
     c.computePassEncoderSetPipeline(compute_pass, compute_pipeline)
     c.computePassEncoderSetBindGroup(compute_pass, c.U32.new(0), bind_group, c.Size.new(0n), new c.Pointer())
     c.computePassEncoderDispatchWorkgroups(compute_pass, c.U32.new(global_size[0]), c.U32.new(global_size[1]), c.U32.new(global_size[2]))
@@ -218,8 +218,8 @@ class WebGPUProgram extends Program {
 
     if (wait) c.commandEncoderResolveQuerySet(command_encoder, query_set!, c.U32.new(0), c.U32.new(2), query_buf!, c.U64.new(0n))
 
-    const cmd_buf = c.commandEncoderFinish(command_encoder, new c.CommandBufferDescriptor().ptr())
-    c.queueSubmit(c.deviceGetQueue(DAWN.device), c.Size.new(1n), cmd_buf.ptr())
+    const cmd_buf = c.commandEncoderFinish(command_encoder, new c.CommandBufferDescriptor()._ptr())
+    c.queueSubmit(c.deviceGetQueue(DAWN.device), c.Size.new(1n), cmd_buf._ptr())
 
     if (buf_patch) {
       copy_buffer_to_buffer(DAWN.device, tmp_bufs[0], 0, bufs[0], 0, c.bufferGetSize(bufs[0]))
@@ -241,9 +241,9 @@ class WebGpuAllocator extends Allocator<c.Buffer> {
     // WebGPU buffers have to be 4-byte aligned
     const desc = c.BufferDescriptor.new({
       size: c.U64.new(BigInt(round_up(size, 4))),
-      usage: c.BufferUsage.new(c.BufferUsage_Storage.value | c.BufferUsage_CopyDst.value | c.BufferUsage_CopySrc.value),
+      usage: c.BufferUsage.new(c.BufferUsage_Storage._value | c.BufferUsage_CopyDst._value | c.BufferUsage_CopySrc._value),
     })
-    return c.deviceCreateBuffer(DAWN.device, desc.ptr())
+    return c.deviceCreateBuffer(DAWN.device, desc._ptr())
   }
   _copyin = (dest: c.Buffer, src: MemoryView) => {
     if (src.byteLength % 4) {
@@ -277,36 +277,36 @@ export class DAWN extends Compiled {
     await c.init(PATH)
 
     const desc = new c.InstanceDescriptor()
-    desc.$features.$timedWaitAnyEnable.set(1)
+    desc.$features.$timedWaitAnyEnable._set(1)
 
-    DAWN.instance = c.createInstance(desc.ptr())
-    if (!DAWN.instance.value) throw new Error(`Failed creating instance!`)
+    DAWN.instance = c.createInstance(desc._ptr())
+    if (!DAWN.instance._value) throw new Error(`Failed creating instance!`)
 
-    const [status, adapter, msg] = await _run(c.RequestAdapterCallbackInfo, (cb) => c.instanceRequestAdapterF(DAWN.instance, c.RequestAdapterOptions.new({ powerPreference: c.PowerPreference.HighPerformance }).ptr(), cb))
-    if (status.value !== c.RequestAdapterStatus.Success.value) throw new Error(`Error requesting adapter: ${status} ${msg}`)
+    const [status, adapter, msg] = await _run(c.RequestAdapterCallbackInfo, (cb) => c.instanceRequestAdapterF(DAWN.instance, c.RequestAdapterOptions.new({ powerPreference: c.PowerPreference.HighPerformance })._ptr(), cb))
+    if (status._value !== c.RequestAdapterStatus.Success._value) throw new Error(`Error requesting adapter: ${status} ${msg}`)
 
     const supported_features = new c.SupportedFeatures()
-    c.adapterGetFeatures(adapter, supported_features.ptr())
+    c.adapterGetFeatures(adapter, supported_features._ptr())
     const supported: c.FeatureName[] = []
-    for (let i = 0n; i < supported_features.$featureCount.value; i++) {
-      supported.push(new c.FeatureName().loadFromPtr(c.Pointer.new(supported_features.$features.value + i)))
+    for (let i = 0n; i < supported_features.$featureCount._value; i++) {
+      supported.push(new c.FeatureName()._loadFromPtr(c.Pointer.new(supported_features.$features._value + i)))
     }
-    const features = [c.FeatureName.TimestampQuery, c.FeatureName.ShaderF16].filter((feat) => supported.some((s) => s.value === feat.value))
-    const dev_desc = c.DeviceDescriptor.new({ requiredFeatureCount: c.Size.new(BigInt(features.length)), requiredFeatures: c.createArray(features).ptr() })
+    const features = [c.FeatureName.TimestampQuery, c.FeatureName.ShaderF16].filter((feat) => supported.some((s) => s._value === feat._value))
+    const dev_desc = c.DeviceDescriptor.new({ requiredFeatureCount: c.Size.new(BigInt(features.length)), requiredFeatures: c.createArray(features)._ptr() })
 
     const supported_limits = new c.SupportedLimits()
-    c.adapterGetLimits(adapter, supported_limits.ptr())
+    c.adapterGetLimits(adapter, supported_limits._ptr())
     const limits = c.RequiredLimits.new({ limits: supported_limits.$limits })
-    dev_desc.$requiredLimits.set(limits.ptr().value)
+    dev_desc.$requiredLimits._set(limits._ptr()._value)
 
     // Requesting a device
-    const [dev_status, device, dev_msg] = await _run(c.RequestDeviceCallbackInfo, (cb) => c.adapterRequestDeviceF(adapter, dev_desc.ptr(), cb))
-    if (dev_status.value !== c.RequestDeviceStatus.Success.value) throw new Error(`Failed to request device: ${dev_status}] ${dev_msg}`)
+    const [dev_status, device, dev_msg] = await _run(c.RequestDeviceCallbackInfo, (cb) => c.adapterRequestDeviceF(adapter, dev_desc._ptr(), cb))
+    if (dev_status._value !== c.RequestDeviceStatus.Success._value) throw new Error(`Failed to request device: ${dev_status}] ${dev_msg}`)
 
     DAWN.device = device
   }
   override synchronize = async () => {
     const [status] = await _run(c.QueueWorkDoneCallbackInfo2, (cb) => c.queueOnSubmittedWorkDone2(c.deviceGetQueue(DAWN.device), cb))
-    if (status.value !== c.QueueWorkDoneStatus.Success.value) throw new Error(`Failed to synchronize: ${status}`)
+    if (status._value !== c.QueueWorkDoneStatus.Success._value) throw new Error(`Failed to synchronize: ${status}`)
   }
 }
