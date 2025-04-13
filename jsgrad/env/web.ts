@@ -109,7 +109,7 @@ export class WebEnv {
     const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'))
     return await new Response(stream).arrayBuffer()
   }
-  args = (): string[] => (window as any).args || []
+  args = (): string[] => (window as any).jsgrad_args || []
   machine = () => 'browser'
   exit = (code: number): never => {
     throw new Error(`Exited with status code ${code}`)

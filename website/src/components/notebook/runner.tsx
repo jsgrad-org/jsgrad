@@ -9,6 +9,11 @@ export const runJS = async (code: string) => {
   code = ts.transpile(code, {
     target: ts.ScriptTarget.Latest,
     module: ts.ModuleKind.ESNext,
+    isolatedModules: false,
+    noUnusedLocals: false,
+    noUnusedParameters: false,
+    verbatimModuleSyntax:true
+
   })
   code = code.replace('export {};', '')
 
@@ -24,7 +29,6 @@ export const runJS = async (code: string) => {
     return `${match}\nObject.assign(window, {${vars}})${semi}`
   })
 
-  // Handle regular const/let assignments
   code = code.replaceAll(/(?:const|let)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=/g, 'window.$1 =')
 
   code = code.replace(/import\s*{([^}]+)}\s*from\s*['"]([^'"]+)['"]/g, (_, imports, pkg) => {

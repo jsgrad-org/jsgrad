@@ -94,6 +94,7 @@ export type PackageInfo = {
 export const fetchTypes = async (pkg: string) => {
   try {
     let { name, version } = parsePackageString(pkg)
+    const path = name + (version ? `@${version}` : '')
     if (!version) {
       version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
         .then((x) => x.json())
@@ -104,7 +105,7 @@ export const fetchTypes = async (pkg: string) => {
     const types: string[] = []
     const getTypes = (files: PackageFile[], path = '') => {
       for (const file of files) {
-        if (file.type === 'file' && file.name.endsWith('.d.ts')) types.push(`${path}/${file.name}`)
+        if (file.type === 'file' && (file.name === 'package.json' || file.name.endsWith('.d.ts'))) types.push(`${path}/${file.name}`)
         else if (file.type === 'directory') getTypes(file.files, `${path}/${file.name}`)
       }
     }
@@ -112,7 +113,7 @@ export const fetchTypes = async (pkg: string) => {
 
     const promises = types.map(async (x) => {
       const content = await fetch(`https://cdn.jsdelivr.net/npm/${name}@${version}${x}`).then((x) => x.text())
-      return { name: name + x, content }
+      return { name: path + x, content }
     })
     return await Promise.all(promises)
   } catch (e) {
