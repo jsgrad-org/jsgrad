@@ -51,3 +51,7 @@ textarea {
 .section {
   @apply px-3 md:px-6 w-full max-w-[1200px] mx-auto;
 }
+
+label{
+  @apply flex flex-col gap-1 items-start; 
+}

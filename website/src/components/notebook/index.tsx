@@ -61,6 +61,28 @@ const save = (cells: Cell[], notebookBaseUrl: string) => {
 
 const useAsyncEffect = (fn: () => Promise<void>, deps: any[]) => useEffect(() => void fn(), deps)
 
+type NB = {
+  /**
+   * Rended any html under the cell.
+   */
+  display: (html: string) => void
+  /**
+   * Display an image under the cell.
+   */
+  image: (href: string) => void
+}
+const NB = `declare const nb: {
+  /**
+   * Rended any html under the cell.
+   */
+  display: (html: string) => void
+  /**
+   * Display an image under the cell.
+   */
+  image: (href: string) => void
+}
+`
+
 export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kvBaseUrl }: { type: CodeType; notebook: NotebookType; notebookBaseUrl: string; kvBaseUrl: string; children: ReactNode }) => {
   const monaco = useMonaco()
   const [cells, setCells] = useState(notebook.cells)
@@ -108,9 +130,19 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
     setIsRunning(true)
     setCellIsRunning((x) => ({ ...x, [index]: true }))
     setCellLogs((x) => ({ ...x, [index]: [] }))
+    const out = document.querySelector(`#output-${index}`)!
+    out.innerHTML = ''
 
-    const hookedConsole = Hook(window.console, (log) => setCellLogs((x) => ({ ...x, [index]: [...(x[index] || []), log] })), false)
+    const hookedConsole = Hook(window.console, (log) => setCellLogs((x) => ({ ...x, [index]: [...(x[index] ?? []), log] })), false)
 
+    const display = (html: string) => {
+      out.innerHTML += html
+    }
+    const nb: NB = {
+      display,
+      image: (path) => display(`<img src="${path}" />`),
+    }
+    Object.assign(window, { nb })
     await runJS(cell.content)
 
     setIsRunning(false)
@@ -122,6 +154,7 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
   // Initializing notebook
   useEffect(() => {
     if (!monaco) return
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(NB, 'notebook.ts')
     let model = monaco.editor.getModel(NOTEBOOK)
     if (!model) model = monaco.editor.createModel(cellsToCode(cells), type, NOTEBOOK)
     model.onDidChangeContent((e) => {
@@ -343,6 +376,7 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
             BASE_BACKGROUND_COLOR: 'transparent',
           }}
         />
+        <div id={`output-${index}`}></div>
       </div>
     </Cell>
   )
