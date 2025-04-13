@@ -104,6 +104,7 @@ class WebGPUProgram extends Program {
     return res
   }
   override call = async (bufs: c.Buffer[], { global_size = [1, 1, 1], vals = [] }: ProgramCallArgs, wait = false) => {
+    const isStorage = (i: number) => i < bufs.length && bytes_to_string(this.lib).split('\n').find((x) => x.includes(`binding(${i + 1})`))?.includes('var<storage,read_write>')
     let tmp_bufs = [...bufs]
     let buf_patch = false
 
@@ -132,7 +133,7 @@ class WebGPUProgram extends Program {
         c.BindGroupLayoutEntry.new({
           binding: c.U32.new(i + 1),
           visibility: c.ShaderStage.new(c.ShaderStage_Compute.value),
-          buffer: c.BufferBindingLayout.new({ type: i >= tmp_bufs.length ? c.BufferBindingType.Uniform : c.BufferBindingType.Storage }),
+          buffer: c.BufferBindingLayout.new({ type: isStorage(i) ? c.BufferBindingType.Storage : c.BufferBindingType.Uniform }),
         }),
       )
     }
@@ -241,7 +242,7 @@ class WebGpuAllocator extends Allocator<c.Buffer> {
     // WebGPU buffers have to be 4-byte aligned
     const desc = c.BufferDescriptor.new({
       size: c.U64.new(BigInt(round_up(size, 4))),
-      usage: c.BufferUsage.new(c.BufferUsage_Storage.value | c.BufferUsage_CopyDst.value | c.BufferUsage_CopySrc.value),
+      usage: c.BufferUsage.new(c.BufferUsage_Storage.value | c.BufferUsage_Uniform.value | c.BufferUsage_CopyDst.value | c.BufferUsage_CopySrc.value),
     })
     return c.deviceCreateBuffer(DAWN.device, desc.ptr())
   }
