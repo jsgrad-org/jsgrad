@@ -69,6 +69,21 @@ export const cellsToCode = (cells: Cell[]) => {
   return chunks.join('\n')
 }
 
+type PackageName = { name: string; path?: string; version?: string }
+
+export const parsePackageString = (pkg: string) => {
+  const regex = /^((?:@[^/@]+\/)?[^/@]+)(?:@([^/]+))?(?:\/(.+))?$/
+  const match = pkg.match(regex)
+  if (!match) throw new Error(`Invalid package string: ${pkg}`)
+
+  const [, name, version, path] = match
+  const result: PackageName = { name }
+  if (version) result.version = version
+  if (path) result.path = path
+
+  return result
+}
+
 export type PackageFile = { type: 'directory'; name: string; files: PackageFile[] } | { type: 'file'; name: string; hash: string; size: number }
 export type PackageInfo = {
   name: string
@@ -76,11 +91,13 @@ export type PackageInfo = {
   files: PackageFile[]
 }
 
-export const fetchTypes = async (name: string) => {
-  name = name.split('/').slice(0, 2).join('/')
-  const version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
-    .then((x) => x.json())
-    .then((x) => x.tags.latest)
+export const fetchTypes = async (pkg: string) => {
+  let { name, version } = parsePackageString(pkg)
+  if (!version) {
+    version = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
+      .then((x) => x.json())
+      .then((x) => x.tags.latest)
+  }
   const info: PackageInfo = await fetch(`https://data.jsdelivr.com/v1/packages/npm/${name}@${version}`).then((x) => x.json())
 
   const types: string[] = []
@@ -93,7 +110,7 @@ export const fetchTypes = async (name: string) => {
   getTypes(info.files)
 
   const promises = types.map(async (x) => {
-    const content = await fetch(`https://cdn.jsdelivr.net/npm/${info.name}@${info.version}${x}`).then((x) => x.text())
+    const content = await fetch(`https://cdn.jsdelivr.net/npm/${name}@${version}${x}`).then((x) => x.text())
     return { name: name + x, content }
   })
   return await Promise.all(promises)
