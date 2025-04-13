@@ -1,5 +1,5 @@
 import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '@jsgrad/jsgrad/node'
-import { parseArgs, z } from './parse'
+import { parseArgs, z } from '@jsgrad/jsgrad'
 import { StableDiffusion } from '@jsgrad/models/stable_diffusion'
 import { ClipTokenizer } from '@jsgrad/models/clip'
 import sharp from 'sharp'
