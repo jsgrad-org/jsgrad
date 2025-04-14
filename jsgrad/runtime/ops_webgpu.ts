@@ -115,10 +115,10 @@ export class WEBGPU extends Compiled {
     f16_supported = adapter.features.has('shader-f16')
     timestamp_supported = adapter.features.has('timestamp-query')
 
-    const { maxStorageBufferBindingSize, maxBufferSize, maxUniformBufferBindingSize, maxStorageBuffersPerShaderStage, maxComputeInvocationsPerWorkgroup } = adapter.limits
+    const { maxStorageBufferBindingSize, maxBufferSize, maxUniformBufferBindingSize, maxStorageBuffersPerShaderStage, maxComputeInvocationsPerWorkgroup, maxUniformBuffersPerShaderStage } = adapter.limits
     device = await adapter.requestDevice({
       requiredFeatures: [...(f16_supported ? ['shader-f16' as const] : []), ...(timestamp_supported ? ['timestamp-query' as const] : [])],
-      requiredLimits: { maxStorageBufferBindingSize, maxBufferSize, maxUniformBufferBindingSize, maxStorageBuffersPerShaderStage, maxComputeInvocationsPerWorkgroup },
+      requiredLimits: { maxStorageBufferBindingSize, maxBufferSize, maxUniformBufferBindingSize, maxStorageBuffersPerShaderStage, maxComputeInvocationsPerWorkgroup, maxUniformBuffersPerShaderStage },
     })
   }
 }
