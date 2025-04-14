@@ -1,4 +1,9 @@
-import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '@jsgrad/jsgrad/node'
+/** [](type:markdown) */
+/**
+# Stable diffusion
+*/
+/** [](type:code) */
+import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_dict, GlobalCounters, idiv, range, safe_load, vars } from '@jsgrad/jsgrad'
 import { parseArgs, z } from '@jsgrad/jsgrad/args'
 import { StableDiffusion } from '@jsgrad/models/stable_diffusion'
 import { ClipTokenizer } from '@jsgrad/models/clip'
@@ -9,12 +14,14 @@ const args = parseArgs({
   prompt: z.string().default('a horse sized cat eating a bagel'),
   out: z.string().default(await env.tempFile('png')).describe('Output path'),
   noshow: z.boolean().optional().describe("Don't show the image"),
-  fp16: z.boolean().optional().describe('Cast the weight to float16'),
+  fp16: z.boolean().default(true).describe('Cast the weight to float16'),
   timing: z.boolean().optional().describe('Print timing per step'),
   seed: z.number().optional().describe('Set the random latent seed'),
   guidance: z.number().default(7.5).describe('Prompt strength'),
 })
 
+
+/** [](type:code) */
 Tensor.no_grad = true
 const model = new StableDiffusion()
 

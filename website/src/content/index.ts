@@ -80,7 +80,7 @@ console.log(res.message.content, res.usage)
 
 You can also easily train with jsgrad.
 
-See our [mnist training example](/mnist), [gpt2 training example](/gpt2) or see the mnist training example here:
+See our [mnist training example](/examples/mnist), [gpt2 training example](/examples/train-gpt2) or see the mnist training example here:
 */
 /** [](type:code) */
 import { Adam, get_parameters, mnist, TinyJit, Tqdm } from '@jsgrad/jsgrad'
@@ -133,6 +133,6 @@ await vars.withAsync({ DEVICE: "WEBGPU" }, async () => {
 /**
 ## Notebooks
 
-This page is written in our own web notebook, you can create, share and get more info at [jsgrad.org/nb](https://jsgrad.org/nb). 
+This page is written in our own web notebook, you can create, share and get more info [here](/notebook). 
 
 */
