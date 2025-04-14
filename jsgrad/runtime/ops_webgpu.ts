@@ -2,7 +2,6 @@ import { bytes_to_string, isInt, perf, round_up, vars } from '../helpers/helpers
 import { Allocator, type BufferSpec, Compiled, Compiler, Program, type ProgramCallArgs } from './allocator.ts'
 import { WGSLRenderer } from '../renderer/wgsl.ts'
 import type { MemoryView } from '../helpers/memoryview.ts'
-import { env } from '../env/index.ts'
 import { requestAdapter } from './autogen/dawn/index.ts'
 
 let device!: GPUDevice
@@ -66,7 +65,6 @@ class WebGPUProgram extends Program {
     compute_pass.dispatchWorkgroups(global_size[0], global_size[1], global_size[2]) // x y z
     compute_pass.end()
     if (wait) encoder.resolveQuerySet(querySet!, 0, 2, queryBuf!, 0)
-    const st = performance.now()
     device.queue.submit([encoder.finish()])
 
     const error = await device.popErrorScope()

@@ -497,7 +497,7 @@ class Buffer implements GPUBuffer{
   }
   getMappedRange(offset?: number, size?: number): ArrayBuffer {
     const ptr = c.bufferGetConstMappedRange(this._buffer, c.Size.new(BigInt(offset ?? 0)), c.Size.new(BigInt(size ?? 0)))
-    const buf = new c.Type(new ArrayBuffer(size ?? 0), 0, size)._replaceWithPtr(ptr)
+    const buf = new c.Type(new ArrayBuffer(this.size), 0, this.size)._replaceWithPtr(ptr)
     return buf._buffer
   }
   unmap(): undefined {
