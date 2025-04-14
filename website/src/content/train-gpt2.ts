@@ -9,9 +9,8 @@ It will use [tinyshakespeare](https://raw.githubusercontent.com/karpathy/char-rn
 */
 /** [](type:code) */
 import { GPT } from '@jsgrad/models/gpt2'
-import { AdamW, bytes_to_string, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '@jsgrad/jsgrad'
+import { AdamW, Device, env, get_parameters, GlobalCounters, num, range, Tensor, TinyJit } from '@jsgrad/jsgrad'
 import { parseArgs, z } from '@jsgrad/jsgrad/args'
-import { get_encoding } from 'tiktoken'
 
 const args = parseArgs({
   steps: z.number().default(10).describe('number of steps to run'),
@@ -21,15 +20,16 @@ const args = parseArgs({
   seed: z.number().optional().describe('Seed'),
 })
 
+/** [](type:markdown) */
+/**
+## Initialize the model
+*/
+/** [](type:code) */
 if (args.seed) Tensor.manual_seed(args.seed)
 
 const [B, T] = [args.bs, args.sequence_length]
 if (1 > T || T > 1024) throw new Error()
-/** [](type:markdown) */
-/**
-Initialize and load the model and tokenizer
-*/
-/** [](type:code) */
+
 const model = new GPT({
   block_size: 1024,
   vocab_size: 50257,
@@ -40,15 +40,9 @@ const model = new GPT({
 })
 await model.load_pretrained()
 
-// init the tokenizer
-const enc = get_encoding('gpt2')
-
-const encode = (s: string) => enc.encode(s, ['<|endoftext|>'])
-const decode = (l: Uint32Array) => enc.decode(l)
-
 /** [](type:markdown) */
 /**
-Load the data
+## Loading training data
 */
 /** [](type:code) */
 const tokens_bin = await env.fetchSave('https://huggingface.co/datasets/karpathy/llmc-starter-pack/resolve/main/tiny_shakespeare_val.bin', 'weights/tiny_shakespeare_val.bin')
@@ -62,9 +56,10 @@ function* get_batch() {
   // for 338,025 tokens. E.g. with B=8 T=1024, this will yield 41 batches before looping
   let i = 0
   while (true) {
-    let x = tokens.get({ from: i, to: i + B * T }).view(B, T)
-    let y = tokens.get({ from: i + 1, to: i + B * T + 1 }).view(B, T)
-    yield [x, y]
+    yield [
+      tokens.get({ from: i, to: i + B * T }).view(B, T), 
+      tokens.get({ from: i + 1, to: i + B * T + 1 }).view(B, T)
+    ]
     i += B * T
     if (i + B * T + 1 >= num(tokens.length)) {
       i = 0 // in prod we'd want to randomize the start point a bit
@@ -75,9 +70,10 @@ function* get_batch() {
 // forward backward for a few iterations
 const data_iter = get_batch()
 const [x, y] = data_iter.next().value as [Tensor, Tensor] // we'll overfit this batch below
+
 /** [](type:markdown) */
 /**
-Init the optimizer and the step function
+## Optimizer and jit
 */
 /** [](type:code) */
 const optimizer = new AdamW(get_parameters(model), 1e-4, undefined, undefined, undefined, 0)
@@ -91,7 +87,10 @@ const step = new TinyJit((x, y) => {
 
 /** [](type:markdown) */
 /**
-Training
+## Training
+
+Training the model for 10 steps, 
+
 */
 /** [](type:code) */
 await Tensor.train(async () => {
@@ -104,19 +103,27 @@ await Tensor.train(async () => {
     console.log(`iteration ${i}, loss: ${(await loss.item()).toFixed(6)}, time: ${(t1 - t0).toFixed(3)}ms, ${((B * T) / ((t1 - t0) / 1000)).toFixed(0)} tok/s`)
   }
 })
+
 /** [](type:markdown) */
 /**
-Testing
+## Testing 
+
+Running the model for 16 tokens
+
 */
 /** [](type:code) */
+import { getEncoding } from 'js-tiktoken'
+
+const enc = getEncoding('gpt2')
+
 if (!args.skip_test) {
   const start = '<|endoftext|>'
-  const start_ids = encode(start)
+  const start_ids = enc.encode(start, ['<|endoftext|>'])
   const x = new Tensor([...start_ids]).get(undefined, '...')
   const max_new_tokens = 16
   const temperature = 1.0
   const top_k = 40
   const y = model.generate(x, max_new_tokens, temperature, top_k)
-  const res = bytes_to_string(decode(new Uint32Array(await y.get(0).tolist())))
+  const res = enc.decode(await y.get(0).tolist())
   console.log(res)
 }

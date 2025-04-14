@@ -18,6 +18,7 @@
     "@webgpu/types": "0.1.54",
     "cloudflared": "^0.7.0",
     "ffi-rs": "1.2.9",
+    "js-tiktoken": "^1.0.19",
     "playwright": "^1.51.1",
     "prettier": "^3.5.3",
     "tiktoken": "^1.0.20",
