@@ -4,8 +4,8 @@ import { expect, test } from 'vitest'
 
 const check = (ctype: c.Type<any>, val: any, buffer: ArrayBuffer) => {
   expect(new Uint8Array(ctype._buffer)).toEqual(new Uint8Array(buffer))
-  expect(ctype._value).toEqual(val)
-  expect(ctype._native).toEqual(val)
+  expect(ctype.get).toEqual(val)
+  expect(ctype.native).toEqual(val)
 }
 
 test('Base types', () => {
@@ -19,12 +19,12 @@ test('Base types', () => {
     check(ctype, val[0], val.buffer)
     // set
     val = res(55)
-    ctype._set(val[0])
+    ctype.set(val[0])
     check(ctype, val[0], val.buffer)
 
     // set native
     val = res(88)
-    ctype._setNative(val[0])
+    ctype.setNative(val[0])
     check(ctype, val[0], val.buffer)
   }
 
@@ -53,7 +53,7 @@ test('Structs', async () => {
     constructor(buffer?: ArrayBuffer, offset?: number) {
       super(buffer, offset, 32, 8)
     }
-    protected override __value = () => ({
+    protected override _get = () => ({
       val1: new c.U8(this._buffer, this._offset + 0),
       val2: new c.U32(this._buffer, this._offset + 4),
       val3: new c.U16(this._buffer, this._offset + 8),
@@ -64,56 +64,56 @@ test('Structs', async () => {
   // empty init
   let s1 = new Struct()
   expect(s1._bytes).toEqual(new Uint8Array(32))
-  expect(new Uint8Array(s1._native)).toEqual(new Uint8Array(32))
-  expect(s1._value.val1._value).toBe(0)
+  expect(new Uint8Array(s1.native)).toEqual(new Uint8Array(32))
+  expect(s1.get.val1.get).toBe(0)
 
   // set individual
-  s1._value.val2._set(10)
-  expect(s1._value.val2._value).toBe(10)
+  s1.get.val2.set(10)
+  expect(s1.get.val2.get).toBe(10)
   expect(s1._bytes[4]).toBe(10)
 
   // use set
-  s1._set({ val3: c.U16.new(3), val5: c.U8.new(99) })
-  expect(s1._value.val3._value).toBe(3)
-  expect(s1._value.val5._value).toBe(99)
+  s1.set({ val3: c.U16.new(3), val5: c.U8.new(99) })
+  expect(s1.get.val3.get).toBe(3)
+  expect(s1.get.val5.get).toBe(99)
   expect(s1._bytes[4]).toBe(10) // didn't change
   expect(s1._bytes[8]).toBe(3)
   expect(s1._bytes[0]).toBe(0)
   expect(s1._bytes[24]).toBe(99)
 
   // getting pointer
-  const ptr = s1._ptr()
-  expect(typeof ptr._value).toBe('bigint')
-  expect(typeof ptr._native).toBe('object')
+  const ptr = s1.ptr()
+  expect(typeof ptr.get).toBe('bigint')
+  expect(typeof ptr.native).toBe('object')
 
   // loading from pointer
   const s2 = new Struct()
-  s2._loadFromPtr(ptr)
-  expect(s2._value.val2._value).toBe(10)
-  expect(s2._value.val3._value).toBe(3)
-  expect(s2._value.val5._value).toBe(99)
+  s2.loadFromPtr(ptr)
+  expect(s2.get.val2.get).toBe(10)
+  expect(s2.get.val3.get).toBe(3)
+  expect(s2.get.val5.get).toBe(99)
 
   // setting won't change the old struct
-  s2._set({ val1: c.U8.new(88) })
-  expect(s1._value.val1._value).toBe(0)
+  s2.set({ val1: c.U8.new(88) })
+  expect(s1.get.val1.get).toBe(0)
 
   // loading from pointer
   const s3 = new Struct()
-  s3._replaceWithPtr(ptr)
-  expect(s3._value.val2._value).toBe(10)
-  expect(s3._value.val3._value).toBe(3)
-  expect(s3._value.val5._value).toBe(99)
+  s3.replaceWithPtr(ptr)
+  expect(s3.get.val2.get).toBe(10)
+  expect(s3.get.val3.get).toBe(3)
+  expect(s3.get.val5.get).toBe(99)
 
   // set will change the old struct
-  s3._set({ val1: c.U8.new(33) })
-  expect(s1._value.val1._value).toBe(33)
+  s3.set({ val1: c.U8.new(33) })
+  expect(s1.get.val1.get).toBe(33)
 
   // loading from null pointer
   const s4 = new Struct()
-  s4._loadFromPtr(c.Pointer.new())
-  expect(s4._value.val2._value).toBe(0)
-  expect(s4._value.val3._value).toBe(0)
-  expect(s4._value.val5._value).toBe(0)
+  s4.loadFromPtr(c.Pointer.new())
+  expect(s4.get.val2.get).toBe(0)
+  expect(s4.get.val3.get).toBe(0)
+  expect(s4.get.val5.get).toBe(0)
 
   class MegaStruct extends c.Struct<{
     val1: c.U8 // 0
@@ -124,7 +124,7 @@ test('Structs', async () => {
     constructor(buffer?: ArrayBuffer, offset?: number) {
       super(buffer, offset, 80, 8)
     }
-    protected override __value() {
+    protected override _get() {
       return {
         val1: new c.U8(this._buffer, this._offset + 0),
         val2: new Struct(this._buffer, this._offset + 8),
@@ -138,18 +138,18 @@ test('Structs', async () => {
   expect(m1._bytes).toEqual(new Uint8Array(80))
 
   // set
-  m1._set({ val2: new Struct()._set({ val2: c.U32.new(3) }) })
-  expect(m1._value.val2._value.val2._value).toBe(3)
+  m1.set({ val2: new Struct().set({ val2: c.U32.new(3) }) })
+  expect(m1.get.val2.get.val2.get).toBe(3)
 
   // child set
-  m1._value.val2._value.val2._set(89)
-  expect(m1._value.val2._value.val2._value).toBe(89)
+  m1.get.val2.get.val2.set(89)
+  expect(m1.get.val2.get.val2.get).toBe(89)
 
   // replaceWithPtr won't change the value
-  m1._value.val4._replaceWithPtr(m1._value.val2._ptr())
-  expect(m1._value.val4._bytes).toEqual(new Uint8Array(32))
+  m1.get.val4.replaceWithPtr(m1.get.val2.ptr())
+  expect(m1.get.val4._bytes).toEqual(new Uint8Array(32))
 
   // loadFromPtr will change the value
-  m1._value.val4._loadFromPtr(m1._value.val2._ptr())
-  expect(m1._value.val4._bytes).toEqual(m1._value.val2._bytes)
+  m1.get.val4.loadFromPtr(m1.get.val2.ptr())
+  expect(m1.get.val4._bytes).toEqual(m1.get.val2._bytes)
 })

@@ -3,32 +3,32 @@ import * as c from './bindings.ts'
 
 // ----------------------------------------------- Helpers -----------------------------------------------
 const _wait = (future: c.Future) => {
-  const res = c.instanceWaitAny(instance, c.Size.new(1n), c.FutureWaitInfo.new({ future })._ptr(), c.U64.new(2n ** 64n - 1n))
-  if (res._value !== c.WaitStatus.Success._value) throw new Error('Future failed')
+  const res = c.instanceWaitAny(instance, c.Size.new(1n), c.FutureWaitInfo.new({ future }).ptr(), c.U64.new(2n ** 64n - 1n))
+  if (res.get !== c.WaitStatus.Success.get) throw new Error('Future failed')
 }
 const from_wgpu_str = (_str: c.StringView): string => {
-  if (_str.length <= 1) return ''
-  const buf = env.getArrayBuffer(_str.$data._native, Number(_str.length))
+  if (_str.$length.get <= 1) return ''
+  const buf = env.getArrayBuffer(_str.$data.native, Number(_str.$length.get))
   return new TextDecoder().decode(buf)
 }
 const to_wgpu_str = (str: string) => {
   const data = new TextEncoder().encode(str)
   const _str = new c.Type(data.buffer as ArrayBuffer, 0, data.length, 8)
-  return c.StringView.new({ data: _str._ptr(), length: c.Size.new(BigInt(_str._byteLength)) })
+  return c.StringView.new({ data: _str.ptr(), length: c.Size.new(BigInt(_str._byteLength)) })
 }
 
 type ReplaceStringView<T extends any[]> = { [K in keyof T]: T[K] extends c.StringView ? string : T[K] }
 type CallBack = typeof c.BufferMapCallbackInfo2 | typeof c.PopErrorScopeCallbackInfo | typeof c.CreateComputePipelineAsyncCallbackInfo2 | typeof c.RequestAdapterCallbackInfo | typeof c.RequestDeviceCallbackInfo | typeof c.QueueWorkDoneCallbackInfo2
-const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['_set']>[0]>>> => {
+const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['set']>[0]>>> => {
   return await new Promise((resolve) => {
     const cb = new cb_class()
-    cb.mode = c.CallbackMode.WaitAnyOnly._value
-    cb.callback = (...args: any[]) => {
+    cb.$mode.set(c.CallbackMode.WaitAnyOnly.get)
+    cb.$callback.set((...args) => {
       for (let i = 0; i < args.length; i++) {
         args[i] = args[i] instanceof c.StringView ? from_wgpu_str(args[i] as any) : args[i]
       }
       resolve(args as any)
-    }
+    })
     _wait(async_fn(cb as any))
   })
 }
@@ -112,42 +112,42 @@ export const FeatureName = new Map<string, c.FeatureName>([
 class SupportedLimits implements GPUSupportedLimits {
   constructor(private _supportedLimits: c.SupportedLimits) {}
   __brand = 'GPUSupportedLimits' as const
-  get maxTextureDimension1D() { return this._supportedLimits.$limits.maxTextureDimension1D }
-  get maxTextureDimension2D() { return this._supportedLimits.$limits.maxTextureDimension2D }
-  get maxTextureDimension3D() { return this._supportedLimits.$limits.maxTextureDimension3D }
-  get maxTextureArrayLayers() { return this._supportedLimits.$limits.maxTextureArrayLayers }
-  get maxBindGroups() { return this._supportedLimits.$limits.maxBindGroups }
-  get maxBindGroupsPlusVertexBuffers() { return this._supportedLimits.$limits.maxBindGroupsPlusVertexBuffers }
-  get maxBindingsPerBindGroup() { return this._supportedLimits.$limits.maxBindingsPerBindGroup }
-  get maxDynamicUniformBuffersPerPipelineLayout() { return this._supportedLimits.$limits.maxDynamicUniformBuffersPerPipelineLayout }
-  get maxDynamicStorageBuffersPerPipelineLayout() { return this._supportedLimits.$limits.maxDynamicStorageBuffersPerPipelineLayout }
-  get maxSampledTexturesPerShaderStage() { return this._supportedLimits.$limits.maxSampledTexturesPerShaderStage }
-  get maxSamplersPerShaderStage() { return this._supportedLimits.$limits.maxSamplersPerShaderStage }
-  get maxStorageBuffersPerShaderStage() { return this._supportedLimits.$limits.maxStorageBuffersPerShaderStage }
-  get maxStorageTexturesPerShaderStage() { return this._supportedLimits.$limits.maxStorageTexturesPerShaderStage }
-  get maxUniformBuffersPerShaderStage() { return this._supportedLimits.$limits.maxUniformBuffersPerShaderStage }
-  get maxUniformBufferBindingSize() { return Number(this._supportedLimits.$limits.maxUniformBufferBindingSize) }
-  get maxStorageBufferBindingSize() { return Number(this._supportedLimits.$limits.maxStorageBufferBindingSize) }
-  get minUniformBufferOffsetAlignment() { return this._supportedLimits.$limits.minUniformBufferOffsetAlignment }
-  get minStorageBufferOffsetAlignment() { return this._supportedLimits.$limits.minStorageBufferOffsetAlignment }
-  get maxVertexBuffers() { return this._supportedLimits.$limits.maxVertexBuffers }
-  get maxBufferSize() { return Number(this._supportedLimits.$limits.maxBufferSize) }
-  get maxVertexAttributes() { return this._supportedLimits.$limits.maxVertexAttributes }
-  get maxVertexBufferArrayStride() { return this._supportedLimits.$limits.maxVertexBufferArrayStride }
-  get maxInterStageShaderComponents() { return this._supportedLimits.$limits.maxInterStageShaderComponents }
-  get maxInterStageShaderVariables() { return this._supportedLimits.$limits.maxInterStageShaderVariables }
-  get maxColorAttachments() { return this._supportedLimits.$limits.maxColorAttachments }
-  get maxColorAttachmentBytesPerSample() { return this._supportedLimits.$limits.maxColorAttachmentBytesPerSample }
-  get maxComputeWorkgroupStorageSize() { return this._supportedLimits.$limits.maxComputeWorkgroupStorageSize }
-  get maxComputeInvocationsPerWorkgroup() { return this._supportedLimits.$limits.maxComputeInvocationsPerWorkgroup }
-  get maxComputeWorkgroupSizeX() { return this._supportedLimits.$limits.maxComputeWorkgroupSizeX }
-  get maxComputeWorkgroupSizeY() { return this._supportedLimits.$limits.maxComputeWorkgroupSizeY }
-  get maxComputeWorkgroupSizeZ() { return this._supportedLimits.$limits.maxComputeWorkgroupSizeZ }
-  get maxComputeWorkgroupsPerDimension() { return this._supportedLimits.$limits.maxComputeWorkgroupsPerDimension }
-  get maxStorageBuffersInVertexStage() { return this._supportedLimits.$limits.maxStorageBuffersInVertexStage }
-  get maxStorageTexturesInVertexStage() { return this._supportedLimits.$limits.maxStorageTexturesInVertexStage }
-  get maxStorageBuffersInFragmentStage() { return this._supportedLimits.$limits.maxStorageBuffersInFragmentStage }
-  get maxStorageTexturesInFragmentStage() { return this._supportedLimits.$limits.maxStorageTexturesInFragmentStage }
+  get maxTextureDimension1D() { return this._supportedLimits.$limits.$maxTextureDimension1D.get }
+  get maxTextureDimension2D() { return this._supportedLimits.$limits.$maxTextureDimension2D.get }
+  get maxTextureDimension3D() { return this._supportedLimits.$limits.$maxTextureDimension3D.get }
+  get maxTextureArrayLayers() { return this._supportedLimits.$limits.$maxTextureArrayLayers.get }
+  get maxBindGroups() { return this._supportedLimits.$limits.$maxBindGroups.get }
+  get maxBindGroupsPlusVertexBuffers() { return this._supportedLimits.$limits.$maxBindGroupsPlusVertexBuffers.get }
+  get maxBindingsPerBindGroup() { return this._supportedLimits.$limits.$maxBindingsPerBindGroup.get }
+  get maxDynamicUniformBuffersPerPipelineLayout() { return this._supportedLimits.$limits.$maxDynamicUniformBuffersPerPipelineLayout.get }
+  get maxDynamicStorageBuffersPerPipelineLayout() { return this._supportedLimits.$limits.$maxDynamicStorageBuffersPerPipelineLayout.get }
+  get maxSampledTexturesPerShaderStage() { return this._supportedLimits.$limits.$maxSampledTexturesPerShaderStage.get }
+  get maxSamplersPerShaderStage() { return this._supportedLimits.$limits.$maxSamplersPerShaderStage.get }
+  get maxStorageBuffersPerShaderStage() { return this._supportedLimits.$limits.$maxStorageBuffersPerShaderStage.get }
+  get maxStorageTexturesPerShaderStage() { return this._supportedLimits.$limits.$maxStorageTexturesPerShaderStage.get }
+  get maxUniformBuffersPerShaderStage() { return this._supportedLimits.$limits.$maxUniformBuffersPerShaderStage.get }
+  get maxUniformBufferBindingSize() { return Number(this._supportedLimits.$limits.$maxUniformBufferBindingSize.get) }
+  get maxStorageBufferBindingSize() { return Number(this._supportedLimits.$limits.$maxStorageBufferBindingSize.get) }
+  get minUniformBufferOffsetAlignment() { return this._supportedLimits.$limits.$minUniformBufferOffsetAlignment.get }
+  get minStorageBufferOffsetAlignment() { return this._supportedLimits.$limits.$minStorageBufferOffsetAlignment.get }
+  get maxVertexBuffers() { return this._supportedLimits.$limits.$maxVertexBuffers.get }
+  get maxBufferSize() { return Number(this._supportedLimits.$limits.$maxBufferSize.get) }
+  get maxVertexAttributes() { return this._supportedLimits.$limits.$maxVertexAttributes.get }
+  get maxVertexBufferArrayStride() { return this._supportedLimits.$limits.$maxVertexBufferArrayStride.get }
+  get maxInterStageShaderComponents() { return this._supportedLimits.$limits.$maxInterStageShaderComponents.get }
+  get maxInterStageShaderVariables() { return this._supportedLimits.$limits.$maxInterStageShaderVariables.get }
+  get maxColorAttachments() { return this._supportedLimits.$limits.$maxColorAttachments.get }
+  get maxColorAttachmentBytesPerSample() { return this._supportedLimits.$limits.$maxColorAttachmentBytesPerSample.get }
+  get maxComputeWorkgroupStorageSize() { return this._supportedLimits.$limits.$maxComputeWorkgroupStorageSize.get }
+  get maxComputeInvocationsPerWorkgroup() { return this._supportedLimits.$limits.$maxComputeInvocationsPerWorkgroup.get }
+  get maxComputeWorkgroupSizeX() { return this._supportedLimits.$limits.$maxComputeWorkgroupSizeX.get }
+  get maxComputeWorkgroupSizeY() { return this._supportedLimits.$limits.$maxComputeWorkgroupSizeY.get }
+  get maxComputeWorkgroupSizeZ() { return this._supportedLimits.$limits.$maxComputeWorkgroupSizeZ.get }
+  get maxComputeWorkgroupsPerDimension() { return this._supportedLimits.$limits.$maxComputeWorkgroupsPerDimension.get }
+  get maxStorageBuffersInVertexStage() { return this._supportedLimits.$limits.$maxStorageBuffersInVertexStage.get }
+  get maxStorageTexturesInVertexStage() { return this._supportedLimits.$limits.$maxStorageTexturesInVertexStage.get }
+  get maxStorageBuffersInFragmentStage() { return this._supportedLimits.$limits.$maxStorageBuffersInFragmentStage.get }
+  get maxStorageTexturesInFragmentStage() { return this._supportedLimits.$limits.$maxStorageTexturesInFragmentStage.get }
 }
 
 class Adapter implements GPUAdapter {
@@ -159,11 +159,11 @@ class Adapter implements GPUAdapter {
   }
   get features(): GPUSupportedFeatures {
     const supported_features = new c.SupportedFeatures()
-    c.adapterGetFeatures(this._adapter, supported_features._ptr())
+    c.adapterGetFeatures(this._adapter, supported_features.ptr())
     const features = new Set<string>()
-    for (let i = 0n; i < supported_features.featureCount; i++) {
-      const supported = new c.FeatureName()._loadFromPtr(c.Pointer.new(supported_features.features + i))
-      const str = FeatureName.entries().find(([k,v])=>supported._value === v._value)?.[0]
+    for (let i = 0n; i < supported_features.$featureCount.get; i++) {
+      const supported = new c.FeatureName().loadFromPtr(c.Pointer.new(supported_features.$features.get + i))
+      const str = FeatureName.entries().find(([k,v])=>supported.get === v.get)?.[0]
       if (!str) continue
       features.add(str)
     }
@@ -171,7 +171,7 @@ class Adapter implements GPUAdapter {
   }
   get limits(): GPUSupportedLimits {
     const supported_limits = new c.SupportedLimits()
-    c.adapterGetLimits(this._adapter, supported_limits._ptr())
+    c.adapterGetLimits(this._adapter, supported_limits.ptr())
     return new SupportedLimits(supported_limits)
   }
   async requestDevice(descriptor?: GPUDeviceDescriptor): Promise<GPUDevice> {
@@ -179,15 +179,15 @@ class Adapter implements GPUAdapter {
     
     // TODO: instead of this actually apply the correct limits
     const supported_limits = new c.SupportedLimits()
-    c.adapterGetLimits(this._adapter, supported_limits._ptr())
+    c.adapterGetLimits(this._adapter, supported_limits.ptr())
     
     const desc = c.DeviceDescriptor.new({
       requiredFeatureCount: c.U64.new(BigInt(features.length)),
-      requiredFeatures: c.createArray(features)._ptr(),
-      requiredLimits: c.RequiredLimits.new({ limits: supported_limits.$limits })._ptr()
+      requiredFeatures: c.createArray(features).ptr(),
+      requiredLimits: c.RequiredLimits.new({ limits: supported_limits.$limits }).ptr()
     })
-    const [dev_status, device, dev_msg] = await _run(c.RequestDeviceCallbackInfo, (cb) => c.adapterRequestDeviceF(this._adapter, desc._ptr(), cb))
-    if (dev_status._value !== c.RequestDeviceStatus.Success._value) throw new Error(`Failed to request device: ${dev_status} ${dev_msg}`)
+    const [dev_status, device, dev_msg] = await _run(c.RequestDeviceCallbackInfo, (cb) => c.adapterRequestDeviceF(this._adapter, desc.ptr(), cb))
+    if (dev_status.get !== c.RequestDeviceStatus.Success.get) throw new Error(`Failed to request device: ${dev_status} ${dev_msg}`)
     return new Device(device)
   }
 }
@@ -213,17 +213,17 @@ export const requestAdapter = async (options?: GPURequestAdapterOptions): Promis
   await c.init(PATH)
 
   const desc = new c.InstanceDescriptor()
-  desc.$features.timedWaitAnyEnable = 1
-  instance = c.createInstance(desc._ptr())
-  if (!instance._value) throw new Error(`Failed creating instance!`)
+  desc.$features.$timedWaitAnyEnable.set(1)
+  instance = c.createInstance(desc.ptr())
+  if (!instance.get) throw new Error(`Failed creating instance!`)
 
   const opts = c.RequestAdapterOptions.new({
       powerPreference: PowerPreference.get(options?.powerPreference),
       featureLevel:FeatureLevel.get(options?.featureLevel),
       forceFallbackAdapter:c.Bool.new(Number(options?.forceFallbackAdapter ?? 0))
   })
-  const [status, adapter, msg] = await _run(c.RequestAdapterCallbackInfo, (cb) => c.instanceRequestAdapterF(instance, opts._ptr(), cb))
-  if (status._value !== c.RequestAdapterStatus.Success._value) throw new Error(`Error requesting adapter: ${status} ${msg}`)
+  const [status, adapter, msg] = await _run(c.RequestAdapterCallbackInfo, (cb) => c.instanceRequestAdapterF(instance, opts.ptr(), cb))
+  if (status.get !== c.RequestAdapterStatus.Success.get) throw new Error(`Error requesting adapter: ${status} ${msg}`)
   return new Adapter(adapter)
 }
 
@@ -271,7 +271,7 @@ class Device implements GPUDevice{
       usage: c.BufferUsage.new(BigInt(descriptor.usage)),
       mappedAtCreation: c.Bool.new(Number(descriptor.mappedAtCreation ?? 0)),
     })
-    return new Buffer(c.deviceCreateBuffer(this._device, desc._ptr()))
+    return new Buffer(c.deviceCreateBuffer(this._device, desc.ptr()))
   }
   createTexture(descriptor: unknown): GPUTexture {
     throw new Error('Method not implemented.')
@@ -296,17 +296,17 @@ class Device implements GPUDevice{
       this._device,
       c.BindGroupLayoutDescriptor.new({
         entryCount: c.Size.new(BigInt(layouts.length)),
-        entries: c.createArray(layouts)._ptr(),
-      })._ptr()
+        entries: c.createArray(layouts).ptr(),
+      }).ptr()
     ))
   }
   createPipelineLayout(descriptor: GPUPipelineLayoutDescriptor): GPUPipelineLayout {
     const bindGroupLayouts = (descriptor.bindGroupLayouts as BindGroupLayout[]).map(x=>x._bindGroupLayout)
     const pipeline_layout_desc = c.PipelineLayoutDescriptor.new({
       bindGroupLayoutCount: c.Size.new(BigInt(bindGroupLayouts.length)),
-      bindGroupLayouts: c.createArray(bindGroupLayouts)._ptr(),
+      bindGroupLayouts: c.createArray(bindGroupLayouts).ptr(),
     })
-    return new PipelineLayout(c.deviceCreatePipelineLayout(this._device, pipeline_layout_desc._ptr()))
+    return new PipelineLayout(c.deviceCreatePipelineLayout(this._device, pipeline_layout_desc.ptr()))
   }
   createBindGroup(descriptor: GPUBindGroupDescriptor): GPUBindGroup {
     const entries:c.BindGroupEntry[] = []
@@ -323,17 +323,17 @@ class Device implements GPUDevice{
     const bind_group_desc = c.BindGroupDescriptor.new({ 
       layout: (descriptor.layout as BindGroupLayout)._bindGroupLayout,
       entryCount: c.Size.new(BigInt(entries.length)),
-      entries: c.createArray(entries)._ptr(),
+      entries: c.createArray(entries).ptr(),
     })
-    return new BindGroup(c.deviceCreateBindGroup(this._device, bind_group_desc._ptr()))
+    return new BindGroup(c.deviceCreateBindGroup(this._device, bind_group_desc.ptr()))
   }
   createShaderModule(descriptor: GPUShaderModuleDescriptor): ShaderModule {
     const shader = c.ShaderModuleWGSLDescriptor.new({
       code: to_wgpu_str(descriptor.code),
       chain: c.ChainedStruct.new({ sType: c.SType.ShaderSourceWGSL }),
     })
-    const module = c.ShaderModuleDescriptor.new({nextInChain: shader._ptr()})
-    return new ShaderModule(c.deviceCreateShaderModule(this._device, module._ptr()))
+    const module = c.ShaderModuleDescriptor.new({nextInChain: shader.ptr()})
+    return new ShaderModule(c.deviceCreateShaderModule(this._device, module.ptr()))
   }
   createComputePipeline(descriptor: GPUComputePipelineDescriptor): GPUComputePipeline {
     const compute_desc = c.ComputePipelineDescriptor.new({
@@ -343,7 +343,7 @@ class Device implements GPUDevice{
         entryPoint: to_wgpu_str(descriptor.compute.entryPoint!) 
       }),
     })
-    return new ComputePipeline(c.deviceCreateComputePipeline(this._device,compute_desc._ptr()))
+    return new ComputePipeline(c.deviceCreateComputePipeline(this._device,compute_desc.ptr()))
   }
   createRenderPipeline(descriptor: unknown): GPURenderPipeline {
     throw new Error('Method not implemented.')
@@ -355,7 +355,7 @@ class Device implements GPUDevice{
     throw new Error('Method not implemented.')
   }
   createCommandEncoder(descriptor?: GPUCommandEncoderDescriptor): GPUCommandEncoder {
-    return new CommandEncoder(c.deviceCreateCommandEncoder(this._device, new c.CommandEncoderDescriptor()._ptr()))
+    return new CommandEncoder(c.deviceCreateCommandEncoder(this._device, new c.CommandEncoderDescriptor().ptr()))
   }
   createRenderBundleEncoder(descriptor: unknown): GPURenderBundleEncoder {
     throw new Error('Method not implemented.')
@@ -417,12 +417,12 @@ class CommandEncoder implements GPUCommandEncoder{
   }
   beginComputePass(descriptor?: GPUComputePassDescriptor): GPUComputePassEncoder {
     const desc = new c.ComputePassDescriptor()
-    if (descriptor?.timestampWrites) desc.timestampWrites = c.ComputePassTimestampWrites.new({
+    if (descriptor?.timestampWrites) desc.$timestampWrites.set(c.ComputePassTimestampWrites.new({
       querySet: (descriptor.timestampWrites.querySet as QuerySet)._querySet,
       beginningOfPassWriteIndex: c.U32.new(descriptor.timestampWrites.beginningOfPassWriteIndex ?? 0),
       endOfPassWriteIndex: c.U32.new(descriptor.timestampWrites.endOfPassWriteIndex ?? 0),
-    })._ptr()._value
-    return new ComputePassEncoder(c.commandEncoderBeginComputePass(this._commandEncoder, desc._ptr()))
+    }).ptr().get)
+    return new ComputePassEncoder(c.commandEncoderBeginComputePass(this._commandEncoder, desc.ptr()))
   }
   copyBufferToBuffer(source: Buffer, sourceOffset: number, destination: Buffer, destinationOffset?: number, size?: number): undefined {
     c.commandEncoderCopyBufferToBuffer(this._commandEncoder, source._buffer, c.U64.new(BigInt(sourceOffset)), destination._buffer, c.U64.new(BigInt(destinationOffset ?? 0)), c.U64.new(BigInt(BigInt(size ?? 0))))
@@ -443,7 +443,7 @@ class CommandEncoder implements GPUCommandEncoder{
     throw new Error('Method not implemented.')
   }
   finish(descriptor?: GPUCommandBufferDescriptor): GPUCommandBuffer {
-    return new CommandBuffer(c.commandEncoderFinish(this._commandEncoder, new c.CommandBufferDescriptor()._ptr()))
+    return new CommandBuffer(c.commandEncoderFinish(this._commandEncoder, new c.CommandBufferDescriptor().ptr()))
   }
   pushDebugGroup(groupLabel: unknown): undefined {
     throw new Error('Method not implemented.')
@@ -479,7 +479,7 @@ class Buffer implements GPUBuffer{
   __brand = 'GPUBuffer' as const 
   label = ''
   get size(): number{
-    return Number(c.bufferGetSize(this._buffer)._value)
+    return Number(c.bufferGetSize(this._buffer).get)
   }
   get usage(): number{
     throw new Error('Method not implemented.')
@@ -489,12 +489,12 @@ class Buffer implements GPUBuffer{
   }
   async mapAsync(mode: GPUMapModeFlags, offset?: number, size?: number): Promise<undefined> {
     const [status, msg] = await _run(c.BufferMapCallbackInfo2, (cb) => c.bufferMapAsync2(this._buffer, c.MapMode.new(BigInt(mode)), c.Size.new(BigInt(offset ?? 0)), c.Size.new(BigInt(size ?? 0)), cb))
-    if (status._value !== c.BufferMapAsyncStatus.Success._value) throw new Error(`Async failed: ${msg}`)
+    if (status.get !== c.BufferMapAsyncStatus.Success.get) throw new Error(`Async failed: ${msg}`)
   }
   getMappedRange(offset?: number, size?: number): ArrayBuffer {
     const ptr = c.bufferGetConstMappedRange(this._buffer, c.Size.new(BigInt(offset ?? 0)), c.Size.new(BigInt(size ?? 0)))
-    if (ptr._value === 0n) throw new Error(`Failed to get mapped range!`)
-    const buf = new c.Type(new ArrayBuffer(this.size), 0, this.size)._replaceWithPtr(ptr)
+    if (ptr.get === 0n) throw new Error(`Failed to get mapped range!`)
+    const buf = new c.Type(new ArrayBuffer(this.size), 0, this.size).replaceWithPtr(ptr)
     return buf._buffer
   }
   unmap(): undefined {
@@ -539,13 +539,13 @@ class Queue implements GPUQueue{
   label = ''
   submit(commandBuffers: CommandBuffer[]): undefined {
     const bufs = commandBuffers.map(x => x._commandBuffer)
-    c.queueSubmit(this._queue, c.Size.new(BigInt(bufs.length)), c.createArray(bufs)._ptr())
+    c.queueSubmit(this._queue, c.Size.new(BigInt(bufs.length)), c.createArray(bufs).ptr())
   }
   onSubmittedWorkDone(): Promise<undefined> {
     throw new Error('Method not implemented.')
   }
   writeBuffer(buffer: Buffer, bufferOffset: GPUSize64, data: ArrayBuffer, dataOffset?: GPUSize64, size?: GPUSize64): undefined {
-    c.queueWriteBuffer(this._queue, buffer._buffer, c.U64.new(BigInt(bufferOffset)), new c.Pointer()._setNative(env.ptr(data.slice(dataOffset, size))), c.Size.new(BigInt(data.byteLength)))
+    c.queueWriteBuffer(this._queue, buffer._buffer, c.U64.new(BigInt(bufferOffset)), new c.Pointer().setNative(env.ptr(data.slice(dataOffset, size))), c.Size.new(BigInt(data.byteLength)))
   }
   writeTexture(destination: unknown, data: unknown, dataLayout: unknown, size: unknown): undefined {
     throw new Error('Method not implemented.')

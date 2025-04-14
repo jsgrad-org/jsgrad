@@ -52,13 +52,9 @@ for (const line of data) {
   byteSizes[line.name] = byteLength
   const alignment = line['bit-alignment'] / 8
   const type = line.fields.length ? `{ ${line.fields.map((x: any) => `${x.name}: ${getType(x.type)}`).join('; ')} }` : `{}`
-  const fields = line.fields.flatMap((x: any) => [
-    `get $${rename(x.name)}(){ return new ${getType(x.type)}(this._buffer, this._offset + ${x['bit-offset'] / 8}) }`,
-    `get ${rename(x.name)}(): typeof this.$${rename(x.name)}._value { return this.$${rename(x.name)}._value }`,
-    `set ${rename(x.name)}(v: Parameters<typeof this.$${rename(x.name)}["_set"]>[0]){ this.$${rename(x.name)}._set(v) }`
-  ]).join('\n  ')
-  const _valueFn = !line.fields.length ? undefined : `protected override __value = () => ({${line.fields.map((x: any) => `${rename(x.name)}: this.$${rename(x.name)}`).join(', ')}})`
-  const newFn = `static new = (val: Partial<${type}>) => new ${rename(line.name)}()._set(val)`
+  const fields = line.fields.flatMap((x: any) => `get $${rename(x.name)}(){ return new ${getType(x.type)}(this._buffer, this._offset + ${x['bit-offset'] / 8}) }`).join('\n  ')
+  const _valueFn = !line.fields.length ? undefined : `protected override _get = () => ({${line.fields.map((x: any) => `${rename(x.name)}: this.$${rename(x.name)}`).join(', ')}})`
+  const newFn = `static new = (val: Partial<${type}>) => new ${rename(line.name)}().set(val)`
   structs[line.name] = `export class ${rename(line.name)} extends c.Struct<${type}> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, ${byteLength}, ${alignment})
@@ -142,8 +138,8 @@ for (const line of data) {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, [${parameters.map((x) => getLibType(x.type)).join(', ')}])
   }
-  protected override _fn = (fn: (${types}) => void) => (${parameters.map((x) => `${x.name}: any`).join(', ')}) => void fn(${parameters.map((x) => `new ${getType(x.type)}()._setNative(${x.name})`).join(', ')})
-  static new = (fn: (${types}) => void) => new ${rename(line.name)}()._set(fn)
+  protected override _fn = (fn: (${types}) => void) => (${parameters.map((x) => `${x.name}: any`).join(', ')}) => void fn(${parameters.map((x) => `new ${getType(x.type)}().setNative(${x.name})`).join(', ')})
+  static new = (fn: (${types}) => void) => new ${rename(line.name)}().set(fn)
 }`)
 }
 
@@ -151,7 +147,7 @@ const functions: string[] = []
 for (const line of data) {
   if (line.tag !== 'function') continue
   const ret = line['return-type']
-  functions.push(`export const ${rename(line.name)} = (${line.parameters.map((x: any) => `${x.name}: ${getType(x.type)}`).join(', ')}): ${getType(ret)} => new ${getType(ret)}()._setNative(lib.symbols.${line.name}(${line.parameters.map((x: any) => `${x.name}._native`).join(', ')}))`)
+  functions.push(`export const ${rename(line.name)} = (${line.parameters.map((x: any) => `${x.name}: ${getType(x.type)}`).join(', ')}): ${getType(ret)} => new ${getType(ret)}().setNative(lib.symbols.${line.name}(${line.parameters.map((x: any) => `${x.name}.native`).join(', ')}))`)
 }
 
 content += Object.entries({ consts, enums, structs: Object.values(structs), types, callbacks, functions })
