@@ -208,7 +208,7 @@ export const requestAdapter = async (options?: GPURequestAdapterOptions): Promis
   const FILE = env.OSX ? 'libwebgpu_dawn.dylib' : 'libwebgpu_dawn.so'
   const URL = `https://github.com/wpmed92/pydawn/releases/download/v0.1.6/${FILE}`
   const PATH = `${env.CACHE_DIR}/${FILE}`
-
+ 
   await env.fetchSave(URL, PATH)
   await c.init(PATH)
 
@@ -424,8 +424,13 @@ class CommandEncoder implements GPUCommandEncoder{
     }).ptr().get)
     return new ComputePassEncoder(c.commandEncoderBeginComputePass(this._commandEncoder, desc.ptr()))
   }
-  copyBufferToBuffer(source: Buffer, sourceOffset: number, destination: Buffer, destinationOffset?: number, size?: number): undefined {
-    c.commandEncoderCopyBufferToBuffer(this._commandEncoder, source._buffer, c.U64.new(BigInt(sourceOffset)), destination._buffer, c.U64.new(BigInt(destinationOffset ?? 0)), c.U64.new(BigInt(BigInt(size ?? 0))))
+  copyBufferToBuffer(source: Buffer, destination: Buffer, size?: number): undefined;
+  copyBufferToBuffer(source: Buffer, sourceOffset: number, destination: Buffer, destinationOffset: number, size?: number): undefined;
+  copyBufferToBuffer(source: Buffer, sourceOffsetOrDestination: number | Buffer, destinationOrSize?: Buffer | number, destinationOffset?: number, size?: number): undefined {
+    const sourceOffset = typeof sourceOffsetOrDestination === "number" ? sourceOffsetOrDestination : 0
+    const destination = typeof sourceOffsetOrDestination !== "number" ? sourceOffsetOrDestination : (destinationOrSize as Buffer)
+    size = typeof destinationOrSize === "number" ? destinationOffset : size
+    c.commandEncoderCopyBufferToBuffer(this._commandEncoder, source._buffer, c.U64.new(BigInt(sourceOffset)), destination._buffer, c.U64.new(BigInt(destinationOffset ?? 0)), c.U64.new(BigInt(BigInt(size ?? destination.size))))
   }
   copyBufferToTexture(source: unknown, destination: unknown, copySize: unknown): undefined {
     throw new Error('Method not implemented.')
