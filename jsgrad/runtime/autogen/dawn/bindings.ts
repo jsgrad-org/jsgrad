@@ -1184,1907 +1184,1907 @@ export class INTERNAL__HAVE_EMDAWNWEBGPU_HEADER extends c.Struct<{ unused: Bool 
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 4, 4)
   }
-  get $unused(){ return new Bool(this.buffer, this.offset + 0) }
-  protected override _value = () => ({unused: this.$unused})
+  get $unused(){ return new Bool(this._buffer, this._offset + 0) }
+  protected override _get = () => ({unused: this.$unused})
   static new = (val: Partial<{ unused: Bool }>) => new INTERNAL__HAVE_EMDAWNWEBGPU_HEADER().set(val)
 }
 export class AdapterPropertiesD3D extends c.Struct<{ chain: ChainedStructOut; shaderModel: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $shaderModel(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, shaderModel: this.$shaderModel})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $shaderModel(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, shaderModel: this.$shaderModel})
   static new = (val: Partial<{ chain: ChainedStructOut; shaderModel: c.U32 }>) => new AdapterPropertiesD3D().set(val)
 }
 export class AdapterPropertiesSubgroups extends c.Struct<{ chain: ChainedStructOut; subgroupMinSize: c.U32; subgroupMaxSize: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $subgroupMinSize(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $subgroupMaxSize(){ return new c.U32(this.buffer, this.offset + 20) }
-  protected override _value = () => ({chain: this.$chain, subgroupMinSize: this.$subgroupMinSize, subgroupMaxSize: this.$subgroupMaxSize})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $subgroupMinSize(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $subgroupMaxSize(){ return new c.U32(this._buffer, this._offset + 20) }
+  protected override _get = () => ({chain: this.$chain, subgroupMinSize: this.$subgroupMinSize, subgroupMaxSize: this.$subgroupMaxSize})
   static new = (val: Partial<{ chain: ChainedStructOut; subgroupMinSize: c.U32; subgroupMaxSize: c.U32 }>) => new AdapterPropertiesSubgroups().set(val)
 }
 export class AdapterPropertiesVk extends c.Struct<{ chain: ChainedStructOut; driverVersion: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $driverVersion(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, driverVersion: this.$driverVersion})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $driverVersion(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, driverVersion: this.$driverVersion})
   static new = (val: Partial<{ chain: ChainedStructOut; driverVersion: c.U32 }>) => new AdapterPropertiesVk().set(val)
 }
 export class BindGroupEntry extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; binding: c.U32; buffer: Buffer; offset: c.U64; size: c.U64; sampler: Sampler; textureView: TextureView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 56, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $binding(){ return new c.U32(this.buffer, this.offset + 8) }
-  get $buffer(){ return new Buffer(this.buffer, this.offset + 16) }
-  get $offset(){ return new c.U64(this.buffer, this.offset + 24) }
-  get $size(){ return new c.U64(this.buffer, this.offset + 32) }
-  get $sampler(){ return new Sampler(this.buffer, this.offset + 40) }
-  get $textureView(){ return new TextureView(this.buffer, this.offset + 48) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, binding: this.$binding, buffer: this.$buffer, offset: this.$offset, size: this.$size, sampler: this.$sampler, textureView: this.$textureView})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $binding(){ return new c.U32(this._buffer, this._offset + 8) }
+  get $buffer(){ return new Buffer(this._buffer, this._offset + 16) }
+  get $offset(){ return new c.U64(this._buffer, this._offset + 24) }
+  get $size(){ return new c.U64(this._buffer, this._offset + 32) }
+  get $sampler(){ return new Sampler(this._buffer, this._offset + 40) }
+  get $textureView(){ return new TextureView(this._buffer, this._offset + 48) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, binding: this.$binding, buffer: this.$buffer, offset: this.$offset, size: this.$size, sampler: this.$sampler, textureView: this.$textureView})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; binding: c.U32; buffer: Buffer; offset: c.U64; size: c.U64; sampler: Sampler; textureView: TextureView }>) => new BindGroupEntry().set(val)
 }
 export class BlendComponent extends c.Struct<{ operation: BlendOperation; srcFactor: BlendFactor; dstFactor: BlendFactor }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 12, 4)
   }
-  get $operation(){ return new BlendOperation(this.buffer, this.offset + 0) }
-  get $srcFactor(){ return new BlendFactor(this.buffer, this.offset + 4) }
-  get $dstFactor(){ return new BlendFactor(this.buffer, this.offset + 8) }
-  protected override _value = () => ({operation: this.$operation, srcFactor: this.$srcFactor, dstFactor: this.$dstFactor})
+  get $operation(){ return new BlendOperation(this._buffer, this._offset + 0) }
+  get $srcFactor(){ return new BlendFactor(this._buffer, this._offset + 4) }
+  get $dstFactor(){ return new BlendFactor(this._buffer, this._offset + 8) }
+  protected override _get = () => ({operation: this.$operation, srcFactor: this.$srcFactor, dstFactor: this.$dstFactor})
   static new = (val: Partial<{ operation: BlendOperation; srcFactor: BlendFactor; dstFactor: BlendFactor }>) => new BlendComponent().set(val)
 }
 export class BufferBindingLayout extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; type: BufferBindingType; hasDynamicOffset: Bool; minBindingSize: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $type(){ return new BufferBindingType(this.buffer, this.offset + 8) }
-  get $hasDynamicOffset(){ return new Bool(this.buffer, this.offset + 12) }
-  get $minBindingSize(){ return new c.U64(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, type: this.$type, hasDynamicOffset: this.$hasDynamicOffset, minBindingSize: this.$minBindingSize})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $type(){ return new BufferBindingType(this._buffer, this._offset + 8) }
+  get $hasDynamicOffset(){ return new Bool(this._buffer, this._offset + 12) }
+  get $minBindingSize(){ return new c.U64(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, type: this.$type, hasDynamicOffset: this.$hasDynamicOffset, minBindingSize: this.$minBindingSize})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; type: BufferBindingType; hasDynamicOffset: Bool; minBindingSize: c.U64 }>) => new BufferBindingLayout().set(val)
 }
 export class BufferHostMappedPointer extends c.Struct<{ chain: ChainedStruct; pointer: c.Pointer<c.Void>; disposeCallback: Callback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $pointer(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $disposeCallback(){ return new Callback(this.buffer, this.offset + 24) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({chain: this.$chain, pointer: this.$pointer, disposeCallback: this.$disposeCallback, userdata: this.$userdata})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $pointer(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $disposeCallback(){ return new Callback(this._buffer, this._offset + 24) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({chain: this.$chain, pointer: this.$pointer, disposeCallback: this.$disposeCallback, userdata: this.$userdata})
   static new = (val: Partial<{ chain: ChainedStruct; pointer: c.Pointer<c.Void>; disposeCallback: Callback; userdata: c.Pointer<c.Void> }>) => new BufferHostMappedPointer().set(val)
 }
 export class BufferMapCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: BufferMapCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new BufferMapCallback(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new BufferMapCallback(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: BufferMapCallback; userdata: c.Pointer<c.Void> }>) => new BufferMapCallbackInfo().set(val)
 }
 export class Color extends c.Struct<{ r: c.F64; g: c.F64; b: c.F64; a: c.F64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $r(){ return new c.F64(this.buffer, this.offset + 0) }
-  get $g(){ return new c.F64(this.buffer, this.offset + 8) }
-  get $b(){ return new c.F64(this.buffer, this.offset + 16) }
-  get $a(){ return new c.F64(this.buffer, this.offset + 24) }
-  protected override _value = () => ({r: this.$r, g: this.$g, b: this.$b, a: this.$a})
+  get $r(){ return new c.F64(this._buffer, this._offset + 0) }
+  get $g(){ return new c.F64(this._buffer, this._offset + 8) }
+  get $b(){ return new c.F64(this._buffer, this._offset + 16) }
+  get $a(){ return new c.F64(this._buffer, this._offset + 24) }
+  protected override _get = () => ({r: this.$r, g: this.$g, b: this.$b, a: this.$a})
   static new = (val: Partial<{ r: c.F64; g: c.F64; b: c.F64; a: c.F64 }>) => new Color().set(val)
 }
 export class ColorTargetStateExpandResolveTextureDawn extends c.Struct<{ chain: ChainedStruct; enabled: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $enabled(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, enabled: this.$enabled})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $enabled(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, enabled: this.$enabled})
   static new = (val: Partial<{ chain: ChainedStruct; enabled: Bool }>) => new ColorTargetStateExpandResolveTextureDawn().set(val)
 }
 export class CompilationInfoCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CompilationInfoCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new CompilationInfoCallback(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new CompilationInfoCallback(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CompilationInfoCallback; userdata: c.Pointer<c.Void> }>) => new CompilationInfoCallbackInfo().set(val)
 }
 export class ComputePassTimestampWrites extends c.Struct<{ querySet: QuerySet; beginningOfPassWriteIndex: c.U32; endOfPassWriteIndex: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $querySet(){ return new QuerySet(this.buffer, this.offset + 0) }
-  get $beginningOfPassWriteIndex(){ return new c.U32(this.buffer, this.offset + 8) }
-  get $endOfPassWriteIndex(){ return new c.U32(this.buffer, this.offset + 12) }
-  protected override _value = () => ({querySet: this.$querySet, beginningOfPassWriteIndex: this.$beginningOfPassWriteIndex, endOfPassWriteIndex: this.$endOfPassWriteIndex})
+  get $querySet(){ return new QuerySet(this._buffer, this._offset + 0) }
+  get $beginningOfPassWriteIndex(){ return new c.U32(this._buffer, this._offset + 8) }
+  get $endOfPassWriteIndex(){ return new c.U32(this._buffer, this._offset + 12) }
+  protected override _get = () => ({querySet: this.$querySet, beginningOfPassWriteIndex: this.$beginningOfPassWriteIndex, endOfPassWriteIndex: this.$endOfPassWriteIndex})
   static new = (val: Partial<{ querySet: QuerySet; beginningOfPassWriteIndex: c.U32; endOfPassWriteIndex: c.U32 }>) => new ComputePassTimestampWrites().set(val)
 }
 export class CopyTextureForBrowserOptions extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; flipY: Bool; needsColorSpaceConversion: Bool; srcAlphaMode: AlphaMode; srcTransferFunctionParameters: c.Pointer<c.F32>; conversionMatrix: c.Pointer<c.F32>; dstTransferFunctionParameters: c.Pointer<c.F32>; dstAlphaMode: AlphaMode; internalUsage: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 56, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $flipY(){ return new Bool(this.buffer, this.offset + 8) }
-  get $needsColorSpaceConversion(){ return new Bool(this.buffer, this.offset + 12) }
-  get $srcAlphaMode(){ return new AlphaMode(this.buffer, this.offset + 16) }
-  get $srcTransferFunctionParameters(){ return new c.Pointer<c.F32>(this.buffer, this.offset + 24) }
-  get $conversionMatrix(){ return new c.Pointer<c.F32>(this.buffer, this.offset + 32) }
-  get $dstTransferFunctionParameters(){ return new c.Pointer<c.F32>(this.buffer, this.offset + 40) }
-  get $dstAlphaMode(){ return new AlphaMode(this.buffer, this.offset + 48) }
-  get $internalUsage(){ return new Bool(this.buffer, this.offset + 52) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, flipY: this.$flipY, needsColorSpaceConversion: this.$needsColorSpaceConversion, srcAlphaMode: this.$srcAlphaMode, srcTransferFunctionParameters: this.$srcTransferFunctionParameters, conversionMatrix: this.$conversionMatrix, dstTransferFunctionParameters: this.$dstTransferFunctionParameters, dstAlphaMode: this.$dstAlphaMode, internalUsage: this.$internalUsage})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $flipY(){ return new Bool(this._buffer, this._offset + 8) }
+  get $needsColorSpaceConversion(){ return new Bool(this._buffer, this._offset + 12) }
+  get $srcAlphaMode(){ return new AlphaMode(this._buffer, this._offset + 16) }
+  get $srcTransferFunctionParameters(){ return new c.Pointer<c.F32>(this._buffer, this._offset + 24) }
+  get $conversionMatrix(){ return new c.Pointer<c.F32>(this._buffer, this._offset + 32) }
+  get $dstTransferFunctionParameters(){ return new c.Pointer<c.F32>(this._buffer, this._offset + 40) }
+  get $dstAlphaMode(){ return new AlphaMode(this._buffer, this._offset + 48) }
+  get $internalUsage(){ return new Bool(this._buffer, this._offset + 52) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, flipY: this.$flipY, needsColorSpaceConversion: this.$needsColorSpaceConversion, srcAlphaMode: this.$srcAlphaMode, srcTransferFunctionParameters: this.$srcTransferFunctionParameters, conversionMatrix: this.$conversionMatrix, dstTransferFunctionParameters: this.$dstTransferFunctionParameters, dstAlphaMode: this.$dstAlphaMode, internalUsage: this.$internalUsage})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; flipY: Bool; needsColorSpaceConversion: Bool; srcAlphaMode: AlphaMode; srcTransferFunctionParameters: c.Pointer<c.F32>; conversionMatrix: c.Pointer<c.F32>; dstTransferFunctionParameters: c.Pointer<c.F32>; dstAlphaMode: AlphaMode; internalUsage: Bool }>) => new CopyTextureForBrowserOptions().set(val)
 }
 export class CreateComputePipelineAsyncCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateComputePipelineAsyncCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new CreateComputePipelineAsyncCallback(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new CreateComputePipelineAsyncCallback(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateComputePipelineAsyncCallback; userdata: c.Pointer<c.Void> }>) => new CreateComputePipelineAsyncCallbackInfo().set(val)
 }
 export class CreateRenderPipelineAsyncCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateRenderPipelineAsyncCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new CreateRenderPipelineAsyncCallback(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new CreateRenderPipelineAsyncCallback(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateRenderPipelineAsyncCallback; userdata: c.Pointer<c.Void> }>) => new CreateRenderPipelineAsyncCallbackInfo().set(val)
 }
 export class DawnWGSLBlocklist extends c.Struct<{ chain: ChainedStruct; blocklistedFeatureCount: c.Size; blocklistedFeatures: c.Pointer<c.Pointer<c.U8>> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $blocklistedFeatureCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $blocklistedFeatures(){ return new c.Pointer<c.Pointer<c.U8>>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, blocklistedFeatureCount: this.$blocklistedFeatureCount, blocklistedFeatures: this.$blocklistedFeatures})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $blocklistedFeatureCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $blocklistedFeatures(){ return new c.Pointer<c.Pointer<c.U8>>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, blocklistedFeatureCount: this.$blocklistedFeatureCount, blocklistedFeatures: this.$blocklistedFeatures})
   static new = (val: Partial<{ chain: ChainedStruct; blocklistedFeatureCount: c.Size; blocklistedFeatures: c.Pointer<c.Pointer<c.U8>> }>) => new DawnWGSLBlocklist().set(val)
 }
 export class DawnAdapterPropertiesPowerPreference extends c.Struct<{ chain: ChainedStructOut; powerPreference: PowerPreference }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $powerPreference(){ return new PowerPreference(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, powerPreference: this.$powerPreference})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $powerPreference(){ return new PowerPreference(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, powerPreference: this.$powerPreference})
   static new = (val: Partial<{ chain: ChainedStructOut; powerPreference: PowerPreference }>) => new DawnAdapterPropertiesPowerPreference().set(val)
 }
 export class DawnBufferDescriptorErrorInfoFromWireClient extends c.Struct<{ chain: ChainedStruct; outOfMemory: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $outOfMemory(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, outOfMemory: this.$outOfMemory})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $outOfMemory(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, outOfMemory: this.$outOfMemory})
   static new = (val: Partial<{ chain: ChainedStruct; outOfMemory: Bool }>) => new DawnBufferDescriptorErrorInfoFromWireClient().set(val)
 }
 export class DawnEncoderInternalUsageDescriptor extends c.Struct<{ chain: ChainedStruct; useInternalUsages: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $useInternalUsages(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, useInternalUsages: this.$useInternalUsages})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $useInternalUsages(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, useInternalUsages: this.$useInternalUsages})
   static new = (val: Partial<{ chain: ChainedStruct; useInternalUsages: Bool }>) => new DawnEncoderInternalUsageDescriptor().set(val)
 }
 export class DawnExperimentalImmediateDataLimits extends c.Struct<{ chain: ChainedStructOut; maxImmediateDataRangeByteSize: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $maxImmediateDataRangeByteSize(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, maxImmediateDataRangeByteSize: this.$maxImmediateDataRangeByteSize})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $maxImmediateDataRangeByteSize(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, maxImmediateDataRangeByteSize: this.$maxImmediateDataRangeByteSize})
   static new = (val: Partial<{ chain: ChainedStructOut; maxImmediateDataRangeByteSize: c.U32 }>) => new DawnExperimentalImmediateDataLimits().set(val)
 }
 export class DawnExperimentalSubgroupLimits extends c.Struct<{ chain: ChainedStructOut; minSubgroupSize: c.U32; maxSubgroupSize: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $minSubgroupSize(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $maxSubgroupSize(){ return new c.U32(this.buffer, this.offset + 20) }
-  protected override _value = () => ({chain: this.$chain, minSubgroupSize: this.$minSubgroupSize, maxSubgroupSize: this.$maxSubgroupSize})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $minSubgroupSize(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $maxSubgroupSize(){ return new c.U32(this._buffer, this._offset + 20) }
+  protected override _get = () => ({chain: this.$chain, minSubgroupSize: this.$minSubgroupSize, maxSubgroupSize: this.$maxSubgroupSize})
   static new = (val: Partial<{ chain: ChainedStructOut; minSubgroupSize: c.U32; maxSubgroupSize: c.U32 }>) => new DawnExperimentalSubgroupLimits().set(val)
 }
 export class DawnRenderPassColorAttachmentRenderToSingleSampled extends c.Struct<{ chain: ChainedStruct; implicitSampleCount: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $implicitSampleCount(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, implicitSampleCount: this.$implicitSampleCount})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $implicitSampleCount(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, implicitSampleCount: this.$implicitSampleCount})
   static new = (val: Partial<{ chain: ChainedStruct; implicitSampleCount: c.U32 }>) => new DawnRenderPassColorAttachmentRenderToSingleSampled().set(val)
 }
 export class DawnShaderModuleSPIRVOptionsDescriptor extends c.Struct<{ chain: ChainedStruct; allowNonUniformDerivatives: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $allowNonUniformDerivatives(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, allowNonUniformDerivatives: this.$allowNonUniformDerivatives})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $allowNonUniformDerivatives(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, allowNonUniformDerivatives: this.$allowNonUniformDerivatives})
   static new = (val: Partial<{ chain: ChainedStruct; allowNonUniformDerivatives: Bool }>) => new DawnShaderModuleSPIRVOptionsDescriptor().set(val)
 }
 export class DawnTexelCopyBufferRowAlignmentLimits extends c.Struct<{ chain: ChainedStructOut; minTexelCopyBufferRowAlignment: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $minTexelCopyBufferRowAlignment(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, minTexelCopyBufferRowAlignment: this.$minTexelCopyBufferRowAlignment})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $minTexelCopyBufferRowAlignment(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, minTexelCopyBufferRowAlignment: this.$minTexelCopyBufferRowAlignment})
   static new = (val: Partial<{ chain: ChainedStructOut; minTexelCopyBufferRowAlignment: c.U32 }>) => new DawnTexelCopyBufferRowAlignmentLimits().set(val)
 }
 export class DawnTextureInternalUsageDescriptor extends c.Struct<{ chain: ChainedStruct; internalUsage: TextureUsage }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $internalUsage(){ return new TextureUsage(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, internalUsage: this.$internalUsage})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $internalUsage(){ return new TextureUsage(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, internalUsage: this.$internalUsage})
   static new = (val: Partial<{ chain: ChainedStruct; internalUsage: TextureUsage }>) => new DawnTextureInternalUsageDescriptor().set(val)
 }
 export class DawnTogglesDescriptor extends c.Struct<{ chain: ChainedStruct; enabledToggleCount: c.Size; enabledToggles: c.Pointer<c.Pointer<c.U8>>; disabledToggleCount: c.Size; disabledToggles: c.Pointer<c.Pointer<c.U8>> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 48, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $enabledToggleCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $enabledToggles(){ return new c.Pointer<c.Pointer<c.U8>>(this.buffer, this.offset + 24) }
-  get $disabledToggleCount(){ return new c.Size(this.buffer, this.offset + 32) }
-  get $disabledToggles(){ return new c.Pointer<c.Pointer<c.U8>>(this.buffer, this.offset + 40) }
-  protected override _value = () => ({chain: this.$chain, enabledToggleCount: this.$enabledToggleCount, enabledToggles: this.$enabledToggles, disabledToggleCount: this.$disabledToggleCount, disabledToggles: this.$disabledToggles})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $enabledToggleCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $enabledToggles(){ return new c.Pointer<c.Pointer<c.U8>>(this._buffer, this._offset + 24) }
+  get $disabledToggleCount(){ return new c.Size(this._buffer, this._offset + 32) }
+  get $disabledToggles(){ return new c.Pointer<c.Pointer<c.U8>>(this._buffer, this._offset + 40) }
+  protected override _get = () => ({chain: this.$chain, enabledToggleCount: this.$enabledToggleCount, enabledToggles: this.$enabledToggles, disabledToggleCount: this.$disabledToggleCount, disabledToggles: this.$disabledToggles})
   static new = (val: Partial<{ chain: ChainedStruct; enabledToggleCount: c.Size; enabledToggles: c.Pointer<c.Pointer<c.U8>>; disabledToggleCount: c.Size; disabledToggles: c.Pointer<c.Pointer<c.U8>> }>) => new DawnTogglesDescriptor().set(val)
 }
 export class DawnWireWGSLControl extends c.Struct<{ chain: ChainedStruct; enableExperimental: Bool; enableUnsafe: Bool; enableTesting: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $enableExperimental(){ return new Bool(this.buffer, this.offset + 16) }
-  get $enableUnsafe(){ return new Bool(this.buffer, this.offset + 20) }
-  get $enableTesting(){ return new Bool(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, enableExperimental: this.$enableExperimental, enableUnsafe: this.$enableUnsafe, enableTesting: this.$enableTesting})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $enableExperimental(){ return new Bool(this._buffer, this._offset + 16) }
+  get $enableUnsafe(){ return new Bool(this._buffer, this._offset + 20) }
+  get $enableTesting(){ return new Bool(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, enableExperimental: this.$enableExperimental, enableUnsafe: this.$enableUnsafe, enableTesting: this.$enableTesting})
   static new = (val: Partial<{ chain: ChainedStruct; enableExperimental: Bool; enableUnsafe: Bool; enableTesting: Bool }>) => new DawnWireWGSLControl().set(val)
 }
 export class DeviceLostCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: DeviceLostCallbackNew; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new DeviceLostCallbackNew(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new DeviceLostCallbackNew(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: DeviceLostCallbackNew; userdata: c.Pointer<c.Void> }>) => new DeviceLostCallbackInfo().set(val)
 }
 export class DrmFormatProperties extends c.Struct<{ modifier: c.U64; modifierPlaneCount: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $modifier(){ return new c.U64(this.buffer, this.offset + 0) }
-  get $modifierPlaneCount(){ return new c.U32(this.buffer, this.offset + 8) }
-  protected override _value = () => ({modifier: this.$modifier, modifierPlaneCount: this.$modifierPlaneCount})
+  get $modifier(){ return new c.U64(this._buffer, this._offset + 0) }
+  get $modifierPlaneCount(){ return new c.U32(this._buffer, this._offset + 8) }
+  protected override _get = () => ({modifier: this.$modifier, modifierPlaneCount: this.$modifierPlaneCount})
   static new = (val: Partial<{ modifier: c.U64; modifierPlaneCount: c.U32 }>) => new DrmFormatProperties().set(val)
 }
 export class Extent2D extends c.Struct<{ width: c.U32; height: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 8, 4)
   }
-  get $width(){ return new c.U32(this.buffer, this.offset + 0) }
-  get $height(){ return new c.U32(this.buffer, this.offset + 4) }
-  protected override _value = () => ({width: this.$width, height: this.$height})
+  get $width(){ return new c.U32(this._buffer, this._offset + 0) }
+  get $height(){ return new c.U32(this._buffer, this._offset + 4) }
+  protected override _get = () => ({width: this.$width, height: this.$height})
   static new = (val: Partial<{ width: c.U32; height: c.U32 }>) => new Extent2D().set(val)
 }
 export class Extent3D extends c.Struct<{ width: c.U32; height: c.U32; depthOrArrayLayers: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 12, 4)
   }
-  get $width(){ return new c.U32(this.buffer, this.offset + 0) }
-  get $height(){ return new c.U32(this.buffer, this.offset + 4) }
-  get $depthOrArrayLayers(){ return new c.U32(this.buffer, this.offset + 8) }
-  protected override _value = () => ({width: this.$width, height: this.$height, depthOrArrayLayers: this.$depthOrArrayLayers})
+  get $width(){ return new c.U32(this._buffer, this._offset + 0) }
+  get $height(){ return new c.U32(this._buffer, this._offset + 4) }
+  get $depthOrArrayLayers(){ return new c.U32(this._buffer, this._offset + 8) }
+  protected override _get = () => ({width: this.$width, height: this.$height, depthOrArrayLayers: this.$depthOrArrayLayers})
   static new = (val: Partial<{ width: c.U32; height: c.U32; depthOrArrayLayers: c.U32 }>) => new Extent3D().set(val)
 }
 export class ExternalTextureBindingEntry extends c.Struct<{ chain: ChainedStruct; externalTexture: ExternalTexture }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $externalTexture(){ return new ExternalTexture(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, externalTexture: this.$externalTexture})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $externalTexture(){ return new ExternalTexture(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, externalTexture: this.$externalTexture})
   static new = (val: Partial<{ chain: ChainedStruct; externalTexture: ExternalTexture }>) => new ExternalTextureBindingEntry().set(val)
 }
 export class ExternalTextureBindingLayout extends c.Struct<{ chain: ChainedStruct }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  protected override _value = () => ({chain: this.$chain})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  protected override _get = () => ({chain: this.$chain})
   static new = (val: Partial<{ chain: ChainedStruct }>) => new ExternalTextureBindingLayout().set(val)
 }
 export class FormatCapabilities extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 8, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  protected override _value = () => ({nextInChain: this.$nextInChain})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  protected override _get = () => ({nextInChain: this.$nextInChain})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut> }>) => new FormatCapabilities().set(val)
 }
 export class Future extends c.Struct<{ id: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 8, 8)
   }
-  get $id(){ return new c.U64(this.buffer, this.offset + 0) }
-  protected override _value = () => ({id: this.$id})
+  get $id(){ return new c.U64(this._buffer, this._offset + 0) }
+  protected override _get = () => ({id: this.$id})
   static new = (val: Partial<{ id: c.U64 }>) => new Future().set(val)
 }
 export class InstanceFeatures extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; timedWaitAnyEnable: Bool; timedWaitAnyMaxCount: c.Size }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $timedWaitAnyEnable(){ return new Bool(this.buffer, this.offset + 8) }
-  get $timedWaitAnyMaxCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, timedWaitAnyEnable: this.$timedWaitAnyEnable, timedWaitAnyMaxCount: this.$timedWaitAnyMaxCount})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $timedWaitAnyEnable(){ return new Bool(this._buffer, this._offset + 8) }
+  get $timedWaitAnyMaxCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, timedWaitAnyEnable: this.$timedWaitAnyEnable, timedWaitAnyMaxCount: this.$timedWaitAnyMaxCount})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; timedWaitAnyEnable: Bool; timedWaitAnyMaxCount: c.Size }>) => new InstanceFeatures().set(val)
 }
 export class Limits extends c.Struct<{ maxTextureDimension1D: c.U32; maxTextureDimension2D: c.U32; maxTextureDimension3D: c.U32; maxTextureArrayLayers: c.U32; maxBindGroups: c.U32; maxBindGroupsPlusVertexBuffers: c.U32; maxBindingsPerBindGroup: c.U32; maxDynamicUniformBuffersPerPipelineLayout: c.U32; maxDynamicStorageBuffersPerPipelineLayout: c.U32; maxSampledTexturesPerShaderStage: c.U32; maxSamplersPerShaderStage: c.U32; maxStorageBuffersPerShaderStage: c.U32; maxStorageTexturesPerShaderStage: c.U32; maxUniformBuffersPerShaderStage: c.U32; maxUniformBufferBindingSize: c.U64; maxStorageBufferBindingSize: c.U64; minUniformBufferOffsetAlignment: c.U32; minStorageBufferOffsetAlignment: c.U32; maxVertexBuffers: c.U32; maxBufferSize: c.U64; maxVertexAttributes: c.U32; maxVertexBufferArrayStride: c.U32; maxInterStageShaderComponents: c.U32; maxInterStageShaderVariables: c.U32; maxColorAttachments: c.U32; maxColorAttachmentBytesPerSample: c.U32; maxComputeWorkgroupStorageSize: c.U32; maxComputeInvocationsPerWorkgroup: c.U32; maxComputeWorkgroupSizeX: c.U32; maxComputeWorkgroupSizeY: c.U32; maxComputeWorkgroupSizeZ: c.U32; maxComputeWorkgroupsPerDimension: c.U32; maxStorageBuffersInVertexStage: c.U32; maxStorageTexturesInVertexStage: c.U32; maxStorageBuffersInFragmentStage: c.U32; maxStorageTexturesInFragmentStage: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 160, 8)
   }
-  get $maxTextureDimension1D(){ return new c.U32(this.buffer, this.offset + 0) }
-  get $maxTextureDimension2D(){ return new c.U32(this.buffer, this.offset + 4) }
-  get $maxTextureDimension3D(){ return new c.U32(this.buffer, this.offset + 8) }
-  get $maxTextureArrayLayers(){ return new c.U32(this.buffer, this.offset + 12) }
-  get $maxBindGroups(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $maxBindGroupsPlusVertexBuffers(){ return new c.U32(this.buffer, this.offset + 20) }
-  get $maxBindingsPerBindGroup(){ return new c.U32(this.buffer, this.offset + 24) }
-  get $maxDynamicUniformBuffersPerPipelineLayout(){ return new c.U32(this.buffer, this.offset + 28) }
-  get $maxDynamicStorageBuffersPerPipelineLayout(){ return new c.U32(this.buffer, this.offset + 32) }
-  get $maxSampledTexturesPerShaderStage(){ return new c.U32(this.buffer, this.offset + 36) }
-  get $maxSamplersPerShaderStage(){ return new c.U32(this.buffer, this.offset + 40) }
-  get $maxStorageBuffersPerShaderStage(){ return new c.U32(this.buffer, this.offset + 44) }
-  get $maxStorageTexturesPerShaderStage(){ return new c.U32(this.buffer, this.offset + 48) }
-  get $maxUniformBuffersPerShaderStage(){ return new c.U32(this.buffer, this.offset + 52) }
-  get $maxUniformBufferBindingSize(){ return new c.U64(this.buffer, this.offset + 56) }
-  get $maxStorageBufferBindingSize(){ return new c.U64(this.buffer, this.offset + 64) }
-  get $minUniformBufferOffsetAlignment(){ return new c.U32(this.buffer, this.offset + 72) }
-  get $minStorageBufferOffsetAlignment(){ return new c.U32(this.buffer, this.offset + 76) }
-  get $maxVertexBuffers(){ return new c.U32(this.buffer, this.offset + 80) }
-  get $maxBufferSize(){ return new c.U64(this.buffer, this.offset + 88) }
-  get $maxVertexAttributes(){ return new c.U32(this.buffer, this.offset + 96) }
-  get $maxVertexBufferArrayStride(){ return new c.U32(this.buffer, this.offset + 100) }
-  get $maxInterStageShaderComponents(){ return new c.U32(this.buffer, this.offset + 104) }
-  get $maxInterStageShaderVariables(){ return new c.U32(this.buffer, this.offset + 108) }
-  get $maxColorAttachments(){ return new c.U32(this.buffer, this.offset + 112) }
-  get $maxColorAttachmentBytesPerSample(){ return new c.U32(this.buffer, this.offset + 116) }
-  get $maxComputeWorkgroupStorageSize(){ return new c.U32(this.buffer, this.offset + 120) }
-  get $maxComputeInvocationsPerWorkgroup(){ return new c.U32(this.buffer, this.offset + 124) }
-  get $maxComputeWorkgroupSizeX(){ return new c.U32(this.buffer, this.offset + 128) }
-  get $maxComputeWorkgroupSizeY(){ return new c.U32(this.buffer, this.offset + 132) }
-  get $maxComputeWorkgroupSizeZ(){ return new c.U32(this.buffer, this.offset + 136) }
-  get $maxComputeWorkgroupsPerDimension(){ return new c.U32(this.buffer, this.offset + 140) }
-  get $maxStorageBuffersInVertexStage(){ return new c.U32(this.buffer, this.offset + 144) }
-  get $maxStorageTexturesInVertexStage(){ return new c.U32(this.buffer, this.offset + 148) }
-  get $maxStorageBuffersInFragmentStage(){ return new c.U32(this.buffer, this.offset + 152) }
-  get $maxStorageTexturesInFragmentStage(){ return new c.U32(this.buffer, this.offset + 156) }
-  protected override _value = () => ({maxTextureDimension1D: this.$maxTextureDimension1D, maxTextureDimension2D: this.$maxTextureDimension2D, maxTextureDimension3D: this.$maxTextureDimension3D, maxTextureArrayLayers: this.$maxTextureArrayLayers, maxBindGroups: this.$maxBindGroups, maxBindGroupsPlusVertexBuffers: this.$maxBindGroupsPlusVertexBuffers, maxBindingsPerBindGroup: this.$maxBindingsPerBindGroup, maxDynamicUniformBuffersPerPipelineLayout: this.$maxDynamicUniformBuffersPerPipelineLayout, maxDynamicStorageBuffersPerPipelineLayout: this.$maxDynamicStorageBuffersPerPipelineLayout, maxSampledTexturesPerShaderStage: this.$maxSampledTexturesPerShaderStage, maxSamplersPerShaderStage: this.$maxSamplersPerShaderStage, maxStorageBuffersPerShaderStage: this.$maxStorageBuffersPerShaderStage, maxStorageTexturesPerShaderStage: this.$maxStorageTexturesPerShaderStage, maxUniformBuffersPerShaderStage: this.$maxUniformBuffersPerShaderStage, maxUniformBufferBindingSize: this.$maxUniformBufferBindingSize, maxStorageBufferBindingSize: this.$maxStorageBufferBindingSize, minUniformBufferOffsetAlignment: this.$minUniformBufferOffsetAlignment, minStorageBufferOffsetAlignment: this.$minStorageBufferOffsetAlignment, maxVertexBuffers: this.$maxVertexBuffers, maxBufferSize: this.$maxBufferSize, maxVertexAttributes: this.$maxVertexAttributes, maxVertexBufferArrayStride: this.$maxVertexBufferArrayStride, maxInterStageShaderComponents: this.$maxInterStageShaderComponents, maxInterStageShaderVariables: this.$maxInterStageShaderVariables, maxColorAttachments: this.$maxColorAttachments, maxColorAttachmentBytesPerSample: this.$maxColorAttachmentBytesPerSample, maxComputeWorkgroupStorageSize: this.$maxComputeWorkgroupStorageSize, maxComputeInvocationsPerWorkgroup: this.$maxComputeInvocationsPerWorkgroup, maxComputeWorkgroupSizeX: this.$maxComputeWorkgroupSizeX, maxComputeWorkgroupSizeY: this.$maxComputeWorkgroupSizeY, maxComputeWorkgroupSizeZ: this.$maxComputeWorkgroupSizeZ, maxComputeWorkgroupsPerDimension: this.$maxComputeWorkgroupsPerDimension, maxStorageBuffersInVertexStage: this.$maxStorageBuffersInVertexStage, maxStorageTexturesInVertexStage: this.$maxStorageTexturesInVertexStage, maxStorageBuffersInFragmentStage: this.$maxStorageBuffersInFragmentStage, maxStorageTexturesInFragmentStage: this.$maxStorageTexturesInFragmentStage})
+  get $maxTextureDimension1D(){ return new c.U32(this._buffer, this._offset + 0) }
+  get $maxTextureDimension2D(){ return new c.U32(this._buffer, this._offset + 4) }
+  get $maxTextureDimension3D(){ return new c.U32(this._buffer, this._offset + 8) }
+  get $maxTextureArrayLayers(){ return new c.U32(this._buffer, this._offset + 12) }
+  get $maxBindGroups(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $maxBindGroupsPlusVertexBuffers(){ return new c.U32(this._buffer, this._offset + 20) }
+  get $maxBindingsPerBindGroup(){ return new c.U32(this._buffer, this._offset + 24) }
+  get $maxDynamicUniformBuffersPerPipelineLayout(){ return new c.U32(this._buffer, this._offset + 28) }
+  get $maxDynamicStorageBuffersPerPipelineLayout(){ return new c.U32(this._buffer, this._offset + 32) }
+  get $maxSampledTexturesPerShaderStage(){ return new c.U32(this._buffer, this._offset + 36) }
+  get $maxSamplersPerShaderStage(){ return new c.U32(this._buffer, this._offset + 40) }
+  get $maxStorageBuffersPerShaderStage(){ return new c.U32(this._buffer, this._offset + 44) }
+  get $maxStorageTexturesPerShaderStage(){ return new c.U32(this._buffer, this._offset + 48) }
+  get $maxUniformBuffersPerShaderStage(){ return new c.U32(this._buffer, this._offset + 52) }
+  get $maxUniformBufferBindingSize(){ return new c.U64(this._buffer, this._offset + 56) }
+  get $maxStorageBufferBindingSize(){ return new c.U64(this._buffer, this._offset + 64) }
+  get $minUniformBufferOffsetAlignment(){ return new c.U32(this._buffer, this._offset + 72) }
+  get $minStorageBufferOffsetAlignment(){ return new c.U32(this._buffer, this._offset + 76) }
+  get $maxVertexBuffers(){ return new c.U32(this._buffer, this._offset + 80) }
+  get $maxBufferSize(){ return new c.U64(this._buffer, this._offset + 88) }
+  get $maxVertexAttributes(){ return new c.U32(this._buffer, this._offset + 96) }
+  get $maxVertexBufferArrayStride(){ return new c.U32(this._buffer, this._offset + 100) }
+  get $maxInterStageShaderComponents(){ return new c.U32(this._buffer, this._offset + 104) }
+  get $maxInterStageShaderVariables(){ return new c.U32(this._buffer, this._offset + 108) }
+  get $maxColorAttachments(){ return new c.U32(this._buffer, this._offset + 112) }
+  get $maxColorAttachmentBytesPerSample(){ return new c.U32(this._buffer, this._offset + 116) }
+  get $maxComputeWorkgroupStorageSize(){ return new c.U32(this._buffer, this._offset + 120) }
+  get $maxComputeInvocationsPerWorkgroup(){ return new c.U32(this._buffer, this._offset + 124) }
+  get $maxComputeWorkgroupSizeX(){ return new c.U32(this._buffer, this._offset + 128) }
+  get $maxComputeWorkgroupSizeY(){ return new c.U32(this._buffer, this._offset + 132) }
+  get $maxComputeWorkgroupSizeZ(){ return new c.U32(this._buffer, this._offset + 136) }
+  get $maxComputeWorkgroupsPerDimension(){ return new c.U32(this._buffer, this._offset + 140) }
+  get $maxStorageBuffersInVertexStage(){ return new c.U32(this._buffer, this._offset + 144) }
+  get $maxStorageTexturesInVertexStage(){ return new c.U32(this._buffer, this._offset + 148) }
+  get $maxStorageBuffersInFragmentStage(){ return new c.U32(this._buffer, this._offset + 152) }
+  get $maxStorageTexturesInFragmentStage(){ return new c.U32(this._buffer, this._offset + 156) }
+  protected override _get = () => ({maxTextureDimension1D: this.$maxTextureDimension1D, maxTextureDimension2D: this.$maxTextureDimension2D, maxTextureDimension3D: this.$maxTextureDimension3D, maxTextureArrayLayers: this.$maxTextureArrayLayers, maxBindGroups: this.$maxBindGroups, maxBindGroupsPlusVertexBuffers: this.$maxBindGroupsPlusVertexBuffers, maxBindingsPerBindGroup: this.$maxBindingsPerBindGroup, maxDynamicUniformBuffersPerPipelineLayout: this.$maxDynamicUniformBuffersPerPipelineLayout, maxDynamicStorageBuffersPerPipelineLayout: this.$maxDynamicStorageBuffersPerPipelineLayout, maxSampledTexturesPerShaderStage: this.$maxSampledTexturesPerShaderStage, maxSamplersPerShaderStage: this.$maxSamplersPerShaderStage, maxStorageBuffersPerShaderStage: this.$maxStorageBuffersPerShaderStage, maxStorageTexturesPerShaderStage: this.$maxStorageTexturesPerShaderStage, maxUniformBuffersPerShaderStage: this.$maxUniformBuffersPerShaderStage, maxUniformBufferBindingSize: this.$maxUniformBufferBindingSize, maxStorageBufferBindingSize: this.$maxStorageBufferBindingSize, minUniformBufferOffsetAlignment: this.$minUniformBufferOffsetAlignment, minStorageBufferOffsetAlignment: this.$minStorageBufferOffsetAlignment, maxVertexBuffers: this.$maxVertexBuffers, maxBufferSize: this.$maxBufferSize, maxVertexAttributes: this.$maxVertexAttributes, maxVertexBufferArrayStride: this.$maxVertexBufferArrayStride, maxInterStageShaderComponents: this.$maxInterStageShaderComponents, maxInterStageShaderVariables: this.$maxInterStageShaderVariables, maxColorAttachments: this.$maxColorAttachments, maxColorAttachmentBytesPerSample: this.$maxColorAttachmentBytesPerSample, maxComputeWorkgroupStorageSize: this.$maxComputeWorkgroupStorageSize, maxComputeInvocationsPerWorkgroup: this.$maxComputeInvocationsPerWorkgroup, maxComputeWorkgroupSizeX: this.$maxComputeWorkgroupSizeX, maxComputeWorkgroupSizeY: this.$maxComputeWorkgroupSizeY, maxComputeWorkgroupSizeZ: this.$maxComputeWorkgroupSizeZ, maxComputeWorkgroupsPerDimension: this.$maxComputeWorkgroupsPerDimension, maxStorageBuffersInVertexStage: this.$maxStorageBuffersInVertexStage, maxStorageTexturesInVertexStage: this.$maxStorageTexturesInVertexStage, maxStorageBuffersInFragmentStage: this.$maxStorageBuffersInFragmentStage, maxStorageTexturesInFragmentStage: this.$maxStorageTexturesInFragmentStage})
   static new = (val: Partial<{ maxTextureDimension1D: c.U32; maxTextureDimension2D: c.U32; maxTextureDimension3D: c.U32; maxTextureArrayLayers: c.U32; maxBindGroups: c.U32; maxBindGroupsPlusVertexBuffers: c.U32; maxBindingsPerBindGroup: c.U32; maxDynamicUniformBuffersPerPipelineLayout: c.U32; maxDynamicStorageBuffersPerPipelineLayout: c.U32; maxSampledTexturesPerShaderStage: c.U32; maxSamplersPerShaderStage: c.U32; maxStorageBuffersPerShaderStage: c.U32; maxStorageTexturesPerShaderStage: c.U32; maxUniformBuffersPerShaderStage: c.U32; maxUniformBufferBindingSize: c.U64; maxStorageBufferBindingSize: c.U64; minUniformBufferOffsetAlignment: c.U32; minStorageBufferOffsetAlignment: c.U32; maxVertexBuffers: c.U32; maxBufferSize: c.U64; maxVertexAttributes: c.U32; maxVertexBufferArrayStride: c.U32; maxInterStageShaderComponents: c.U32; maxInterStageShaderVariables: c.U32; maxColorAttachments: c.U32; maxColorAttachmentBytesPerSample: c.U32; maxComputeWorkgroupStorageSize: c.U32; maxComputeInvocationsPerWorkgroup: c.U32; maxComputeWorkgroupSizeX: c.U32; maxComputeWorkgroupSizeY: c.U32; maxComputeWorkgroupSizeZ: c.U32; maxComputeWorkgroupsPerDimension: c.U32; maxStorageBuffersInVertexStage: c.U32; maxStorageTexturesInVertexStage: c.U32; maxStorageBuffersInFragmentStage: c.U32; maxStorageTexturesInFragmentStage: c.U32 }>) => new Limits().set(val)
 }
 export class MemoryHeapInfo extends c.Struct<{ properties: HeapProperty; size: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $properties(){ return new HeapProperty(this.buffer, this.offset + 0) }
-  get $size(){ return new c.U64(this.buffer, this.offset + 8) }
-  protected override _value = () => ({properties: this.$properties, size: this.$size})
+  get $properties(){ return new HeapProperty(this._buffer, this._offset + 0) }
+  get $size(){ return new c.U64(this._buffer, this._offset + 8) }
+  protected override _get = () => ({properties: this.$properties, size: this.$size})
   static new = (val: Partial<{ properties: HeapProperty; size: c.U64 }>) => new MemoryHeapInfo().set(val)
 }
 export class MultisampleState extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; count: c.U32; mask: c.U32; alphaToCoverageEnabled: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $count(){ return new c.U32(this.buffer, this.offset + 8) }
-  get $mask(){ return new c.U32(this.buffer, this.offset + 12) }
-  get $alphaToCoverageEnabled(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, count: this.$count, mask: this.$mask, alphaToCoverageEnabled: this.$alphaToCoverageEnabled})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $count(){ return new c.U32(this._buffer, this._offset + 8) }
+  get $mask(){ return new c.U32(this._buffer, this._offset + 12) }
+  get $alphaToCoverageEnabled(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, count: this.$count, mask: this.$mask, alphaToCoverageEnabled: this.$alphaToCoverageEnabled})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; count: c.U32; mask: c.U32; alphaToCoverageEnabled: Bool }>) => new MultisampleState().set(val)
 }
 export class Origin2D extends c.Struct<{ x: c.U32; y: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 8, 4)
   }
-  get $x(){ return new c.U32(this.buffer, this.offset + 0) }
-  get $y(){ return new c.U32(this.buffer, this.offset + 4) }
-  protected override _value = () => ({x: this.$x, y: this.$y})
+  get $x(){ return new c.U32(this._buffer, this._offset + 0) }
+  get $y(){ return new c.U32(this._buffer, this._offset + 4) }
+  protected override _get = () => ({x: this.$x, y: this.$y})
   static new = (val: Partial<{ x: c.U32; y: c.U32 }>) => new Origin2D().set(val)
 }
 export class Origin3D extends c.Struct<{ x: c.U32; y: c.U32; z: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 12, 4)
   }
-  get $x(){ return new c.U32(this.buffer, this.offset + 0) }
-  get $y(){ return new c.U32(this.buffer, this.offset + 4) }
-  get $z(){ return new c.U32(this.buffer, this.offset + 8) }
-  protected override _value = () => ({x: this.$x, y: this.$y, z: this.$z})
+  get $x(){ return new c.U32(this._buffer, this._offset + 0) }
+  get $y(){ return new c.U32(this._buffer, this._offset + 4) }
+  get $z(){ return new c.U32(this._buffer, this._offset + 8) }
+  protected override _get = () => ({x: this.$x, y: this.$y, z: this.$z})
   static new = (val: Partial<{ x: c.U32; y: c.U32; z: c.U32 }>) => new Origin3D().set(val)
 }
 export class PipelineLayoutStorageAttachment extends c.Struct<{ offset: c.U64; format: TextureFormat }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $offset(){ return new c.U64(this.buffer, this.offset + 0) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 8) }
-  protected override _value = () => ({offset: this.$offset, format: this.$format})
+  get $offset(){ return new c.U64(this._buffer, this._offset + 0) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 8) }
+  protected override _get = () => ({offset: this.$offset, format: this.$format})
   static new = (val: Partial<{ offset: c.U64; format: TextureFormat }>) => new PipelineLayoutStorageAttachment().set(val)
 }
 export class PopErrorScopeCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: PopErrorScopeCallback; oldCallback: ErrorCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new PopErrorScopeCallback(this.buffer, this.offset + 16) }
-  get $oldCallback(){ return new ErrorCallback(this.buffer, this.offset + 24) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, oldCallback: this.$oldCallback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new PopErrorScopeCallback(this._buffer, this._offset + 16) }
+  get $oldCallback(){ return new ErrorCallback(this._buffer, this._offset + 24) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, oldCallback: this.$oldCallback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: PopErrorScopeCallback; oldCallback: ErrorCallback; userdata: c.Pointer<c.Void> }>) => new PopErrorScopeCallbackInfo().set(val)
 }
 export class PrimitiveState extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; topology: PrimitiveTopology; stripIndexFormat: IndexFormat; frontFace: FrontFace; cullMode: CullMode; unclippedDepth: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $topology(){ return new PrimitiveTopology(this.buffer, this.offset + 8) }
-  get $stripIndexFormat(){ return new IndexFormat(this.buffer, this.offset + 12) }
-  get $frontFace(){ return new FrontFace(this.buffer, this.offset + 16) }
-  get $cullMode(){ return new CullMode(this.buffer, this.offset + 20) }
-  get $unclippedDepth(){ return new Bool(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, topology: this.$topology, stripIndexFormat: this.$stripIndexFormat, frontFace: this.$frontFace, cullMode: this.$cullMode, unclippedDepth: this.$unclippedDepth})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $topology(){ return new PrimitiveTopology(this._buffer, this._offset + 8) }
+  get $stripIndexFormat(){ return new IndexFormat(this._buffer, this._offset + 12) }
+  get $frontFace(){ return new FrontFace(this._buffer, this._offset + 16) }
+  get $cullMode(){ return new CullMode(this._buffer, this._offset + 20) }
+  get $unclippedDepth(){ return new Bool(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, topology: this.$topology, stripIndexFormat: this.$stripIndexFormat, frontFace: this.$frontFace, cullMode: this.$cullMode, unclippedDepth: this.$unclippedDepth})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; topology: PrimitiveTopology; stripIndexFormat: IndexFormat; frontFace: FrontFace; cullMode: CullMode; unclippedDepth: Bool }>) => new PrimitiveState().set(val)
 }
 export class QueueWorkDoneCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: QueueWorkDoneCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new QueueWorkDoneCallback(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new QueueWorkDoneCallback(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: QueueWorkDoneCallback; userdata: c.Pointer<c.Void> }>) => new QueueWorkDoneCallbackInfo().set(val)
 }
 export class RenderPassDepthStencilAttachment extends c.Struct<{ view: TextureView; depthLoadOp: LoadOp; depthStoreOp: StoreOp; depthClearValue: c.F32; depthReadOnly: Bool; stencilLoadOp: LoadOp; stencilStoreOp: StoreOp; stencilClearValue: c.U32; stencilReadOnly: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $view(){ return new TextureView(this.buffer, this.offset + 0) }
-  get $depthLoadOp(){ return new LoadOp(this.buffer, this.offset + 8) }
-  get $depthStoreOp(){ return new StoreOp(this.buffer, this.offset + 12) }
-  get $depthClearValue(){ return new c.F32(this.buffer, this.offset + 16) }
-  get $depthReadOnly(){ return new Bool(this.buffer, this.offset + 20) }
-  get $stencilLoadOp(){ return new LoadOp(this.buffer, this.offset + 24) }
-  get $stencilStoreOp(){ return new StoreOp(this.buffer, this.offset + 28) }
-  get $stencilClearValue(){ return new c.U32(this.buffer, this.offset + 32) }
-  get $stencilReadOnly(){ return new Bool(this.buffer, this.offset + 36) }
-  protected override _value = () => ({view: this.$view, depthLoadOp: this.$depthLoadOp, depthStoreOp: this.$depthStoreOp, depthClearValue: this.$depthClearValue, depthReadOnly: this.$depthReadOnly, stencilLoadOp: this.$stencilLoadOp, stencilStoreOp: this.$stencilStoreOp, stencilClearValue: this.$stencilClearValue, stencilReadOnly: this.$stencilReadOnly})
+  get $view(){ return new TextureView(this._buffer, this._offset + 0) }
+  get $depthLoadOp(){ return new LoadOp(this._buffer, this._offset + 8) }
+  get $depthStoreOp(){ return new StoreOp(this._buffer, this._offset + 12) }
+  get $depthClearValue(){ return new c.F32(this._buffer, this._offset + 16) }
+  get $depthReadOnly(){ return new Bool(this._buffer, this._offset + 20) }
+  get $stencilLoadOp(){ return new LoadOp(this._buffer, this._offset + 24) }
+  get $stencilStoreOp(){ return new StoreOp(this._buffer, this._offset + 28) }
+  get $stencilClearValue(){ return new c.U32(this._buffer, this._offset + 32) }
+  get $stencilReadOnly(){ return new Bool(this._buffer, this._offset + 36) }
+  protected override _get = () => ({view: this.$view, depthLoadOp: this.$depthLoadOp, depthStoreOp: this.$depthStoreOp, depthClearValue: this.$depthClearValue, depthReadOnly: this.$depthReadOnly, stencilLoadOp: this.$stencilLoadOp, stencilStoreOp: this.$stencilStoreOp, stencilClearValue: this.$stencilClearValue, stencilReadOnly: this.$stencilReadOnly})
   static new = (val: Partial<{ view: TextureView; depthLoadOp: LoadOp; depthStoreOp: StoreOp; depthClearValue: c.F32; depthReadOnly: Bool; stencilLoadOp: LoadOp; stencilStoreOp: StoreOp; stencilClearValue: c.U32; stencilReadOnly: Bool }>) => new RenderPassDepthStencilAttachment().set(val)
 }
 export class RenderPassDescriptorExpandResolveRect extends c.Struct<{ chain: ChainedStruct; x: c.U32; y: c.U32; width: c.U32; height: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $x(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $y(){ return new c.U32(this.buffer, this.offset + 20) }
-  get $width(){ return new c.U32(this.buffer, this.offset + 24) }
-  get $height(){ return new c.U32(this.buffer, this.offset + 28) }
-  protected override _value = () => ({chain: this.$chain, x: this.$x, y: this.$y, width: this.$width, height: this.$height})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $x(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $y(){ return new c.U32(this._buffer, this._offset + 20) }
+  get $width(){ return new c.U32(this._buffer, this._offset + 24) }
+  get $height(){ return new c.U32(this._buffer, this._offset + 28) }
+  protected override _get = () => ({chain: this.$chain, x: this.$x, y: this.$y, width: this.$width, height: this.$height})
   static new = (val: Partial<{ chain: ChainedStruct; x: c.U32; y: c.U32; width: c.U32; height: c.U32 }>) => new RenderPassDescriptorExpandResolveRect().set(val)
 }
 export class RenderPassMaxDrawCount extends c.Struct<{ chain: ChainedStruct; maxDrawCount: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $maxDrawCount(){ return new c.U64(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, maxDrawCount: this.$maxDrawCount})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $maxDrawCount(){ return new c.U64(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, maxDrawCount: this.$maxDrawCount})
   static new = (val: Partial<{ chain: ChainedStruct; maxDrawCount: c.U64 }>) => new RenderPassMaxDrawCount().set(val)
 }
 export class RenderPassTimestampWrites extends c.Struct<{ querySet: QuerySet; beginningOfPassWriteIndex: c.U32; endOfPassWriteIndex: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $querySet(){ return new QuerySet(this.buffer, this.offset + 0) }
-  get $beginningOfPassWriteIndex(){ return new c.U32(this.buffer, this.offset + 8) }
-  get $endOfPassWriteIndex(){ return new c.U32(this.buffer, this.offset + 12) }
-  protected override _value = () => ({querySet: this.$querySet, beginningOfPassWriteIndex: this.$beginningOfPassWriteIndex, endOfPassWriteIndex: this.$endOfPassWriteIndex})
+  get $querySet(){ return new QuerySet(this._buffer, this._offset + 0) }
+  get $beginningOfPassWriteIndex(){ return new c.U32(this._buffer, this._offset + 8) }
+  get $endOfPassWriteIndex(){ return new c.U32(this._buffer, this._offset + 12) }
+  protected override _get = () => ({querySet: this.$querySet, beginningOfPassWriteIndex: this.$beginningOfPassWriteIndex, endOfPassWriteIndex: this.$endOfPassWriteIndex})
   static new = (val: Partial<{ querySet: QuerySet; beginningOfPassWriteIndex: c.U32; endOfPassWriteIndex: c.U32 }>) => new RenderPassTimestampWrites().set(val)
 }
 export class RequestAdapterCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestAdapterCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new RequestAdapterCallback(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new RequestAdapterCallback(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestAdapterCallback; userdata: c.Pointer<c.Void> }>) => new RequestAdapterCallbackInfo().set(val)
 }
 export class RequestAdapterOptions extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; compatibleSurface: Surface; featureLevel: FeatureLevel; powerPreference: PowerPreference; backendType: BackendType; forceFallbackAdapter: Bool; compatibilityMode: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $compatibleSurface(){ return new Surface(this.buffer, this.offset + 8) }
-  get $featureLevel(){ return new FeatureLevel(this.buffer, this.offset + 16) }
-  get $powerPreference(){ return new PowerPreference(this.buffer, this.offset + 20) }
-  get $backendType(){ return new BackendType(this.buffer, this.offset + 24) }
-  get $forceFallbackAdapter(){ return new Bool(this.buffer, this.offset + 28) }
-  get $compatibilityMode(){ return new Bool(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, compatibleSurface: this.$compatibleSurface, featureLevel: this.$featureLevel, powerPreference: this.$powerPreference, backendType: this.$backendType, forceFallbackAdapter: this.$forceFallbackAdapter, compatibilityMode: this.$compatibilityMode})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $compatibleSurface(){ return new Surface(this._buffer, this._offset + 8) }
+  get $featureLevel(){ return new FeatureLevel(this._buffer, this._offset + 16) }
+  get $powerPreference(){ return new PowerPreference(this._buffer, this._offset + 20) }
+  get $backendType(){ return new BackendType(this._buffer, this._offset + 24) }
+  get $forceFallbackAdapter(){ return new Bool(this._buffer, this._offset + 28) }
+  get $compatibilityMode(){ return new Bool(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, compatibleSurface: this.$compatibleSurface, featureLevel: this.$featureLevel, powerPreference: this.$powerPreference, backendType: this.$backendType, forceFallbackAdapter: this.$forceFallbackAdapter, compatibilityMode: this.$compatibilityMode})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; compatibleSurface: Surface; featureLevel: FeatureLevel; powerPreference: PowerPreference; backendType: BackendType; forceFallbackAdapter: Bool; compatibilityMode: Bool }>) => new RequestAdapterOptions().set(val)
 }
 export class RequestDeviceCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestDeviceCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new RequestDeviceCallback(this.buffer, this.offset + 16) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new RequestDeviceCallback(this._buffer, this._offset + 16) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestDeviceCallback; userdata: c.Pointer<c.Void> }>) => new RequestDeviceCallbackInfo().set(val)
 }
 export class SamplerBindingLayout extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; type: SamplerBindingType }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $type(){ return new SamplerBindingType(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, type: this.$type})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $type(){ return new SamplerBindingType(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, type: this.$type})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; type: SamplerBindingType }>) => new SamplerBindingLayout().set(val)
 }
 export class ShaderModuleCompilationOptions extends c.Struct<{ chain: ChainedStruct; strictMath: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $strictMath(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, strictMath: this.$strictMath})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $strictMath(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, strictMath: this.$strictMath})
   static new = (val: Partial<{ chain: ChainedStruct; strictMath: Bool }>) => new ShaderModuleCompilationOptions().set(val)
 }
 export class ShaderSourceSPIRV extends c.Struct<{ chain: ChainedStruct; codeSize: c.U32; code: c.Pointer<c.U32> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $codeSize(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $code(){ return new c.Pointer<c.U32>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, codeSize: this.$codeSize, code: this.$code})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $codeSize(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $code(){ return new c.Pointer<c.U32>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, codeSize: this.$codeSize, code: this.$code})
   static new = (val: Partial<{ chain: ChainedStruct; codeSize: c.U32; code: c.Pointer<c.U32> }>) => new ShaderSourceSPIRV().set(val)
 }
 export class SharedBufferMemoryBeginAccessDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $initialized(){ return new Bool(this.buffer, this.offset + 8) }
-  get $fenceCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $fences(){ return new c.Pointer<SharedFence>(this.buffer, this.offset + 24) }
-  get $signaledValues(){ return new c.Pointer<c.U64>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $initialized(){ return new Bool(this._buffer, this._offset + 8) }
+  get $fenceCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $fences(){ return new c.Pointer<SharedFence>(this._buffer, this._offset + 24) }
+  get $signaledValues(){ return new c.Pointer<c.U64>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }>) => new SharedBufferMemoryBeginAccessDescriptor().set(val)
 }
 export class SharedBufferMemoryEndAccessState extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $initialized(){ return new Bool(this.buffer, this.offset + 8) }
-  get $fenceCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $fences(){ return new c.Pointer<SharedFence>(this.buffer, this.offset + 24) }
-  get $signaledValues(){ return new c.Pointer<c.U64>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $initialized(){ return new Bool(this._buffer, this._offset + 8) }
+  get $fenceCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $fences(){ return new c.Pointer<SharedFence>(this._buffer, this._offset + 24) }
+  get $signaledValues(){ return new c.Pointer<c.U64>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }>) => new SharedBufferMemoryEndAccessState().set(val)
 }
 export class SharedBufferMemoryProperties extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; usage: BufferUsage; size: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $usage(){ return new BufferUsage(this.buffer, this.offset + 8) }
-  get $size(){ return new c.U64(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, usage: this.$usage, size: this.$size})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $usage(){ return new BufferUsage(this._buffer, this._offset + 8) }
+  get $size(){ return new c.U64(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, usage: this.$usage, size: this.$size})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; usage: BufferUsage; size: c.U64 }>) => new SharedBufferMemoryProperties().set(val)
 }
 export class SharedFenceDXGISharedHandleDescriptor extends c.Struct<{ chain: ChainedStruct; handle: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStruct; handle: c.Pointer<c.Void> }>) => new SharedFenceDXGISharedHandleDescriptor().set(val)
 }
 export class SharedFenceDXGISharedHandleExportInfo extends c.Struct<{ chain: ChainedStructOut; handle: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStructOut; handle: c.Pointer<c.Void> }>) => new SharedFenceDXGISharedHandleExportInfo().set(val)
 }
 export class SharedFenceMTLSharedEventDescriptor extends c.Struct<{ chain: ChainedStruct; sharedEvent: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $sharedEvent(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, sharedEvent: this.$sharedEvent})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $sharedEvent(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, sharedEvent: this.$sharedEvent})
   static new = (val: Partial<{ chain: ChainedStruct; sharedEvent: c.Pointer<c.Void> }>) => new SharedFenceMTLSharedEventDescriptor().set(val)
 }
 export class SharedFenceMTLSharedEventExportInfo extends c.Struct<{ chain: ChainedStructOut; sharedEvent: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $sharedEvent(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, sharedEvent: this.$sharedEvent})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $sharedEvent(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, sharedEvent: this.$sharedEvent})
   static new = (val: Partial<{ chain: ChainedStructOut; sharedEvent: c.Pointer<c.Void> }>) => new SharedFenceMTLSharedEventExportInfo().set(val)
 }
 export class SharedFenceExportInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; type: SharedFenceType }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $type(){ return new SharedFenceType(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, type: this.$type})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $type(){ return new SharedFenceType(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, type: this.$type})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; type: SharedFenceType }>) => new SharedFenceExportInfo().set(val)
 }
 export class SharedFenceSyncFDDescriptor extends c.Struct<{ chain: ChainedStruct; handle: c.I32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.I32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.I32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStruct; handle: c.I32 }>) => new SharedFenceSyncFDDescriptor().set(val)
 }
 export class SharedFenceSyncFDExportInfo extends c.Struct<{ chain: ChainedStructOut; handle: c.I32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.I32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.I32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStructOut; handle: c.I32 }>) => new SharedFenceSyncFDExportInfo().set(val)
 }
 export class SharedFenceVkSemaphoreOpaqueFDDescriptor extends c.Struct<{ chain: ChainedStruct; handle: c.I32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.I32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.I32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStruct; handle: c.I32 }>) => new SharedFenceVkSemaphoreOpaqueFDDescriptor().set(val)
 }
 export class SharedFenceVkSemaphoreOpaqueFDExportInfo extends c.Struct<{ chain: ChainedStructOut; handle: c.I32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.I32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.I32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStructOut; handle: c.I32 }>) => new SharedFenceVkSemaphoreOpaqueFDExportInfo().set(val)
 }
 export class SharedFenceVkSemaphoreZirconHandleDescriptor extends c.Struct<{ chain: ChainedStruct; handle: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStruct; handle: c.U32 }>) => new SharedFenceVkSemaphoreZirconHandleDescriptor().set(val)
 }
 export class SharedFenceVkSemaphoreZirconHandleExportInfo extends c.Struct<{ chain: ChainedStructOut; handle: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle})
   static new = (val: Partial<{ chain: ChainedStructOut; handle: c.U32 }>) => new SharedFenceVkSemaphoreZirconHandleExportInfo().set(val)
 }
 export class SharedTextureMemoryD3DSwapchainBeginState extends c.Struct<{ chain: ChainedStruct; isSwapchain: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $isSwapchain(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, isSwapchain: this.$isSwapchain})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $isSwapchain(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, isSwapchain: this.$isSwapchain})
   static new = (val: Partial<{ chain: ChainedStruct; isSwapchain: Bool }>) => new SharedTextureMemoryD3DSwapchainBeginState().set(val)
 }
 export class SharedTextureMemoryDXGISharedHandleDescriptor extends c.Struct<{ chain: ChainedStruct; handle: c.Pointer<c.Void>; useKeyedMutex: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $useKeyedMutex(){ return new Bool(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle, useKeyedMutex: this.$useKeyedMutex})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $useKeyedMutex(){ return new Bool(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle, useKeyedMutex: this.$useKeyedMutex})
   static new = (val: Partial<{ chain: ChainedStruct; handle: c.Pointer<c.Void>; useKeyedMutex: Bool }>) => new SharedTextureMemoryDXGISharedHandleDescriptor().set(val)
 }
 export class SharedTextureMemoryEGLImageDescriptor extends c.Struct<{ chain: ChainedStruct; image: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $image(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, image: this.$image})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $image(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, image: this.$image})
   static new = (val: Partial<{ chain: ChainedStruct; image: c.Pointer<c.Void> }>) => new SharedTextureMemoryEGLImageDescriptor().set(val)
 }
 export class SharedTextureMemoryIOSurfaceDescriptor extends c.Struct<{ chain: ChainedStruct; ioSurface: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $ioSurface(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, ioSurface: this.$ioSurface})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $ioSurface(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, ioSurface: this.$ioSurface})
   static new = (val: Partial<{ chain: ChainedStruct; ioSurface: c.Pointer<c.Void> }>) => new SharedTextureMemoryIOSurfaceDescriptor().set(val)
 }
 export class SharedTextureMemoryAHardwareBufferDescriptor extends c.Struct<{ chain: ChainedStruct; handle: c.Pointer<c.Void>; useExternalFormat: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $handle(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $useExternalFormat(){ return new Bool(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, handle: this.$handle, useExternalFormat: this.$useExternalFormat})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $handle(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $useExternalFormat(){ return new Bool(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, handle: this.$handle, useExternalFormat: this.$useExternalFormat})
   static new = (val: Partial<{ chain: ChainedStruct; handle: c.Pointer<c.Void>; useExternalFormat: Bool }>) => new SharedTextureMemoryAHardwareBufferDescriptor().set(val)
 }
 export class SharedTextureMemoryBeginAccessDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; concurrentRead: Bool; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $concurrentRead(){ return new Bool(this.buffer, this.offset + 8) }
-  get $initialized(){ return new Bool(this.buffer, this.offset + 12) }
-  get $fenceCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $fences(){ return new c.Pointer<SharedFence>(this.buffer, this.offset + 24) }
-  get $signaledValues(){ return new c.Pointer<c.U64>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, concurrentRead: this.$concurrentRead, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $concurrentRead(){ return new Bool(this._buffer, this._offset + 8) }
+  get $initialized(){ return new Bool(this._buffer, this._offset + 12) }
+  get $fenceCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $fences(){ return new c.Pointer<SharedFence>(this._buffer, this._offset + 24) }
+  get $signaledValues(){ return new c.Pointer<c.U64>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, concurrentRead: this.$concurrentRead, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; concurrentRead: Bool; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }>) => new SharedTextureMemoryBeginAccessDescriptor().set(val)
 }
 export class SharedTextureMemoryDmaBufPlane extends c.Struct<{ fd: c.I32; offset: c.U64; stride: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $fd(){ return new c.I32(this.buffer, this.offset + 0) }
-  get $offset(){ return new c.U64(this.buffer, this.offset + 8) }
-  get $stride(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({fd: this.$fd, offset: this.$offset, stride: this.$stride})
+  get $fd(){ return new c.I32(this._buffer, this._offset + 0) }
+  get $offset(){ return new c.U64(this._buffer, this._offset + 8) }
+  get $stride(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({fd: this.$fd, offset: this.$offset, stride: this.$stride})
   static new = (val: Partial<{ fd: c.I32; offset: c.U64; stride: c.U32 }>) => new SharedTextureMemoryDmaBufPlane().set(val)
 }
 export class SharedTextureMemoryEndAccessState extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $initialized(){ return new Bool(this.buffer, this.offset + 8) }
-  get $fenceCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $fences(){ return new c.Pointer<SharedFence>(this.buffer, this.offset + 24) }
-  get $signaledValues(){ return new c.Pointer<c.U64>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $initialized(){ return new Bool(this._buffer, this._offset + 8) }
+  get $fenceCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $fences(){ return new c.Pointer<SharedFence>(this._buffer, this._offset + 24) }
+  get $signaledValues(){ return new c.Pointer<c.U64>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, initialized: this.$initialized, fenceCount: this.$fenceCount, fences: this.$fences, signaledValues: this.$signaledValues})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; initialized: Bool; fenceCount: c.Size; fences: c.Pointer<SharedFence>; signaledValues: c.Pointer<c.U64> }>) => new SharedTextureMemoryEndAccessState().set(val)
 }
 export class SharedTextureMemoryOpaqueFDDescriptor extends c.Struct<{ chain: ChainedStruct; vkImageCreateInfo: c.Pointer<c.Void>; memoryFD: c.I32; memoryTypeIndex: c.U32; allocationSize: c.U64; dedicatedAllocation: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 48, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $vkImageCreateInfo(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $memoryFD(){ return new c.I32(this.buffer, this.offset + 24) }
-  get $memoryTypeIndex(){ return new c.U32(this.buffer, this.offset + 28) }
-  get $allocationSize(){ return new c.U64(this.buffer, this.offset + 32) }
-  get $dedicatedAllocation(){ return new Bool(this.buffer, this.offset + 40) }
-  protected override _value = () => ({chain: this.$chain, vkImageCreateInfo: this.$vkImageCreateInfo, memoryFD: this.$memoryFD, memoryTypeIndex: this.$memoryTypeIndex, allocationSize: this.$allocationSize, dedicatedAllocation: this.$dedicatedAllocation})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $vkImageCreateInfo(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $memoryFD(){ return new c.I32(this._buffer, this._offset + 24) }
+  get $memoryTypeIndex(){ return new c.U32(this._buffer, this._offset + 28) }
+  get $allocationSize(){ return new c.U64(this._buffer, this._offset + 32) }
+  get $dedicatedAllocation(){ return new Bool(this._buffer, this._offset + 40) }
+  protected override _get = () => ({chain: this.$chain, vkImageCreateInfo: this.$vkImageCreateInfo, memoryFD: this.$memoryFD, memoryTypeIndex: this.$memoryTypeIndex, allocationSize: this.$allocationSize, dedicatedAllocation: this.$dedicatedAllocation})
   static new = (val: Partial<{ chain: ChainedStruct; vkImageCreateInfo: c.Pointer<c.Void>; memoryFD: c.I32; memoryTypeIndex: c.U32; allocationSize: c.U64; dedicatedAllocation: Bool }>) => new SharedTextureMemoryOpaqueFDDescriptor().set(val)
 }
 export class SharedTextureMemoryVkDedicatedAllocationDescriptor extends c.Struct<{ chain: ChainedStruct; dedicatedAllocation: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $dedicatedAllocation(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, dedicatedAllocation: this.$dedicatedAllocation})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $dedicatedAllocation(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, dedicatedAllocation: this.$dedicatedAllocation})
   static new = (val: Partial<{ chain: ChainedStruct; dedicatedAllocation: Bool }>) => new SharedTextureMemoryVkDedicatedAllocationDescriptor().set(val)
 }
 export class SharedTextureMemoryVkImageLayoutBeginState extends c.Struct<{ chain: ChainedStruct; oldLayout: c.I32; newLayout: c.I32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $oldLayout(){ return new c.I32(this.buffer, this.offset + 16) }
-  get $newLayout(){ return new c.I32(this.buffer, this.offset + 20) }
-  protected override _value = () => ({chain: this.$chain, oldLayout: this.$oldLayout, newLayout: this.$newLayout})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $oldLayout(){ return new c.I32(this._buffer, this._offset + 16) }
+  get $newLayout(){ return new c.I32(this._buffer, this._offset + 20) }
+  protected override _get = () => ({chain: this.$chain, oldLayout: this.$oldLayout, newLayout: this.$newLayout})
   static new = (val: Partial<{ chain: ChainedStruct; oldLayout: c.I32; newLayout: c.I32 }>) => new SharedTextureMemoryVkImageLayoutBeginState().set(val)
 }
 export class SharedTextureMemoryVkImageLayoutEndState extends c.Struct<{ chain: ChainedStructOut; oldLayout: c.I32; newLayout: c.I32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $oldLayout(){ return new c.I32(this.buffer, this.offset + 16) }
-  get $newLayout(){ return new c.I32(this.buffer, this.offset + 20) }
-  protected override _value = () => ({chain: this.$chain, oldLayout: this.$oldLayout, newLayout: this.$newLayout})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $oldLayout(){ return new c.I32(this._buffer, this._offset + 16) }
+  get $newLayout(){ return new c.I32(this._buffer, this._offset + 20) }
+  protected override _get = () => ({chain: this.$chain, oldLayout: this.$oldLayout, newLayout: this.$newLayout})
   static new = (val: Partial<{ chain: ChainedStructOut; oldLayout: c.I32; newLayout: c.I32 }>) => new SharedTextureMemoryVkImageLayoutEndState().set(val)
 }
 export class SharedTextureMemoryZirconHandleDescriptor extends c.Struct<{ chain: ChainedStruct; memoryFD: c.U32; allocationSize: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $memoryFD(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $allocationSize(){ return new c.U64(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, memoryFD: this.$memoryFD, allocationSize: this.$allocationSize})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $memoryFD(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $allocationSize(){ return new c.U64(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, memoryFD: this.$memoryFD, allocationSize: this.$allocationSize})
   static new = (val: Partial<{ chain: ChainedStruct; memoryFD: c.U32; allocationSize: c.U64 }>) => new SharedTextureMemoryZirconHandleDescriptor().set(val)
 }
 export class StaticSamplerBindingLayout extends c.Struct<{ chain: ChainedStruct; sampler: Sampler; sampledTextureBinding: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $sampler(){ return new Sampler(this.buffer, this.offset + 16) }
-  get $sampledTextureBinding(){ return new c.U32(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, sampler: this.$sampler, sampledTextureBinding: this.$sampledTextureBinding})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $sampler(){ return new Sampler(this._buffer, this._offset + 16) }
+  get $sampledTextureBinding(){ return new c.U32(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, sampler: this.$sampler, sampledTextureBinding: this.$sampledTextureBinding})
   static new = (val: Partial<{ chain: ChainedStruct; sampler: Sampler; sampledTextureBinding: c.U32 }>) => new StaticSamplerBindingLayout().set(val)
 }
 export class StencilFaceState extends c.Struct<{ compare: CompareFunction; failOp: StencilOperation; depthFailOp: StencilOperation; passOp: StencilOperation }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 4)
   }
-  get $compare(){ return new CompareFunction(this.buffer, this.offset + 0) }
-  get $failOp(){ return new StencilOperation(this.buffer, this.offset + 4) }
-  get $depthFailOp(){ return new StencilOperation(this.buffer, this.offset + 8) }
-  get $passOp(){ return new StencilOperation(this.buffer, this.offset + 12) }
-  protected override _value = () => ({compare: this.$compare, failOp: this.$failOp, depthFailOp: this.$depthFailOp, passOp: this.$passOp})
+  get $compare(){ return new CompareFunction(this._buffer, this._offset + 0) }
+  get $failOp(){ return new StencilOperation(this._buffer, this._offset + 4) }
+  get $depthFailOp(){ return new StencilOperation(this._buffer, this._offset + 8) }
+  get $passOp(){ return new StencilOperation(this._buffer, this._offset + 12) }
+  protected override _get = () => ({compare: this.$compare, failOp: this.$failOp, depthFailOp: this.$depthFailOp, passOp: this.$passOp})
   static new = (val: Partial<{ compare: CompareFunction; failOp: StencilOperation; depthFailOp: StencilOperation; passOp: StencilOperation }>) => new StencilFaceState().set(val)
 }
 export class StorageTextureBindingLayout extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; access: StorageTextureAccess; format: TextureFormat; viewDimension: TextureViewDimension }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $access(){ return new StorageTextureAccess(this.buffer, this.offset + 8) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 12) }
-  get $viewDimension(){ return new TextureViewDimension(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, access: this.$access, format: this.$format, viewDimension: this.$viewDimension})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $access(){ return new StorageTextureAccess(this._buffer, this._offset + 8) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 12) }
+  get $viewDimension(){ return new TextureViewDimension(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, access: this.$access, format: this.$format, viewDimension: this.$viewDimension})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; access: StorageTextureAccess; format: TextureFormat; viewDimension: TextureViewDimension }>) => new StorageTextureBindingLayout().set(val)
 }
 export class StringView extends c.Struct<{ data: c.Pointer<c.U8>; length: c.Size }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $data(){ return new c.Pointer<c.U8>(this.buffer, this.offset + 0) }
-  get $length(){ return new c.Size(this.buffer, this.offset + 8) }
-  protected override _value = () => ({data: this.$data, length: this.$length})
+  get $data(){ return new c.Pointer<c.U8>(this._buffer, this._offset + 0) }
+  get $length(){ return new c.Size(this._buffer, this._offset + 8) }
+  protected override _get = () => ({data: this.$data, length: this.$length})
   static new = (val: Partial<{ data: c.Pointer<c.U8>; length: c.Size }>) => new StringView().set(val)
 }
 export class SupportedFeatures extends c.Struct<{ featureCount: c.Size; features: c.Pointer<FeatureName> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $featureCount(){ return new c.Size(this.buffer, this.offset + 0) }
-  get $features(){ return new c.Pointer<FeatureName>(this.buffer, this.offset + 8) }
-  protected override _value = () => ({featureCount: this.$featureCount, features: this.$features})
+  get $featureCount(){ return new c.Size(this._buffer, this._offset + 0) }
+  get $features(){ return new c.Pointer<FeatureName>(this._buffer, this._offset + 8) }
+  protected override _get = () => ({featureCount: this.$featureCount, features: this.$features})
   static new = (val: Partial<{ featureCount: c.Size; features: c.Pointer<FeatureName> }>) => new SupportedFeatures().set(val)
 }
 export class SurfaceCapabilities extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; usages: TextureUsage; formatCount: c.Size; formats: c.Pointer<TextureFormat>; presentModeCount: c.Size; presentModes: c.Pointer<PresentMode>; alphaModeCount: c.Size; alphaModes: c.Pointer<CompositeAlphaMode> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $usages(){ return new TextureUsage(this.buffer, this.offset + 8) }
-  get $formatCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $formats(){ return new c.Pointer<TextureFormat>(this.buffer, this.offset + 24) }
-  get $presentModeCount(){ return new c.Size(this.buffer, this.offset + 32) }
-  get $presentModes(){ return new c.Pointer<PresentMode>(this.buffer, this.offset + 40) }
-  get $alphaModeCount(){ return new c.Size(this.buffer, this.offset + 48) }
-  get $alphaModes(){ return new c.Pointer<CompositeAlphaMode>(this.buffer, this.offset + 56) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, usages: this.$usages, formatCount: this.$formatCount, formats: this.$formats, presentModeCount: this.$presentModeCount, presentModes: this.$presentModes, alphaModeCount: this.$alphaModeCount, alphaModes: this.$alphaModes})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $usages(){ return new TextureUsage(this._buffer, this._offset + 8) }
+  get $formatCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $formats(){ return new c.Pointer<TextureFormat>(this._buffer, this._offset + 24) }
+  get $presentModeCount(){ return new c.Size(this._buffer, this._offset + 32) }
+  get $presentModes(){ return new c.Pointer<PresentMode>(this._buffer, this._offset + 40) }
+  get $alphaModeCount(){ return new c.Size(this._buffer, this._offset + 48) }
+  get $alphaModes(){ return new c.Pointer<CompositeAlphaMode>(this._buffer, this._offset + 56) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, usages: this.$usages, formatCount: this.$formatCount, formats: this.$formats, presentModeCount: this.$presentModeCount, presentModes: this.$presentModes, alphaModeCount: this.$alphaModeCount, alphaModes: this.$alphaModes})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; usages: TextureUsage; formatCount: c.Size; formats: c.Pointer<TextureFormat>; presentModeCount: c.Size; presentModes: c.Pointer<PresentMode>; alphaModeCount: c.Size; alphaModes: c.Pointer<CompositeAlphaMode> }>) => new SurfaceCapabilities().set(val)
 }
 export class SurfaceConfiguration extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; device: Device; format: TextureFormat; usage: TextureUsage; viewFormatCount: c.Size; viewFormats: c.Pointer<TextureFormat>; alphaMode: CompositeAlphaMode; width: c.U32; height: c.U32; presentMode: PresentMode }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $device(){ return new Device(this.buffer, this.offset + 8) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 16) }
-  get $usage(){ return new TextureUsage(this.buffer, this.offset + 24) }
-  get $viewFormatCount(){ return new c.Size(this.buffer, this.offset + 32) }
-  get $viewFormats(){ return new c.Pointer<TextureFormat>(this.buffer, this.offset + 40) }
-  get $alphaMode(){ return new CompositeAlphaMode(this.buffer, this.offset + 48) }
-  get $width(){ return new c.U32(this.buffer, this.offset + 52) }
-  get $height(){ return new c.U32(this.buffer, this.offset + 56) }
-  get $presentMode(){ return new PresentMode(this.buffer, this.offset + 60) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, device: this.$device, format: this.$format, usage: this.$usage, viewFormatCount: this.$viewFormatCount, viewFormats: this.$viewFormats, alphaMode: this.$alphaMode, width: this.$width, height: this.$height, presentMode: this.$presentMode})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $device(){ return new Device(this._buffer, this._offset + 8) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 16) }
+  get $usage(){ return new TextureUsage(this._buffer, this._offset + 24) }
+  get $viewFormatCount(){ return new c.Size(this._buffer, this._offset + 32) }
+  get $viewFormats(){ return new c.Pointer<TextureFormat>(this._buffer, this._offset + 40) }
+  get $alphaMode(){ return new CompositeAlphaMode(this._buffer, this._offset + 48) }
+  get $width(){ return new c.U32(this._buffer, this._offset + 52) }
+  get $height(){ return new c.U32(this._buffer, this._offset + 56) }
+  get $presentMode(){ return new PresentMode(this._buffer, this._offset + 60) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, device: this.$device, format: this.$format, usage: this.$usage, viewFormatCount: this.$viewFormatCount, viewFormats: this.$viewFormats, alphaMode: this.$alphaMode, width: this.$width, height: this.$height, presentMode: this.$presentMode})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; device: Device; format: TextureFormat; usage: TextureUsage; viewFormatCount: c.Size; viewFormats: c.Pointer<TextureFormat>; alphaMode: CompositeAlphaMode; width: c.U32; height: c.U32; presentMode: PresentMode }>) => new SurfaceConfiguration().set(val)
 }
 export class SurfaceDescriptorFromWindowsCoreWindow extends c.Struct<{ chain: ChainedStruct; coreWindow: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $coreWindow(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, coreWindow: this.$coreWindow})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $coreWindow(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, coreWindow: this.$coreWindow})
   static new = (val: Partial<{ chain: ChainedStruct; coreWindow: c.Pointer<c.Void> }>) => new SurfaceDescriptorFromWindowsCoreWindow().set(val)
 }
 export class SurfaceDescriptorFromWindowsSwapChainPanel extends c.Struct<{ chain: ChainedStruct; swapChainPanel: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $swapChainPanel(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, swapChainPanel: this.$swapChainPanel})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $swapChainPanel(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, swapChainPanel: this.$swapChainPanel})
   static new = (val: Partial<{ chain: ChainedStruct; swapChainPanel: c.Pointer<c.Void> }>) => new SurfaceDescriptorFromWindowsSwapChainPanel().set(val)
 }
 export class SurfaceSourceXCBWindow extends c.Struct<{ chain: ChainedStruct; connection: c.Pointer<c.Void>; window: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $connection(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $window(){ return new c.U32(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, connection: this.$connection, window: this.$window})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $connection(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $window(){ return new c.U32(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, connection: this.$connection, window: this.$window})
   static new = (val: Partial<{ chain: ChainedStruct; connection: c.Pointer<c.Void>; window: c.U32 }>) => new SurfaceSourceXCBWindow().set(val)
 }
 export class SurfaceSourceAndroidNativeWindow extends c.Struct<{ chain: ChainedStruct; window: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $window(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, window: this.$window})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $window(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, window: this.$window})
   static new = (val: Partial<{ chain: ChainedStruct; window: c.Pointer<c.Void> }>) => new SurfaceSourceAndroidNativeWindow().set(val)
 }
 export class SurfaceSourceMetalLayer extends c.Struct<{ chain: ChainedStruct; layer: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $layer(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, layer: this.$layer})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $layer(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, layer: this.$layer})
   static new = (val: Partial<{ chain: ChainedStruct; layer: c.Pointer<c.Void> }>) => new SurfaceSourceMetalLayer().set(val)
 }
 export class SurfaceSourceWaylandSurface extends c.Struct<{ chain: ChainedStruct; display: c.Pointer<c.Void>; surface: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $display(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $surface(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, display: this.$display, surface: this.$surface})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $display(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $surface(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, display: this.$display, surface: this.$surface})
   static new = (val: Partial<{ chain: ChainedStruct; display: c.Pointer<c.Void>; surface: c.Pointer<c.Void> }>) => new SurfaceSourceWaylandSurface().set(val)
 }
 export class SurfaceSourceWindowsHWND extends c.Struct<{ chain: ChainedStruct; hinstance: c.Pointer<c.Void>; hwnd: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $hinstance(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $hwnd(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, hinstance: this.$hinstance, hwnd: this.$hwnd})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $hinstance(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $hwnd(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, hinstance: this.$hinstance, hwnd: this.$hwnd})
   static new = (val: Partial<{ chain: ChainedStruct; hinstance: c.Pointer<c.Void>; hwnd: c.Pointer<c.Void> }>) => new SurfaceSourceWindowsHWND().set(val)
 }
 export class SurfaceSourceXlibWindow extends c.Struct<{ chain: ChainedStruct; display: c.Pointer<c.Void>; window: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $display(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $window(){ return new c.U64(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, display: this.$display, window: this.$window})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $display(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $window(){ return new c.U64(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, display: this.$display, window: this.$window})
   static new = (val: Partial<{ chain: ChainedStruct; display: c.Pointer<c.Void>; window: c.U64 }>) => new SurfaceSourceXlibWindow().set(val)
 }
 export class SurfaceTexture extends c.Struct<{ texture: Texture; suboptimal: Bool; status: SurfaceGetCurrentTextureStatus }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $texture(){ return new Texture(this.buffer, this.offset + 0) }
-  get $suboptimal(){ return new Bool(this.buffer, this.offset + 8) }
-  get $status(){ return new SurfaceGetCurrentTextureStatus(this.buffer, this.offset + 12) }
-  protected override _value = () => ({texture: this.$texture, suboptimal: this.$suboptimal, status: this.$status})
+  get $texture(){ return new Texture(this._buffer, this._offset + 0) }
+  get $suboptimal(){ return new Bool(this._buffer, this._offset + 8) }
+  get $status(){ return new SurfaceGetCurrentTextureStatus(this._buffer, this._offset + 12) }
+  protected override _get = () => ({texture: this.$texture, suboptimal: this.$suboptimal, status: this.$status})
   static new = (val: Partial<{ texture: Texture; suboptimal: Bool; status: SurfaceGetCurrentTextureStatus }>) => new SurfaceTexture().set(val)
 }
 export class TextureBindingLayout extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; sampleType: TextureSampleType; viewDimension: TextureViewDimension; multisampled: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $sampleType(){ return new TextureSampleType(this.buffer, this.offset + 8) }
-  get $viewDimension(){ return new TextureViewDimension(this.buffer, this.offset + 12) }
-  get $multisampled(){ return new Bool(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, sampleType: this.$sampleType, viewDimension: this.$viewDimension, multisampled: this.$multisampled})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $sampleType(){ return new TextureSampleType(this._buffer, this._offset + 8) }
+  get $viewDimension(){ return new TextureViewDimension(this._buffer, this._offset + 12) }
+  get $multisampled(){ return new Bool(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, sampleType: this.$sampleType, viewDimension: this.$viewDimension, multisampled: this.$multisampled})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; sampleType: TextureSampleType; viewDimension: TextureViewDimension; multisampled: Bool }>) => new TextureBindingLayout().set(val)
 }
 export class TextureBindingViewDimensionDescriptor extends c.Struct<{ chain: ChainedStruct; textureBindingViewDimension: TextureViewDimension }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $textureBindingViewDimension(){ return new TextureViewDimension(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, textureBindingViewDimension: this.$textureBindingViewDimension})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $textureBindingViewDimension(){ return new TextureViewDimension(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, textureBindingViewDimension: this.$textureBindingViewDimension})
   static new = (val: Partial<{ chain: ChainedStruct; textureBindingViewDimension: TextureViewDimension }>) => new TextureBindingViewDimensionDescriptor().set(val)
 }
 export class TextureDataLayout extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; offset: c.U64; bytesPerRow: c.U32; rowsPerImage: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $offset(){ return new c.U64(this.buffer, this.offset + 8) }
-  get $bytesPerRow(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $rowsPerImage(){ return new c.U32(this.buffer, this.offset + 20) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, offset: this.$offset, bytesPerRow: this.$bytesPerRow, rowsPerImage: this.$rowsPerImage})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $offset(){ return new c.U64(this._buffer, this._offset + 8) }
+  get $bytesPerRow(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $rowsPerImage(){ return new c.U32(this._buffer, this._offset + 20) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, offset: this.$offset, bytesPerRow: this.$bytesPerRow, rowsPerImage: this.$rowsPerImage})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; offset: c.U64; bytesPerRow: c.U32; rowsPerImage: c.U32 }>) => new TextureDataLayout().set(val)
 }
 export class UncapturedErrorCallbackInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; callback: ErrorCallback; userdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $callback(){ return new ErrorCallback(this.buffer, this.offset + 8) }
-  get $userdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, callback: this.$callback, userdata: this.$userdata})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $callback(){ return new ErrorCallback(this._buffer, this._offset + 8) }
+  get $userdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, callback: this.$callback, userdata: this.$userdata})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; callback: ErrorCallback; userdata: c.Pointer<c.Void> }>) => new UncapturedErrorCallbackInfo().set(val)
 }
 export class VertexAttribute extends c.Struct<{ format: VertexFormat; offset: c.U64; shaderLocation: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $format(){ return new VertexFormat(this.buffer, this.offset + 0) }
-  get $offset(){ return new c.U64(this.buffer, this.offset + 8) }
-  get $shaderLocation(){ return new c.U32(this.buffer, this.offset + 16) }
-  protected override _value = () => ({format: this.$format, offset: this.$offset, shaderLocation: this.$shaderLocation})
+  get $format(){ return new VertexFormat(this._buffer, this._offset + 0) }
+  get $offset(){ return new c.U64(this._buffer, this._offset + 8) }
+  get $shaderLocation(){ return new c.U32(this._buffer, this._offset + 16) }
+  protected override _get = () => ({format: this.$format, offset: this.$offset, shaderLocation: this.$shaderLocation})
   static new = (val: Partial<{ format: VertexFormat; offset: c.U64; shaderLocation: c.U32 }>) => new VertexAttribute().set(val)
 }
 export class YCbCrVkDescriptor extends c.Struct<{ chain: ChainedStruct; vkFormat: c.U32; vkYCbCrModel: c.U32; vkYCbCrRange: c.U32; vkComponentSwizzleRed: c.U32; vkComponentSwizzleGreen: c.U32; vkComponentSwizzleBlue: c.U32; vkComponentSwizzleAlpha: c.U32; vkXChromaOffset: c.U32; vkYChromaOffset: c.U32; vkChromaFilter: FilterMode; forceExplicitReconstruction: Bool; externalFormat: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 72, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $vkFormat(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $vkYCbCrModel(){ return new c.U32(this.buffer, this.offset + 20) }
-  get $vkYCbCrRange(){ return new c.U32(this.buffer, this.offset + 24) }
-  get $vkComponentSwizzleRed(){ return new c.U32(this.buffer, this.offset + 28) }
-  get $vkComponentSwizzleGreen(){ return new c.U32(this.buffer, this.offset + 32) }
-  get $vkComponentSwizzleBlue(){ return new c.U32(this.buffer, this.offset + 36) }
-  get $vkComponentSwizzleAlpha(){ return new c.U32(this.buffer, this.offset + 40) }
-  get $vkXChromaOffset(){ return new c.U32(this.buffer, this.offset + 44) }
-  get $vkYChromaOffset(){ return new c.U32(this.buffer, this.offset + 48) }
-  get $vkChromaFilter(){ return new FilterMode(this.buffer, this.offset + 52) }
-  get $forceExplicitReconstruction(){ return new Bool(this.buffer, this.offset + 56) }
-  get $externalFormat(){ return new c.U64(this.buffer, this.offset + 64) }
-  protected override _value = () => ({chain: this.$chain, vkFormat: this.$vkFormat, vkYCbCrModel: this.$vkYCbCrModel, vkYCbCrRange: this.$vkYCbCrRange, vkComponentSwizzleRed: this.$vkComponentSwizzleRed, vkComponentSwizzleGreen: this.$vkComponentSwizzleGreen, vkComponentSwizzleBlue: this.$vkComponentSwizzleBlue, vkComponentSwizzleAlpha: this.$vkComponentSwizzleAlpha, vkXChromaOffset: this.$vkXChromaOffset, vkYChromaOffset: this.$vkYChromaOffset, vkChromaFilter: this.$vkChromaFilter, forceExplicitReconstruction: this.$forceExplicitReconstruction, externalFormat: this.$externalFormat})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $vkFormat(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $vkYCbCrModel(){ return new c.U32(this._buffer, this._offset + 20) }
+  get $vkYCbCrRange(){ return new c.U32(this._buffer, this._offset + 24) }
+  get $vkComponentSwizzleRed(){ return new c.U32(this._buffer, this._offset + 28) }
+  get $vkComponentSwizzleGreen(){ return new c.U32(this._buffer, this._offset + 32) }
+  get $vkComponentSwizzleBlue(){ return new c.U32(this._buffer, this._offset + 36) }
+  get $vkComponentSwizzleAlpha(){ return new c.U32(this._buffer, this._offset + 40) }
+  get $vkXChromaOffset(){ return new c.U32(this._buffer, this._offset + 44) }
+  get $vkYChromaOffset(){ return new c.U32(this._buffer, this._offset + 48) }
+  get $vkChromaFilter(){ return new FilterMode(this._buffer, this._offset + 52) }
+  get $forceExplicitReconstruction(){ return new Bool(this._buffer, this._offset + 56) }
+  get $externalFormat(){ return new c.U64(this._buffer, this._offset + 64) }
+  protected override _get = () => ({chain: this.$chain, vkFormat: this.$vkFormat, vkYCbCrModel: this.$vkYCbCrModel, vkYCbCrRange: this.$vkYCbCrRange, vkComponentSwizzleRed: this.$vkComponentSwizzleRed, vkComponentSwizzleGreen: this.$vkComponentSwizzleGreen, vkComponentSwizzleBlue: this.$vkComponentSwizzleBlue, vkComponentSwizzleAlpha: this.$vkComponentSwizzleAlpha, vkXChromaOffset: this.$vkXChromaOffset, vkYChromaOffset: this.$vkYChromaOffset, vkChromaFilter: this.$vkChromaFilter, forceExplicitReconstruction: this.$forceExplicitReconstruction, externalFormat: this.$externalFormat})
   static new = (val: Partial<{ chain: ChainedStruct; vkFormat: c.U32; vkYCbCrModel: c.U32; vkYCbCrRange: c.U32; vkComponentSwizzleRed: c.U32; vkComponentSwizzleGreen: c.U32; vkComponentSwizzleBlue: c.U32; vkComponentSwizzleAlpha: c.U32; vkXChromaOffset: c.U32; vkYChromaOffset: c.U32; vkChromaFilter: FilterMode; forceExplicitReconstruction: Bool; externalFormat: c.U64 }>) => new YCbCrVkDescriptor().set(val)
 }
 export class AHardwareBufferProperties extends c.Struct<{ yCbCrInfo: YCbCrVkDescriptor }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 72, 8)
   }
-  get $yCbCrInfo(){ return new YCbCrVkDescriptor(this.buffer, this.offset + 0) }
-  protected override _value = () => ({yCbCrInfo: this.$yCbCrInfo})
+  get $yCbCrInfo(){ return new YCbCrVkDescriptor(this._buffer, this._offset + 0) }
+  protected override _get = () => ({yCbCrInfo: this.$yCbCrInfo})
   static new = (val: Partial<{ yCbCrInfo: YCbCrVkDescriptor }>) => new AHardwareBufferProperties().set(val)
 }
 export class AdapterInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; vendor: StringView; architecture: StringView; device: StringView; description: StringView; backendType: BackendType; adapterType: AdapterType; vendorID: c.U32; deviceID: c.U32; compatibilityMode: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 96, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $vendor(){ return new StringView(this.buffer, this.offset + 8) }
-  get $architecture(){ return new StringView(this.buffer, this.offset + 24) }
-  get $device(){ return new StringView(this.buffer, this.offset + 40) }
-  get $description(){ return new StringView(this.buffer, this.offset + 56) }
-  get $backendType(){ return new BackendType(this.buffer, this.offset + 72) }
-  get $adapterType(){ return new AdapterType(this.buffer, this.offset + 76) }
-  get $vendorID(){ return new c.U32(this.buffer, this.offset + 80) }
-  get $deviceID(){ return new c.U32(this.buffer, this.offset + 84) }
-  get $compatibilityMode(){ return new Bool(this.buffer, this.offset + 88) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, vendor: this.$vendor, architecture: this.$architecture, device: this.$device, description: this.$description, backendType: this.$backendType, adapterType: this.$adapterType, vendorID: this.$vendorID, deviceID: this.$deviceID, compatibilityMode: this.$compatibilityMode})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $vendor(){ return new StringView(this._buffer, this._offset + 8) }
+  get $architecture(){ return new StringView(this._buffer, this._offset + 24) }
+  get $device(){ return new StringView(this._buffer, this._offset + 40) }
+  get $description(){ return new StringView(this._buffer, this._offset + 56) }
+  get $backendType(){ return new BackendType(this._buffer, this._offset + 72) }
+  get $adapterType(){ return new AdapterType(this._buffer, this._offset + 76) }
+  get $vendorID(){ return new c.U32(this._buffer, this._offset + 80) }
+  get $deviceID(){ return new c.U32(this._buffer, this._offset + 84) }
+  get $compatibilityMode(){ return new Bool(this._buffer, this._offset + 88) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, vendor: this.$vendor, architecture: this.$architecture, device: this.$device, description: this.$description, backendType: this.$backendType, adapterType: this.$adapterType, vendorID: this.$vendorID, deviceID: this.$deviceID, compatibilityMode: this.$compatibilityMode})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; vendor: StringView; architecture: StringView; device: StringView; description: StringView; backendType: BackendType; adapterType: AdapterType; vendorID: c.U32; deviceID: c.U32; compatibilityMode: Bool }>) => new AdapterInfo().set(val)
 }
 export class AdapterPropertiesMemoryHeaps extends c.Struct<{ chain: ChainedStructOut; heapCount: c.Size; heapInfo: c.Pointer<MemoryHeapInfo> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $heapCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $heapInfo(){ return new c.Pointer<MemoryHeapInfo>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, heapCount: this.$heapCount, heapInfo: this.$heapInfo})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $heapCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $heapInfo(){ return new c.Pointer<MemoryHeapInfo>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, heapCount: this.$heapCount, heapInfo: this.$heapInfo})
   static new = (val: Partial<{ chain: ChainedStructOut; heapCount: c.Size; heapInfo: c.Pointer<MemoryHeapInfo> }>) => new AdapterPropertiesMemoryHeaps().set(val)
 }
 export class BindGroupDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; layout: BindGroupLayout; entryCount: c.Size; entries: c.Pointer<BindGroupEntry> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 48, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $layout(){ return new BindGroupLayout(this.buffer, this.offset + 24) }
-  get $entryCount(){ return new c.Size(this.buffer, this.offset + 32) }
-  get $entries(){ return new c.Pointer<BindGroupEntry>(this.buffer, this.offset + 40) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, layout: this.$layout, entryCount: this.$entryCount, entries: this.$entries})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $layout(){ return new BindGroupLayout(this._buffer, this._offset + 24) }
+  get $entryCount(){ return new c.Size(this._buffer, this._offset + 32) }
+  get $entries(){ return new c.Pointer<BindGroupEntry>(this._buffer, this._offset + 40) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, layout: this.$layout, entryCount: this.$entryCount, entries: this.$entries})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; layout: BindGroupLayout; entryCount: c.Size; entries: c.Pointer<BindGroupEntry> }>) => new BindGroupDescriptor().set(val)
 }
 export class BindGroupLayoutEntry extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; binding: c.U32; visibility: ShaderStage; buffer: BufferBindingLayout; sampler: SamplerBindingLayout; texture: TextureBindingLayout; storageTexture: StorageTextureBindingLayout }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 112, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $binding(){ return new c.U32(this.buffer, this.offset + 8) }
-  get $visibility(){ return new ShaderStage(this.buffer, this.offset + 16) }
-  get $buffer(){ return new BufferBindingLayout(this.buffer, this.offset + 24) }
-  get $sampler(){ return new SamplerBindingLayout(this.buffer, this.offset + 48) }
-  get $texture(){ return new TextureBindingLayout(this.buffer, this.offset + 64) }
-  get $storageTexture(){ return new StorageTextureBindingLayout(this.buffer, this.offset + 88) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, binding: this.$binding, visibility: this.$visibility, buffer: this.$buffer, sampler: this.$sampler, texture: this.$texture, storageTexture: this.$storageTexture})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $binding(){ return new c.U32(this._buffer, this._offset + 8) }
+  get $visibility(){ return new ShaderStage(this._buffer, this._offset + 16) }
+  get $buffer(){ return new BufferBindingLayout(this._buffer, this._offset + 24) }
+  get $sampler(){ return new SamplerBindingLayout(this._buffer, this._offset + 48) }
+  get $texture(){ return new TextureBindingLayout(this._buffer, this._offset + 64) }
+  get $storageTexture(){ return new StorageTextureBindingLayout(this._buffer, this._offset + 88) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, binding: this.$binding, visibility: this.$visibility, buffer: this.$buffer, sampler: this.$sampler, texture: this.$texture, storageTexture: this.$storageTexture})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; binding: c.U32; visibility: ShaderStage; buffer: BufferBindingLayout; sampler: SamplerBindingLayout; texture: TextureBindingLayout; storageTexture: StorageTextureBindingLayout }>) => new BindGroupLayoutEntry().set(val)
 }
 export class BlendState extends c.Struct<{ color: BlendComponent; alpha: BlendComponent }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 4)
   }
-  get $color(){ return new BlendComponent(this.buffer, this.offset + 0) }
-  get $alpha(){ return new BlendComponent(this.buffer, this.offset + 12) }
-  protected override _value = () => ({color: this.$color, alpha: this.$alpha})
+  get $color(){ return new BlendComponent(this._buffer, this._offset + 0) }
+  get $alpha(){ return new BlendComponent(this._buffer, this._offset + 12) }
+  protected override _get = () => ({color: this.$color, alpha: this.$alpha})
   static new = (val: Partial<{ color: BlendComponent; alpha: BlendComponent }>) => new BlendState().set(val)
 }
 export class BufferDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; usage: BufferUsage; size: c.U64; mappedAtCreation: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 48, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $usage(){ return new BufferUsage(this.buffer, this.offset + 24) }
-  get $size(){ return new c.U64(this.buffer, this.offset + 32) }
-  get $mappedAtCreation(){ return new Bool(this.buffer, this.offset + 40) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, usage: this.$usage, size: this.$size, mappedAtCreation: this.$mappedAtCreation})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $usage(){ return new BufferUsage(this._buffer, this._offset + 24) }
+  get $size(){ return new c.U64(this._buffer, this._offset + 32) }
+  get $mappedAtCreation(){ return new Bool(this._buffer, this._offset + 40) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, usage: this.$usage, size: this.$size, mappedAtCreation: this.$mappedAtCreation})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; usage: BufferUsage; size: c.U64; mappedAtCreation: Bool }>) => new BufferDescriptor().set(val)
 }
 export class CommandBufferDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new CommandBufferDescriptor().set(val)
 }
 export class CommandEncoderDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new CommandEncoderDescriptor().set(val)
 }
 export class CompilationMessage extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; message: StringView; type: CompilationMessageType; lineNum: c.U64; linePos: c.U64; offset: c.U64; length: c.U64; utf16LinePos: c.U64; utf16Offset: c.U64; utf16Length: c.U64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 88, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $message(){ return new StringView(this.buffer, this.offset + 8) }
-  get $type(){ return new CompilationMessageType(this.buffer, this.offset + 24) }
-  get $lineNum(){ return new c.U64(this.buffer, this.offset + 32) }
-  get $linePos(){ return new c.U64(this.buffer, this.offset + 40) }
-  get $offset(){ return new c.U64(this.buffer, this.offset + 48) }
-  get $length(){ return new c.U64(this.buffer, this.offset + 56) }
-  get $utf16LinePos(){ return new c.U64(this.buffer, this.offset + 64) }
-  get $utf16Offset(){ return new c.U64(this.buffer, this.offset + 72) }
-  get $utf16Length(){ return new c.U64(this.buffer, this.offset + 80) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, message: this.$message, type: this.$type, lineNum: this.$lineNum, linePos: this.$linePos, offset: this.$offset, length: this.$length, utf16LinePos: this.$utf16LinePos, utf16Offset: this.$utf16Offset, utf16Length: this.$utf16Length})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $message(){ return new StringView(this._buffer, this._offset + 8) }
+  get $type(){ return new CompilationMessageType(this._buffer, this._offset + 24) }
+  get $lineNum(){ return new c.U64(this._buffer, this._offset + 32) }
+  get $linePos(){ return new c.U64(this._buffer, this._offset + 40) }
+  get $offset(){ return new c.U64(this._buffer, this._offset + 48) }
+  get $length(){ return new c.U64(this._buffer, this._offset + 56) }
+  get $utf16LinePos(){ return new c.U64(this._buffer, this._offset + 64) }
+  get $utf16Offset(){ return new c.U64(this._buffer, this._offset + 72) }
+  get $utf16Length(){ return new c.U64(this._buffer, this._offset + 80) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, message: this.$message, type: this.$type, lineNum: this.$lineNum, linePos: this.$linePos, offset: this.$offset, length: this.$length, utf16LinePos: this.$utf16LinePos, utf16Offset: this.$utf16Offset, utf16Length: this.$utf16Length})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; message: StringView; type: CompilationMessageType; lineNum: c.U64; linePos: c.U64; offset: c.U64; length: c.U64; utf16LinePos: c.U64; utf16Offset: c.U64; utf16Length: c.U64 }>) => new CompilationMessage().set(val)
 }
 export class ComputePassDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; timestampWrites: c.Pointer<ComputePassTimestampWrites> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $timestampWrites(){ return new c.Pointer<ComputePassTimestampWrites>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, timestampWrites: this.$timestampWrites})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $timestampWrites(){ return new c.Pointer<ComputePassTimestampWrites>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, timestampWrites: this.$timestampWrites})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; timestampWrites: c.Pointer<ComputePassTimestampWrites> }>) => new ComputePassDescriptor().set(val)
 }
 export class ConstantEntry extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; key: StringView; value: c.F64 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $key(){ return new StringView(this.buffer, this.offset + 8) }
-  get $value(){ return new c.F64(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, key: this.$key, value: this.$value})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $key(){ return new StringView(this._buffer, this._offset + 8) }
+  get $value(){ return new c.F64(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, key: this.$key, value: this.$value})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; key: StringView; value: c.F64 }>) => new ConstantEntry().set(val)
 }
 export class DawnCacheDeviceDescriptor extends c.Struct<{ chain: ChainedStruct; isolationKey: StringView; loadDataFunction: DawnLoadCacheDataFunction; storeDataFunction: DawnStoreCacheDataFunction; functionUserdata: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 56, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $isolationKey(){ return new StringView(this.buffer, this.offset + 16) }
-  get $loadDataFunction(){ return new DawnLoadCacheDataFunction(this.buffer, this.offset + 32) }
-  get $storeDataFunction(){ return new DawnStoreCacheDataFunction(this.buffer, this.offset + 40) }
-  get $functionUserdata(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 48) }
-  protected override _value = () => ({chain: this.$chain, isolationKey: this.$isolationKey, loadDataFunction: this.$loadDataFunction, storeDataFunction: this.$storeDataFunction, functionUserdata: this.$functionUserdata})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $isolationKey(){ return new StringView(this._buffer, this._offset + 16) }
+  get $loadDataFunction(){ return new DawnLoadCacheDataFunction(this._buffer, this._offset + 32) }
+  get $storeDataFunction(){ return new DawnStoreCacheDataFunction(this._buffer, this._offset + 40) }
+  get $functionUserdata(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 48) }
+  protected override _get = () => ({chain: this.$chain, isolationKey: this.$isolationKey, loadDataFunction: this.$loadDataFunction, storeDataFunction: this.$storeDataFunction, functionUserdata: this.$functionUserdata})
   static new = (val: Partial<{ chain: ChainedStruct; isolationKey: StringView; loadDataFunction: DawnLoadCacheDataFunction; storeDataFunction: DawnStoreCacheDataFunction; functionUserdata: c.Pointer<c.Void> }>) => new DawnCacheDeviceDescriptor().set(val)
 }
 export class DepthStencilState extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; format: TextureFormat; depthWriteEnabled: OptionalBool; depthCompare: CompareFunction; stencilFront: StencilFaceState; stencilBack: StencilFaceState; stencilReadMask: c.U32; stencilWriteMask: c.U32; depthBias: c.I32; depthBiasSlopeScale: c.F32; depthBiasClamp: c.F32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 72, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 8) }
-  get $depthWriteEnabled(){ return new OptionalBool(this.buffer, this.offset + 12) }
-  get $depthCompare(){ return new CompareFunction(this.buffer, this.offset + 16) }
-  get $stencilFront(){ return new StencilFaceState(this.buffer, this.offset + 20) }
-  get $stencilBack(){ return new StencilFaceState(this.buffer, this.offset + 36) }
-  get $stencilReadMask(){ return new c.U32(this.buffer, this.offset + 52) }
-  get $stencilWriteMask(){ return new c.U32(this.buffer, this.offset + 56) }
-  get $depthBias(){ return new c.I32(this.buffer, this.offset + 60) }
-  get $depthBiasSlopeScale(){ return new c.F32(this.buffer, this.offset + 64) }
-  get $depthBiasClamp(){ return new c.F32(this.buffer, this.offset + 68) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, format: this.$format, depthWriteEnabled: this.$depthWriteEnabled, depthCompare: this.$depthCompare, stencilFront: this.$stencilFront, stencilBack: this.$stencilBack, stencilReadMask: this.$stencilReadMask, stencilWriteMask: this.$stencilWriteMask, depthBias: this.$depthBias, depthBiasSlopeScale: this.$depthBiasSlopeScale, depthBiasClamp: this.$depthBiasClamp})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 8) }
+  get $depthWriteEnabled(){ return new OptionalBool(this._buffer, this._offset + 12) }
+  get $depthCompare(){ return new CompareFunction(this._buffer, this._offset + 16) }
+  get $stencilFront(){ return new StencilFaceState(this._buffer, this._offset + 20) }
+  get $stencilBack(){ return new StencilFaceState(this._buffer, this._offset + 36) }
+  get $stencilReadMask(){ return new c.U32(this._buffer, this._offset + 52) }
+  get $stencilWriteMask(){ return new c.U32(this._buffer, this._offset + 56) }
+  get $depthBias(){ return new c.I32(this._buffer, this._offset + 60) }
+  get $depthBiasSlopeScale(){ return new c.F32(this._buffer, this._offset + 64) }
+  get $depthBiasClamp(){ return new c.F32(this._buffer, this._offset + 68) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, format: this.$format, depthWriteEnabled: this.$depthWriteEnabled, depthCompare: this.$depthCompare, stencilFront: this.$stencilFront, stencilBack: this.$stencilBack, stencilReadMask: this.$stencilReadMask, stencilWriteMask: this.$stencilWriteMask, depthBias: this.$depthBias, depthBiasSlopeScale: this.$depthBiasSlopeScale, depthBiasClamp: this.$depthBiasClamp})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; format: TextureFormat; depthWriteEnabled: OptionalBool; depthCompare: CompareFunction; stencilFront: StencilFaceState; stencilBack: StencilFaceState; stencilReadMask: c.U32; stencilWriteMask: c.U32; depthBias: c.I32; depthBiasSlopeScale: c.F32; depthBiasClamp: c.F32 }>) => new DepthStencilState().set(val)
 }
 export class DrmFormatCapabilities extends c.Struct<{ chain: ChainedStructOut; propertiesCount: c.Size; properties: c.Pointer<DrmFormatProperties> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $propertiesCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $properties(){ return new c.Pointer<DrmFormatProperties>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({chain: this.$chain, propertiesCount: this.$propertiesCount, properties: this.$properties})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $propertiesCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $properties(){ return new c.Pointer<DrmFormatProperties>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({chain: this.$chain, propertiesCount: this.$propertiesCount, properties: this.$properties})
   static new = (val: Partial<{ chain: ChainedStructOut; propertiesCount: c.Size; properties: c.Pointer<DrmFormatProperties> }>) => new DrmFormatCapabilities().set(val)
 }
 export class ExternalTextureDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; plane0: TextureView; plane1: TextureView; cropOrigin: Origin2D; cropSize: Extent2D; apparentSize: Extent2D; doYuvToRgbConversionOnly: Bool; yuvToRgbConversionMatrix: c.Pointer<c.F32>; srcTransferFunctionParameters: c.Pointer<c.F32>; dstTransferFunctionParameters: c.Pointer<c.F32>; gamutConversionMatrix: c.Pointer<c.F32>; mirrored: Bool; rotation: ExternalTextureRotation }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 112, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $plane0(){ return new TextureView(this.buffer, this.offset + 24) }
-  get $plane1(){ return new TextureView(this.buffer, this.offset + 32) }
-  get $cropOrigin(){ return new Origin2D(this.buffer, this.offset + 40) }
-  get $cropSize(){ return new Extent2D(this.buffer, this.offset + 48) }
-  get $apparentSize(){ return new Extent2D(this.buffer, this.offset + 56) }
-  get $doYuvToRgbConversionOnly(){ return new Bool(this.buffer, this.offset + 64) }
-  get $yuvToRgbConversionMatrix(){ return new c.Pointer<c.F32>(this.buffer, this.offset + 72) }
-  get $srcTransferFunctionParameters(){ return new c.Pointer<c.F32>(this.buffer, this.offset + 80) }
-  get $dstTransferFunctionParameters(){ return new c.Pointer<c.F32>(this.buffer, this.offset + 88) }
-  get $gamutConversionMatrix(){ return new c.Pointer<c.F32>(this.buffer, this.offset + 96) }
-  get $mirrored(){ return new Bool(this.buffer, this.offset + 104) }
-  get $rotation(){ return new ExternalTextureRotation(this.buffer, this.offset + 108) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, plane0: this.$plane0, plane1: this.$plane1, cropOrigin: this.$cropOrigin, cropSize: this.$cropSize, apparentSize: this.$apparentSize, doYuvToRgbConversionOnly: this.$doYuvToRgbConversionOnly, yuvToRgbConversionMatrix: this.$yuvToRgbConversionMatrix, srcTransferFunctionParameters: this.$srcTransferFunctionParameters, dstTransferFunctionParameters: this.$dstTransferFunctionParameters, gamutConversionMatrix: this.$gamutConversionMatrix, mirrored: this.$mirrored, rotation: this.$rotation})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $plane0(){ return new TextureView(this._buffer, this._offset + 24) }
+  get $plane1(){ return new TextureView(this._buffer, this._offset + 32) }
+  get $cropOrigin(){ return new Origin2D(this._buffer, this._offset + 40) }
+  get $cropSize(){ return new Extent2D(this._buffer, this._offset + 48) }
+  get $apparentSize(){ return new Extent2D(this._buffer, this._offset + 56) }
+  get $doYuvToRgbConversionOnly(){ return new Bool(this._buffer, this._offset + 64) }
+  get $yuvToRgbConversionMatrix(){ return new c.Pointer<c.F32>(this._buffer, this._offset + 72) }
+  get $srcTransferFunctionParameters(){ return new c.Pointer<c.F32>(this._buffer, this._offset + 80) }
+  get $dstTransferFunctionParameters(){ return new c.Pointer<c.F32>(this._buffer, this._offset + 88) }
+  get $gamutConversionMatrix(){ return new c.Pointer<c.F32>(this._buffer, this._offset + 96) }
+  get $mirrored(){ return new Bool(this._buffer, this._offset + 104) }
+  get $rotation(){ return new ExternalTextureRotation(this._buffer, this._offset + 108) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, plane0: this.$plane0, plane1: this.$plane1, cropOrigin: this.$cropOrigin, cropSize: this.$cropSize, apparentSize: this.$apparentSize, doYuvToRgbConversionOnly: this.$doYuvToRgbConversionOnly, yuvToRgbConversionMatrix: this.$yuvToRgbConversionMatrix, srcTransferFunctionParameters: this.$srcTransferFunctionParameters, dstTransferFunctionParameters: this.$dstTransferFunctionParameters, gamutConversionMatrix: this.$gamutConversionMatrix, mirrored: this.$mirrored, rotation: this.$rotation})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; plane0: TextureView; plane1: TextureView; cropOrigin: Origin2D; cropSize: Extent2D; apparentSize: Extent2D; doYuvToRgbConversionOnly: Bool; yuvToRgbConversionMatrix: c.Pointer<c.F32>; srcTransferFunctionParameters: c.Pointer<c.F32>; dstTransferFunctionParameters: c.Pointer<c.F32>; gamutConversionMatrix: c.Pointer<c.F32>; mirrored: Bool; rotation: ExternalTextureRotation }>) => new ExternalTextureDescriptor().set(val)
 }
 export class FutureWaitInfo extends c.Struct<{ future: Future; completed: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $future(){ return new Future(this.buffer, this.offset + 0) }
-  get $completed(){ return new Bool(this.buffer, this.offset + 8) }
-  protected override _value = () => ({future: this.$future, completed: this.$completed})
+  get $future(){ return new Future(this._buffer, this._offset + 0) }
+  get $completed(){ return new Bool(this._buffer, this._offset + 8) }
+  protected override _get = () => ({future: this.$future, completed: this.$completed})
   static new = (val: Partial<{ future: Future; completed: Bool }>) => new FutureWaitInfo().set(val)
 }
 export class ImageCopyBuffer extends c.Struct<{ layout: TextureDataLayout; buffer: Buffer }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $layout(){ return new TextureDataLayout(this.buffer, this.offset + 0) }
-  get $buffer(){ return new Buffer(this.buffer, this.offset + 24) }
-  protected override _value = () => ({layout: this.$layout, buffer: this.$buffer})
+  get $layout(){ return new TextureDataLayout(this._buffer, this._offset + 0) }
+  get $buffer(){ return new Buffer(this._buffer, this._offset + 24) }
+  protected override _get = () => ({layout: this.$layout, buffer: this.$buffer})
   static new = (val: Partial<{ layout: TextureDataLayout; buffer: Buffer }>) => new ImageCopyBuffer().set(val)
 }
 export class ImageCopyExternalTexture extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; externalTexture: ExternalTexture; origin: Origin3D; naturalSize: Extent2D }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $externalTexture(){ return new ExternalTexture(this.buffer, this.offset + 8) }
-  get $origin(){ return new Origin3D(this.buffer, this.offset + 16) }
-  get $naturalSize(){ return new Extent2D(this.buffer, this.offset + 28) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, externalTexture: this.$externalTexture, origin: this.$origin, naturalSize: this.$naturalSize})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $externalTexture(){ return new ExternalTexture(this._buffer, this._offset + 8) }
+  get $origin(){ return new Origin3D(this._buffer, this._offset + 16) }
+  get $naturalSize(){ return new Extent2D(this._buffer, this._offset + 28) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, externalTexture: this.$externalTexture, origin: this.$origin, naturalSize: this.$naturalSize})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; externalTexture: ExternalTexture; origin: Origin3D; naturalSize: Extent2D }>) => new ImageCopyExternalTexture().set(val)
 }
 export class ImageCopyTexture extends c.Struct<{ texture: Texture; mipLevel: c.U32; origin: Origin3D; aspect: TextureAspect }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $texture(){ return new Texture(this.buffer, this.offset + 0) }
-  get $mipLevel(){ return new c.U32(this.buffer, this.offset + 8) }
-  get $origin(){ return new Origin3D(this.buffer, this.offset + 12) }
-  get $aspect(){ return new TextureAspect(this.buffer, this.offset + 24) }
-  protected override _value = () => ({texture: this.$texture, mipLevel: this.$mipLevel, origin: this.$origin, aspect: this.$aspect})
+  get $texture(){ return new Texture(this._buffer, this._offset + 0) }
+  get $mipLevel(){ return new c.U32(this._buffer, this._offset + 8) }
+  get $origin(){ return new Origin3D(this._buffer, this._offset + 12) }
+  get $aspect(){ return new TextureAspect(this._buffer, this._offset + 24) }
+  protected override _get = () => ({texture: this.$texture, mipLevel: this.$mipLevel, origin: this.$origin, aspect: this.$aspect})
   static new = (val: Partial<{ texture: Texture; mipLevel: c.U32; origin: Origin3D; aspect: TextureAspect }>) => new ImageCopyTexture().set(val)
 }
 export class InstanceDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; features: InstanceFeatures }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $features(){ return new InstanceFeatures(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, features: this.$features})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $features(){ return new InstanceFeatures(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, features: this.$features})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; features: InstanceFeatures }>) => new InstanceDescriptor().set(val)
 }
 export class PipelineLayoutDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; bindGroupLayoutCount: c.Size; bindGroupLayouts: c.Pointer<BindGroupLayout>; immediateDataRangeByteSize: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 48, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $bindGroupLayoutCount(){ return new c.Size(this.buffer, this.offset + 24) }
-  get $bindGroupLayouts(){ return new c.Pointer<BindGroupLayout>(this.buffer, this.offset + 32) }
-  get $immediateDataRangeByteSize(){ return new c.U32(this.buffer, this.offset + 40) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, bindGroupLayoutCount: this.$bindGroupLayoutCount, bindGroupLayouts: this.$bindGroupLayouts, immediateDataRangeByteSize: this.$immediateDataRangeByteSize})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $bindGroupLayoutCount(){ return new c.Size(this._buffer, this._offset + 24) }
+  get $bindGroupLayouts(){ return new c.Pointer<BindGroupLayout>(this._buffer, this._offset + 32) }
+  get $immediateDataRangeByteSize(){ return new c.U32(this._buffer, this._offset + 40) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, bindGroupLayoutCount: this.$bindGroupLayoutCount, bindGroupLayouts: this.$bindGroupLayouts, immediateDataRangeByteSize: this.$immediateDataRangeByteSize})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; bindGroupLayoutCount: c.Size; bindGroupLayouts: c.Pointer<BindGroupLayout>; immediateDataRangeByteSize: c.U32 }>) => new PipelineLayoutDescriptor().set(val)
 }
 export class PipelineLayoutPixelLocalStorage extends c.Struct<{ chain: ChainedStruct; totalPixelLocalStorageSize: c.U64; storageAttachmentCount: c.Size; storageAttachments: c.Pointer<PipelineLayoutStorageAttachment> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $totalPixelLocalStorageSize(){ return new c.U64(this.buffer, this.offset + 16) }
-  get $storageAttachmentCount(){ return new c.Size(this.buffer, this.offset + 24) }
-  get $storageAttachments(){ return new c.Pointer<PipelineLayoutStorageAttachment>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({chain: this.$chain, totalPixelLocalStorageSize: this.$totalPixelLocalStorageSize, storageAttachmentCount: this.$storageAttachmentCount, storageAttachments: this.$storageAttachments})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $totalPixelLocalStorageSize(){ return new c.U64(this._buffer, this._offset + 16) }
+  get $storageAttachmentCount(){ return new c.Size(this._buffer, this._offset + 24) }
+  get $storageAttachments(){ return new c.Pointer<PipelineLayoutStorageAttachment>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({chain: this.$chain, totalPixelLocalStorageSize: this.$totalPixelLocalStorageSize, storageAttachmentCount: this.$storageAttachmentCount, storageAttachments: this.$storageAttachments})
   static new = (val: Partial<{ chain: ChainedStruct; totalPixelLocalStorageSize: c.U64; storageAttachmentCount: c.Size; storageAttachments: c.Pointer<PipelineLayoutStorageAttachment> }>) => new PipelineLayoutPixelLocalStorage().set(val)
 }
 export class QuerySetDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; type: QueryType; count: c.U32 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $type(){ return new QueryType(this.buffer, this.offset + 24) }
-  get $count(){ return new c.U32(this.buffer, this.offset + 28) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, type: this.$type, count: this.$count})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $type(){ return new QueryType(this._buffer, this._offset + 24) }
+  get $count(){ return new c.U32(this._buffer, this._offset + 28) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, type: this.$type, count: this.$count})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; type: QueryType; count: c.U32 }>) => new QuerySetDescriptor().set(val)
 }
 export class QueueDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new QueueDescriptor().set(val)
 }
 export class RenderBundleDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new RenderBundleDescriptor().set(val)
 }
 export class RenderBundleEncoderDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; colorFormatCount: c.Size; colorFormats: c.Pointer<TextureFormat>; depthStencilFormat: TextureFormat; sampleCount: c.U32; depthReadOnly: Bool; stencilReadOnly: Bool }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 56, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $colorFormatCount(){ return new c.Size(this.buffer, this.offset + 24) }
-  get $colorFormats(){ return new c.Pointer<TextureFormat>(this.buffer, this.offset + 32) }
-  get $depthStencilFormat(){ return new TextureFormat(this.buffer, this.offset + 40) }
-  get $sampleCount(){ return new c.U32(this.buffer, this.offset + 44) }
-  get $depthReadOnly(){ return new Bool(this.buffer, this.offset + 48) }
-  get $stencilReadOnly(){ return new Bool(this.buffer, this.offset + 52) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, colorFormatCount: this.$colorFormatCount, colorFormats: this.$colorFormats, depthStencilFormat: this.$depthStencilFormat, sampleCount: this.$sampleCount, depthReadOnly: this.$depthReadOnly, stencilReadOnly: this.$stencilReadOnly})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $colorFormatCount(){ return new c.Size(this._buffer, this._offset + 24) }
+  get $colorFormats(){ return new c.Pointer<TextureFormat>(this._buffer, this._offset + 32) }
+  get $depthStencilFormat(){ return new TextureFormat(this._buffer, this._offset + 40) }
+  get $sampleCount(){ return new c.U32(this._buffer, this._offset + 44) }
+  get $depthReadOnly(){ return new Bool(this._buffer, this._offset + 48) }
+  get $stencilReadOnly(){ return new Bool(this._buffer, this._offset + 52) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, colorFormatCount: this.$colorFormatCount, colorFormats: this.$colorFormats, depthStencilFormat: this.$depthStencilFormat, sampleCount: this.$sampleCount, depthReadOnly: this.$depthReadOnly, stencilReadOnly: this.$stencilReadOnly})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; colorFormatCount: c.Size; colorFormats: c.Pointer<TextureFormat>; depthStencilFormat: TextureFormat; sampleCount: c.U32; depthReadOnly: Bool; stencilReadOnly: Bool }>) => new RenderBundleEncoderDescriptor().set(val)
 }
 export class RenderPassColorAttachment extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; view: TextureView; depthSlice: c.U32; resolveTarget: TextureView; loadOp: LoadOp; storeOp: StoreOp; clearValue: Color }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 72, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $view(){ return new TextureView(this.buffer, this.offset + 8) }
-  get $depthSlice(){ return new c.U32(this.buffer, this.offset + 16) }
-  get $resolveTarget(){ return new TextureView(this.buffer, this.offset + 24) }
-  get $loadOp(){ return new LoadOp(this.buffer, this.offset + 32) }
-  get $storeOp(){ return new StoreOp(this.buffer, this.offset + 36) }
-  get $clearValue(){ return new Color(this.buffer, this.offset + 40) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, view: this.$view, depthSlice: this.$depthSlice, resolveTarget: this.$resolveTarget, loadOp: this.$loadOp, storeOp: this.$storeOp, clearValue: this.$clearValue})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $view(){ return new TextureView(this._buffer, this._offset + 8) }
+  get $depthSlice(){ return new c.U32(this._buffer, this._offset + 16) }
+  get $resolveTarget(){ return new TextureView(this._buffer, this._offset + 24) }
+  get $loadOp(){ return new LoadOp(this._buffer, this._offset + 32) }
+  get $storeOp(){ return new StoreOp(this._buffer, this._offset + 36) }
+  get $clearValue(){ return new Color(this._buffer, this._offset + 40) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, view: this.$view, depthSlice: this.$depthSlice, resolveTarget: this.$resolveTarget, loadOp: this.$loadOp, storeOp: this.$storeOp, clearValue: this.$clearValue})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; view: TextureView; depthSlice: c.U32; resolveTarget: TextureView; loadOp: LoadOp; storeOp: StoreOp; clearValue: Color }>) => new RenderPassColorAttachment().set(val)
 }
 export class RenderPassStorageAttachment extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; offset: c.U64; storage: TextureView; loadOp: LoadOp; storeOp: StoreOp; clearValue: Color }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $offset(){ return new c.U64(this.buffer, this.offset + 8) }
-  get $storage(){ return new TextureView(this.buffer, this.offset + 16) }
-  get $loadOp(){ return new LoadOp(this.buffer, this.offset + 24) }
-  get $storeOp(){ return new StoreOp(this.buffer, this.offset + 28) }
-  get $clearValue(){ return new Color(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, offset: this.$offset, storage: this.$storage, loadOp: this.$loadOp, storeOp: this.$storeOp, clearValue: this.$clearValue})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $offset(){ return new c.U64(this._buffer, this._offset + 8) }
+  get $storage(){ return new TextureView(this._buffer, this._offset + 16) }
+  get $loadOp(){ return new LoadOp(this._buffer, this._offset + 24) }
+  get $storeOp(){ return new StoreOp(this._buffer, this._offset + 28) }
+  get $clearValue(){ return new Color(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, offset: this.$offset, storage: this.$storage, loadOp: this.$loadOp, storeOp: this.$storeOp, clearValue: this.$clearValue})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; offset: c.U64; storage: TextureView; loadOp: LoadOp; storeOp: StoreOp; clearValue: Color }>) => new RenderPassStorageAttachment().set(val)
 }
 export class RequiredLimits extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; limits: Limits }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 168, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $limits(){ return new Limits(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, limits: this.$limits})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $limits(){ return new Limits(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, limits: this.$limits})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; limits: Limits }>) => new RequiredLimits().set(val)
 }
 export class SamplerDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; addressModeU: AddressMode; addressModeV: AddressMode; addressModeW: AddressMode; magFilter: FilterMode; minFilter: FilterMode; mipmapFilter: MipmapFilterMode; lodMinClamp: c.F32; lodMaxClamp: c.F32; compare: CompareFunction; maxAnisotropy: c.U16 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $addressModeU(){ return new AddressMode(this.buffer, this.offset + 24) }
-  get $addressModeV(){ return new AddressMode(this.buffer, this.offset + 28) }
-  get $addressModeW(){ return new AddressMode(this.buffer, this.offset + 32) }
-  get $magFilter(){ return new FilterMode(this.buffer, this.offset + 36) }
-  get $minFilter(){ return new FilterMode(this.buffer, this.offset + 40) }
-  get $mipmapFilter(){ return new MipmapFilterMode(this.buffer, this.offset + 44) }
-  get $lodMinClamp(){ return new c.F32(this.buffer, this.offset + 48) }
-  get $lodMaxClamp(){ return new c.F32(this.buffer, this.offset + 52) }
-  get $compare(){ return new CompareFunction(this.buffer, this.offset + 56) }
-  get $maxAnisotropy(){ return new c.U16(this.buffer, this.offset + 60) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, addressModeU: this.$addressModeU, addressModeV: this.$addressModeV, addressModeW: this.$addressModeW, magFilter: this.$magFilter, minFilter: this.$minFilter, mipmapFilter: this.$mipmapFilter, lodMinClamp: this.$lodMinClamp, lodMaxClamp: this.$lodMaxClamp, compare: this.$compare, maxAnisotropy: this.$maxAnisotropy})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $addressModeU(){ return new AddressMode(this._buffer, this._offset + 24) }
+  get $addressModeV(){ return new AddressMode(this._buffer, this._offset + 28) }
+  get $addressModeW(){ return new AddressMode(this._buffer, this._offset + 32) }
+  get $magFilter(){ return new FilterMode(this._buffer, this._offset + 36) }
+  get $minFilter(){ return new FilterMode(this._buffer, this._offset + 40) }
+  get $mipmapFilter(){ return new MipmapFilterMode(this._buffer, this._offset + 44) }
+  get $lodMinClamp(){ return new c.F32(this._buffer, this._offset + 48) }
+  get $lodMaxClamp(){ return new c.F32(this._buffer, this._offset + 52) }
+  get $compare(){ return new CompareFunction(this._buffer, this._offset + 56) }
+  get $maxAnisotropy(){ return new c.U16(this._buffer, this._offset + 60) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, addressModeU: this.$addressModeU, addressModeV: this.$addressModeV, addressModeW: this.$addressModeW, magFilter: this.$magFilter, minFilter: this.$minFilter, mipmapFilter: this.$mipmapFilter, lodMinClamp: this.$lodMinClamp, lodMaxClamp: this.$lodMaxClamp, compare: this.$compare, maxAnisotropy: this.$maxAnisotropy})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; addressModeU: AddressMode; addressModeV: AddressMode; addressModeW: AddressMode; magFilter: FilterMode; minFilter: FilterMode; mipmapFilter: MipmapFilterMode; lodMinClamp: c.F32; lodMaxClamp: c.F32; compare: CompareFunction; maxAnisotropy: c.U16 }>) => new SamplerDescriptor().set(val)
 }
 export class ShaderModuleDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new ShaderModuleDescriptor().set(val)
 }
 export class ShaderSourceWGSL extends c.Struct<{ chain: ChainedStruct; code: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $code(){ return new StringView(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, code: this.$code})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $code(){ return new StringView(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, code: this.$code})
   static new = (val: Partial<{ chain: ChainedStruct; code: StringView }>) => new ShaderSourceWGSL().set(val)
 }
 export class SharedBufferMemoryDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new SharedBufferMemoryDescriptor().set(val)
 }
 export class SharedFenceDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new SharedFenceDescriptor().set(val)
 }
 export class SharedTextureMemoryAHardwareBufferProperties extends c.Struct<{ chain: ChainedStructOut; yCbCrInfo: YCbCrVkDescriptor }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 88, 8)
   }
-  get $chain(){ return new ChainedStructOut(this.buffer, this.offset + 0) }
-  get $yCbCrInfo(){ return new YCbCrVkDescriptor(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, yCbCrInfo: this.$yCbCrInfo})
+  get $chain(){ return new ChainedStructOut(this._buffer, this._offset + 0) }
+  get $yCbCrInfo(){ return new YCbCrVkDescriptor(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, yCbCrInfo: this.$yCbCrInfo})
   static new = (val: Partial<{ chain: ChainedStructOut; yCbCrInfo: YCbCrVkDescriptor }>) => new SharedTextureMemoryAHardwareBufferProperties().set(val)
 }
 export class SharedTextureMemoryDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new SharedTextureMemoryDescriptor().set(val)
 }
 export class SharedTextureMemoryDmaBufDescriptor extends c.Struct<{ chain: ChainedStruct; size: Extent3D; drmFormat: c.U32; drmModifier: c.U64; planeCount: c.Size; planes: c.Pointer<SharedTextureMemoryDmaBufPlane> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 56, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $size(){ return new Extent3D(this.buffer, this.offset + 16) }
-  get $drmFormat(){ return new c.U32(this.buffer, this.offset + 28) }
-  get $drmModifier(){ return new c.U64(this.buffer, this.offset + 32) }
-  get $planeCount(){ return new c.Size(this.buffer, this.offset + 40) }
-  get $planes(){ return new c.Pointer<SharedTextureMemoryDmaBufPlane>(this.buffer, this.offset + 48) }
-  protected override _value = () => ({chain: this.$chain, size: this.$size, drmFormat: this.$drmFormat, drmModifier: this.$drmModifier, planeCount: this.$planeCount, planes: this.$planes})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $size(){ return new Extent3D(this._buffer, this._offset + 16) }
+  get $drmFormat(){ return new c.U32(this._buffer, this._offset + 28) }
+  get $drmModifier(){ return new c.U64(this._buffer, this._offset + 32) }
+  get $planeCount(){ return new c.Size(this._buffer, this._offset + 40) }
+  get $planes(){ return new c.Pointer<SharedTextureMemoryDmaBufPlane>(this._buffer, this._offset + 48) }
+  protected override _get = () => ({chain: this.$chain, size: this.$size, drmFormat: this.$drmFormat, drmModifier: this.$drmModifier, planeCount: this.$planeCount, planes: this.$planes})
   static new = (val: Partial<{ chain: ChainedStruct; size: Extent3D; drmFormat: c.U32; drmModifier: c.U64; planeCount: c.Size; planes: c.Pointer<SharedTextureMemoryDmaBufPlane> }>) => new SharedTextureMemoryDmaBufDescriptor().set(val)
 }
 export class SharedTextureMemoryProperties extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; usage: TextureUsage; size: Extent3D; format: TextureFormat }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $usage(){ return new TextureUsage(this.buffer, this.offset + 8) }
-  get $size(){ return new Extent3D(this.buffer, this.offset + 16) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 28) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, usage: this.$usage, size: this.$size, format: this.$format})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $usage(){ return new TextureUsage(this._buffer, this._offset + 8) }
+  get $size(){ return new Extent3D(this._buffer, this._offset + 16) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 28) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, usage: this.$usage, size: this.$size, format: this.$format})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; usage: TextureUsage; size: Extent3D; format: TextureFormat }>) => new SharedTextureMemoryProperties().set(val)
 }
 export class SupportedLimits extends c.Struct<{ nextInChain: c.Pointer<ChainedStructOut>; limits: Limits }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 168, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $limits(){ return new Limits(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, limits: this.$limits})
+  get $nextInChain(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $limits(){ return new Limits(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, limits: this.$limits})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStructOut>; limits: Limits }>) => new SupportedLimits().set(val)
 }
 export class SurfaceDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView }>) => new SurfaceDescriptor().set(val)
 }
 export class SurfaceSourceCanvasHTMLSelector_Emscripten extends c.Struct<{ chain: ChainedStruct; selector: StringView }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $selector(){ return new StringView(this.buffer, this.offset + 16) }
-  protected override _value = () => ({chain: this.$chain, selector: this.$selector})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $selector(){ return new StringView(this._buffer, this._offset + 16) }
+  protected override _get = () => ({chain: this.$chain, selector: this.$selector})
   static new = (val: Partial<{ chain: ChainedStruct; selector: StringView }>) => new SurfaceSourceCanvasHTMLSelector_Emscripten().set(val)
 }
 export class TextureDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; usage: TextureUsage; dimension: TextureDimension; size: Extent3D; format: TextureFormat; mipLevelCount: c.U32; sampleCount: c.U32; viewFormatCount: c.Size; viewFormats: c.Pointer<TextureFormat> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 80, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $usage(){ return new TextureUsage(this.buffer, this.offset + 24) }
-  get $dimension(){ return new TextureDimension(this.buffer, this.offset + 32) }
-  get $size(){ return new Extent3D(this.buffer, this.offset + 36) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 48) }
-  get $mipLevelCount(){ return new c.U32(this.buffer, this.offset + 52) }
-  get $sampleCount(){ return new c.U32(this.buffer, this.offset + 56) }
-  get $viewFormatCount(){ return new c.Size(this.buffer, this.offset + 64) }
-  get $viewFormats(){ return new c.Pointer<TextureFormat>(this.buffer, this.offset + 72) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, usage: this.$usage, dimension: this.$dimension, size: this.$size, format: this.$format, mipLevelCount: this.$mipLevelCount, sampleCount: this.$sampleCount, viewFormatCount: this.$viewFormatCount, viewFormats: this.$viewFormats})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $usage(){ return new TextureUsage(this._buffer, this._offset + 24) }
+  get $dimension(){ return new TextureDimension(this._buffer, this._offset + 32) }
+  get $size(){ return new Extent3D(this._buffer, this._offset + 36) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 48) }
+  get $mipLevelCount(){ return new c.U32(this._buffer, this._offset + 52) }
+  get $sampleCount(){ return new c.U32(this._buffer, this._offset + 56) }
+  get $viewFormatCount(){ return new c.Size(this._buffer, this._offset + 64) }
+  get $viewFormats(){ return new c.Pointer<TextureFormat>(this._buffer, this._offset + 72) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, usage: this.$usage, dimension: this.$dimension, size: this.$size, format: this.$format, mipLevelCount: this.$mipLevelCount, sampleCount: this.$sampleCount, viewFormatCount: this.$viewFormatCount, viewFormats: this.$viewFormats})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; usage: TextureUsage; dimension: TextureDimension; size: Extent3D; format: TextureFormat; mipLevelCount: c.U32; sampleCount: c.U32; viewFormatCount: c.Size; viewFormats: c.Pointer<TextureFormat> }>) => new TextureDescriptor().set(val)
 }
 export class TextureViewDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; format: TextureFormat; dimension: TextureViewDimension; baseMipLevel: c.U32; mipLevelCount: c.U32; baseArrayLayer: c.U32; arrayLayerCount: c.U32; aspect: TextureAspect; usage: TextureUsage }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 24) }
-  get $dimension(){ return new TextureViewDimension(this.buffer, this.offset + 28) }
-  get $baseMipLevel(){ return new c.U32(this.buffer, this.offset + 32) }
-  get $mipLevelCount(){ return new c.U32(this.buffer, this.offset + 36) }
-  get $baseArrayLayer(){ return new c.U32(this.buffer, this.offset + 40) }
-  get $arrayLayerCount(){ return new c.U32(this.buffer, this.offset + 44) }
-  get $aspect(){ return new TextureAspect(this.buffer, this.offset + 48) }
-  get $usage(){ return new TextureUsage(this.buffer, this.offset + 56) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, format: this.$format, dimension: this.$dimension, baseMipLevel: this.$baseMipLevel, mipLevelCount: this.$mipLevelCount, baseArrayLayer: this.$baseArrayLayer, arrayLayerCount: this.$arrayLayerCount, aspect: this.$aspect, usage: this.$usage})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 24) }
+  get $dimension(){ return new TextureViewDimension(this._buffer, this._offset + 28) }
+  get $baseMipLevel(){ return new c.U32(this._buffer, this._offset + 32) }
+  get $mipLevelCount(){ return new c.U32(this._buffer, this._offset + 36) }
+  get $baseArrayLayer(){ return new c.U32(this._buffer, this._offset + 40) }
+  get $arrayLayerCount(){ return new c.U32(this._buffer, this._offset + 44) }
+  get $aspect(){ return new TextureAspect(this._buffer, this._offset + 48) }
+  get $usage(){ return new TextureUsage(this._buffer, this._offset + 56) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, format: this.$format, dimension: this.$dimension, baseMipLevel: this.$baseMipLevel, mipLevelCount: this.$mipLevelCount, baseArrayLayer: this.$baseArrayLayer, arrayLayerCount: this.$arrayLayerCount, aspect: this.$aspect, usage: this.$usage})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; format: TextureFormat; dimension: TextureViewDimension; baseMipLevel: c.U32; mipLevelCount: c.U32; baseArrayLayer: c.U32; arrayLayerCount: c.U32; aspect: TextureAspect; usage: TextureUsage }>) => new TextureViewDescriptor().set(val)
 }
 export class VertexBufferLayout extends c.Struct<{ arrayStride: c.U64; stepMode: VertexStepMode; attributeCount: c.Size; attributes: c.Pointer<VertexAttribute> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $arrayStride(){ return new c.U64(this.buffer, this.offset + 0) }
-  get $stepMode(){ return new VertexStepMode(this.buffer, this.offset + 8) }
-  get $attributeCount(){ return new c.Size(this.buffer, this.offset + 16) }
-  get $attributes(){ return new c.Pointer<VertexAttribute>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({arrayStride: this.$arrayStride, stepMode: this.$stepMode, attributeCount: this.$attributeCount, attributes: this.$attributes})
+  get $arrayStride(){ return new c.U64(this._buffer, this._offset + 0) }
+  get $stepMode(){ return new VertexStepMode(this._buffer, this._offset + 8) }
+  get $attributeCount(){ return new c.Size(this._buffer, this._offset + 16) }
+  get $attributes(){ return new c.Pointer<VertexAttribute>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({arrayStride: this.$arrayStride, stepMode: this.$stepMode, attributeCount: this.$attributeCount, attributes: this.$attributes})
   static new = (val: Partial<{ arrayStride: c.U64; stepMode: VertexStepMode; attributeCount: c.Size; attributes: c.Pointer<VertexAttribute> }>) => new VertexBufferLayout().set(val)
 }
 export class BindGroupLayoutDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; entryCount: c.Size; entries: c.Pointer<BindGroupLayoutEntry> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $entryCount(){ return new c.Size(this.buffer, this.offset + 24) }
-  get $entries(){ return new c.Pointer<BindGroupLayoutEntry>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, entryCount: this.$entryCount, entries: this.$entries})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $entryCount(){ return new c.Size(this._buffer, this._offset + 24) }
+  get $entries(){ return new c.Pointer<BindGroupLayoutEntry>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, entryCount: this.$entryCount, entries: this.$entries})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; entryCount: c.Size; entries: c.Pointer<BindGroupLayoutEntry> }>) => new BindGroupLayoutDescriptor().set(val)
 }
 export class ColorTargetState extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; format: TextureFormat; blend: c.Pointer<BlendState>; writeMask: ColorWriteMask }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $format(){ return new TextureFormat(this.buffer, this.offset + 8) }
-  get $blend(){ return new c.Pointer<BlendState>(this.buffer, this.offset + 16) }
-  get $writeMask(){ return new ColorWriteMask(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, format: this.$format, blend: this.$blend, writeMask: this.$writeMask})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $format(){ return new TextureFormat(this._buffer, this._offset + 8) }
+  get $blend(){ return new c.Pointer<BlendState>(this._buffer, this._offset + 16) }
+  get $writeMask(){ return new ColorWriteMask(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, format: this.$format, blend: this.$blend, writeMask: this.$writeMask})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; format: TextureFormat; blend: c.Pointer<BlendState>; writeMask: ColorWriteMask }>) => new ColorTargetState().set(val)
 }
 export class CompilationInfo extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; messageCount: c.Size; messages: c.Pointer<CompilationMessage> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 24, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $messageCount(){ return new c.Size(this.buffer, this.offset + 8) }
-  get $messages(){ return new c.Pointer<CompilationMessage>(this.buffer, this.offset + 16) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, messageCount: this.$messageCount, messages: this.$messages})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $messageCount(){ return new c.Size(this._buffer, this._offset + 8) }
+  get $messages(){ return new c.Pointer<CompilationMessage>(this._buffer, this._offset + 16) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, messageCount: this.$messageCount, messages: this.$messages})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; messageCount: c.Size; messages: c.Pointer<CompilationMessage> }>) => new CompilationInfo().set(val)
 }
 export class ComputeState extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; module: ShaderModule; entryPoint: StringView; constantCount: c.Size; constants: c.Pointer<ConstantEntry> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 48, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $module(){ return new ShaderModule(this.buffer, this.offset + 8) }
-  get $entryPoint(){ return new StringView(this.buffer, this.offset + 16) }
-  get $constantCount(){ return new c.Size(this.buffer, this.offset + 32) }
-  get $constants(){ return new c.Pointer<ConstantEntry>(this.buffer, this.offset + 40) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, module: this.$module, entryPoint: this.$entryPoint, constantCount: this.$constantCount, constants: this.$constants})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $module(){ return new ShaderModule(this._buffer, this._offset + 8) }
+  get $entryPoint(){ return new StringView(this._buffer, this._offset + 16) }
+  get $constantCount(){ return new c.Size(this._buffer, this._offset + 32) }
+  get $constants(){ return new c.Pointer<ConstantEntry>(this._buffer, this._offset + 40) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, module: this.$module, entryPoint: this.$entryPoint, constantCount: this.$constantCount, constants: this.$constants})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; module: ShaderModule; entryPoint: StringView; constantCount: c.Size; constants: c.Pointer<ConstantEntry> }>) => new ComputeState().set(val)
 }
 export class DeviceDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; requiredFeatureCount: c.Size; requiredFeatures: c.Pointer<FeatureName>; requiredLimits: c.Pointer<RequiredLimits>; defaultQueue: QueueDescriptor; deviceLostCallbackInfo2: DeviceLostCallbackInfo2; uncapturedErrorCallbackInfo2: UncapturedErrorCallbackInfo2 }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 144, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $requiredFeatureCount(){ return new c.Size(this.buffer, this.offset + 24) }
-  get $requiredFeatures(){ return new c.Pointer<FeatureName>(this.buffer, this.offset + 32) }
-  get $requiredLimits(){ return new c.Pointer<RequiredLimits>(this.buffer, this.offset + 40) }
-  get $defaultQueue(){ return new QueueDescriptor(this.buffer, this.offset + 48) }
-  get $deviceLostCallbackInfo2(){ return new DeviceLostCallbackInfo2(this.buffer, this.offset + 72) }
-  get $uncapturedErrorCallbackInfo2(){ return new UncapturedErrorCallbackInfo2(this.buffer, this.offset + 112) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, requiredFeatureCount: this.$requiredFeatureCount, requiredFeatures: this.$requiredFeatures, requiredLimits: this.$requiredLimits, defaultQueue: this.$defaultQueue, deviceLostCallbackInfo2: this.$deviceLostCallbackInfo2, uncapturedErrorCallbackInfo2: this.$uncapturedErrorCallbackInfo2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $requiredFeatureCount(){ return new c.Size(this._buffer, this._offset + 24) }
+  get $requiredFeatures(){ return new c.Pointer<FeatureName>(this._buffer, this._offset + 32) }
+  get $requiredLimits(){ return new c.Pointer<RequiredLimits>(this._buffer, this._offset + 40) }
+  get $defaultQueue(){ return new QueueDescriptor(this._buffer, this._offset + 48) }
+  get $deviceLostCallbackInfo2(){ return new DeviceLostCallbackInfo2(this._buffer, this._offset + 72) }
+  get $uncapturedErrorCallbackInfo2(){ return new UncapturedErrorCallbackInfo2(this._buffer, this._offset + 112) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, requiredFeatureCount: this.$requiredFeatureCount, requiredFeatures: this.$requiredFeatures, requiredLimits: this.$requiredLimits, defaultQueue: this.$defaultQueue, deviceLostCallbackInfo2: this.$deviceLostCallbackInfo2, uncapturedErrorCallbackInfo2: this.$uncapturedErrorCallbackInfo2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; requiredFeatureCount: c.Size; requiredFeatures: c.Pointer<FeatureName>; requiredLimits: c.Pointer<RequiredLimits>; defaultQueue: QueueDescriptor; deviceLostCallbackInfo2: DeviceLostCallbackInfo2; uncapturedErrorCallbackInfo2: UncapturedErrorCallbackInfo2 }>) => new DeviceDescriptor().set(val)
 }
 export class RenderPassDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; colorAttachmentCount: c.Size; colorAttachments: c.Pointer<RenderPassColorAttachment>; depthStencilAttachment: c.Pointer<RenderPassDepthStencilAttachment>; occlusionQuerySet: QuerySet; timestampWrites: c.Pointer<RenderPassTimestampWrites> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $colorAttachmentCount(){ return new c.Size(this.buffer, this.offset + 24) }
-  get $colorAttachments(){ return new c.Pointer<RenderPassColorAttachment>(this.buffer, this.offset + 32) }
-  get $depthStencilAttachment(){ return new c.Pointer<RenderPassDepthStencilAttachment>(this.buffer, this.offset + 40) }
-  get $occlusionQuerySet(){ return new QuerySet(this.buffer, this.offset + 48) }
-  get $timestampWrites(){ return new c.Pointer<RenderPassTimestampWrites>(this.buffer, this.offset + 56) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, colorAttachmentCount: this.$colorAttachmentCount, colorAttachments: this.$colorAttachments, depthStencilAttachment: this.$depthStencilAttachment, occlusionQuerySet: this.$occlusionQuerySet, timestampWrites: this.$timestampWrites})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $colorAttachmentCount(){ return new c.Size(this._buffer, this._offset + 24) }
+  get $colorAttachments(){ return new c.Pointer<RenderPassColorAttachment>(this._buffer, this._offset + 32) }
+  get $depthStencilAttachment(){ return new c.Pointer<RenderPassDepthStencilAttachment>(this._buffer, this._offset + 40) }
+  get $occlusionQuerySet(){ return new QuerySet(this._buffer, this._offset + 48) }
+  get $timestampWrites(){ return new c.Pointer<RenderPassTimestampWrites>(this._buffer, this._offset + 56) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, colorAttachmentCount: this.$colorAttachmentCount, colorAttachments: this.$colorAttachments, depthStencilAttachment: this.$depthStencilAttachment, occlusionQuerySet: this.$occlusionQuerySet, timestampWrites: this.$timestampWrites})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; colorAttachmentCount: c.Size; colorAttachments: c.Pointer<RenderPassColorAttachment>; depthStencilAttachment: c.Pointer<RenderPassDepthStencilAttachment>; occlusionQuerySet: QuerySet; timestampWrites: c.Pointer<RenderPassTimestampWrites> }>) => new RenderPassDescriptor().set(val)
 }
 export class RenderPassPixelLocalStorage extends c.Struct<{ chain: ChainedStruct; totalPixelLocalStorageSize: c.U64; storageAttachmentCount: c.Size; storageAttachments: c.Pointer<RenderPassStorageAttachment> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $chain(){ return new ChainedStruct(this.buffer, this.offset + 0) }
-  get $totalPixelLocalStorageSize(){ return new c.U64(this.buffer, this.offset + 16) }
-  get $storageAttachmentCount(){ return new c.Size(this.buffer, this.offset + 24) }
-  get $storageAttachments(){ return new c.Pointer<RenderPassStorageAttachment>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({chain: this.$chain, totalPixelLocalStorageSize: this.$totalPixelLocalStorageSize, storageAttachmentCount: this.$storageAttachmentCount, storageAttachments: this.$storageAttachments})
+  get $chain(){ return new ChainedStruct(this._buffer, this._offset + 0) }
+  get $totalPixelLocalStorageSize(){ return new c.U64(this._buffer, this._offset + 16) }
+  get $storageAttachmentCount(){ return new c.Size(this._buffer, this._offset + 24) }
+  get $storageAttachments(){ return new c.Pointer<RenderPassStorageAttachment>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({chain: this.$chain, totalPixelLocalStorageSize: this.$totalPixelLocalStorageSize, storageAttachmentCount: this.$storageAttachmentCount, storageAttachments: this.$storageAttachments})
   static new = (val: Partial<{ chain: ChainedStruct; totalPixelLocalStorageSize: c.U64; storageAttachmentCount: c.Size; storageAttachments: c.Pointer<RenderPassStorageAttachment> }>) => new RenderPassPixelLocalStorage().set(val)
 }
 export class VertexState extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; module: ShaderModule; entryPoint: StringView; constantCount: c.Size; constants: c.Pointer<ConstantEntry>; bufferCount: c.Size; buffers: c.Pointer<VertexBufferLayout> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $module(){ return new ShaderModule(this.buffer, this.offset + 8) }
-  get $entryPoint(){ return new StringView(this.buffer, this.offset + 16) }
-  get $constantCount(){ return new c.Size(this.buffer, this.offset + 32) }
-  get $constants(){ return new c.Pointer<ConstantEntry>(this.buffer, this.offset + 40) }
-  get $bufferCount(){ return new c.Size(this.buffer, this.offset + 48) }
-  get $buffers(){ return new c.Pointer<VertexBufferLayout>(this.buffer, this.offset + 56) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, module: this.$module, entryPoint: this.$entryPoint, constantCount: this.$constantCount, constants: this.$constants, bufferCount: this.$bufferCount, buffers: this.$buffers})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $module(){ return new ShaderModule(this._buffer, this._offset + 8) }
+  get $entryPoint(){ return new StringView(this._buffer, this._offset + 16) }
+  get $constantCount(){ return new c.Size(this._buffer, this._offset + 32) }
+  get $constants(){ return new c.Pointer<ConstantEntry>(this._buffer, this._offset + 40) }
+  get $bufferCount(){ return new c.Size(this._buffer, this._offset + 48) }
+  get $buffers(){ return new c.Pointer<VertexBufferLayout>(this._buffer, this._offset + 56) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, module: this.$module, entryPoint: this.$entryPoint, constantCount: this.$constantCount, constants: this.$constants, bufferCount: this.$bufferCount, buffers: this.$buffers})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; module: ShaderModule; entryPoint: StringView; constantCount: c.Size; constants: c.Pointer<ConstantEntry>; bufferCount: c.Size; buffers: c.Pointer<VertexBufferLayout> }>) => new VertexState().set(val)
 }
 export class ComputePipelineDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; layout: PipelineLayout; compute: ComputeState }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 80, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $layout(){ return new PipelineLayout(this.buffer, this.offset + 24) }
-  get $compute(){ return new ComputeState(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, layout: this.$layout, compute: this.$compute})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $layout(){ return new PipelineLayout(this._buffer, this._offset + 24) }
+  get $compute(){ return new ComputeState(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, layout: this.$layout, compute: this.$compute})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; layout: PipelineLayout; compute: ComputeState }>) => new ComputePipelineDescriptor().set(val)
 }
 export class FragmentState extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; module: ShaderModule; entryPoint: StringView; constantCount: c.Size; constants: c.Pointer<ConstantEntry>; targetCount: c.Size; targets: c.Pointer<ColorTargetState> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 64, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $module(){ return new ShaderModule(this.buffer, this.offset + 8) }
-  get $entryPoint(){ return new StringView(this.buffer, this.offset + 16) }
-  get $constantCount(){ return new c.Size(this.buffer, this.offset + 32) }
-  get $constants(){ return new c.Pointer<ConstantEntry>(this.buffer, this.offset + 40) }
-  get $targetCount(){ return new c.Size(this.buffer, this.offset + 48) }
-  get $targets(){ return new c.Pointer<ColorTargetState>(this.buffer, this.offset + 56) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, module: this.$module, entryPoint: this.$entryPoint, constantCount: this.$constantCount, constants: this.$constants, targetCount: this.$targetCount, targets: this.$targets})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $module(){ return new ShaderModule(this._buffer, this._offset + 8) }
+  get $entryPoint(){ return new StringView(this._buffer, this._offset + 16) }
+  get $constantCount(){ return new c.Size(this._buffer, this._offset + 32) }
+  get $constants(){ return new c.Pointer<ConstantEntry>(this._buffer, this._offset + 40) }
+  get $targetCount(){ return new c.Size(this._buffer, this._offset + 48) }
+  get $targets(){ return new c.Pointer<ColorTargetState>(this._buffer, this._offset + 56) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, module: this.$module, entryPoint: this.$entryPoint, constantCount: this.$constantCount, constants: this.$constants, targetCount: this.$targetCount, targets: this.$targets})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; module: ShaderModule; entryPoint: StringView; constantCount: c.Size; constants: c.Pointer<ConstantEntry>; targetCount: c.Size; targets: c.Pointer<ColorTargetState> }>) => new FragmentState().set(val)
 }
 export class RenderPipelineDescriptor extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; layout: PipelineLayout; vertex: VertexState; primitive: PrimitiveState; depthStencil: c.Pointer<DepthStencilState>; multisample: MultisampleState; fragment: c.Pointer<FragmentState> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 168, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $label(){ return new StringView(this.buffer, this.offset + 8) }
-  get $layout(){ return new PipelineLayout(this.buffer, this.offset + 24) }
-  get $vertex(){ return new VertexState(this.buffer, this.offset + 32) }
-  get $primitive(){ return new PrimitiveState(this.buffer, this.offset + 96) }
-  get $depthStencil(){ return new c.Pointer<DepthStencilState>(this.buffer, this.offset + 128) }
-  get $multisample(){ return new MultisampleState(this.buffer, this.offset + 136) }
-  get $fragment(){ return new c.Pointer<FragmentState>(this.buffer, this.offset + 160) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, label: this.$label, layout: this.$layout, vertex: this.$vertex, primitive: this.$primitive, depthStencil: this.$depthStencil, multisample: this.$multisample, fragment: this.$fragment})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $label(){ return new StringView(this._buffer, this._offset + 8) }
+  get $layout(){ return new PipelineLayout(this._buffer, this._offset + 24) }
+  get $vertex(){ return new VertexState(this._buffer, this._offset + 32) }
+  get $primitive(){ return new PrimitiveState(this._buffer, this._offset + 96) }
+  get $depthStencil(){ return new c.Pointer<DepthStencilState>(this._buffer, this._offset + 128) }
+  get $multisample(){ return new MultisampleState(this._buffer, this._offset + 136) }
+  get $fragment(){ return new c.Pointer<FragmentState>(this._buffer, this._offset + 160) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, label: this.$label, layout: this.$layout, vertex: this.$vertex, primitive: this.$primitive, depthStencil: this.$depthStencil, multisample: this.$multisample, fragment: this.$fragment})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; label: StringView; layout: PipelineLayout; vertex: VertexState; primitive: PrimitiveState; depthStencil: c.Pointer<DepthStencilState>; multisample: MultisampleState; fragment: c.Pointer<FragmentState> }>) => new RenderPipelineDescriptor().set(val)
 }
 export class ChainedStruct extends c.Struct<{ next: c.Pointer<ChainedStruct>; sType: SType }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $next(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $sType(){ return new SType(this.buffer, this.offset + 8) }
-  protected override _value = () => ({next: this.$next, sType: this.$sType})
+  get $next(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $sType(){ return new SType(this._buffer, this._offset + 8) }
+  protected override _get = () => ({next: this.$next, sType: this.$sType})
   static new = (val: Partial<{ next: c.Pointer<ChainedStruct>; sType: SType }>) => new ChainedStruct().set(val)
 }
 export class ChainedStructOut extends c.Struct<{ next: c.Pointer<ChainedStructOut>; sType: SType }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 16, 8)
   }
-  get $next(){ return new c.Pointer<ChainedStructOut>(this.buffer, this.offset + 0) }
-  get $sType(){ return new SType(this.buffer, this.offset + 8) }
-  protected override _value = () => ({next: this.$next, sType: this.$sType})
+  get $next(){ return new c.Pointer<ChainedStructOut>(this._buffer, this._offset + 0) }
+  get $sType(){ return new SType(this._buffer, this._offset + 8) }
+  protected override _get = () => ({next: this.$next, sType: this.$sType})
   static new = (val: Partial<{ next: c.Pointer<ChainedStructOut>; sType: SType }>) => new ChainedStructOut().set(val)
 }
 export class BufferMapCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: BufferMapCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new BufferMapCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new BufferMapCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: BufferMapCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new BufferMapCallbackInfo2().set(val)
 }
 export class CompilationInfoCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CompilationInfoCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new CompilationInfoCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new CompilationInfoCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CompilationInfoCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new CompilationInfoCallbackInfo2().set(val)
 }
 export class CreateComputePipelineAsyncCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateComputePipelineAsyncCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new CreateComputePipelineAsyncCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new CreateComputePipelineAsyncCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateComputePipelineAsyncCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new CreateComputePipelineAsyncCallbackInfo2().set(val)
 }
 export class CreateRenderPipelineAsyncCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateRenderPipelineAsyncCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new CreateRenderPipelineAsyncCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new CreateRenderPipelineAsyncCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: CreateRenderPipelineAsyncCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new CreateRenderPipelineAsyncCallbackInfo2().set(val)
 }
 export class DeviceLostCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: DeviceLostCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new DeviceLostCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new DeviceLostCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: DeviceLostCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new DeviceLostCallbackInfo2().set(val)
 }
 export class PopErrorScopeCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: PopErrorScopeCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new PopErrorScopeCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new PopErrorScopeCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: PopErrorScopeCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new PopErrorScopeCallbackInfo2().set(val)
 }
 export class QueueWorkDoneCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: QueueWorkDoneCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new QueueWorkDoneCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new QueueWorkDoneCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: QueueWorkDoneCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new QueueWorkDoneCallbackInfo2().set(val)
 }
 export class RequestAdapterCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestAdapterCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new RequestAdapterCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new RequestAdapterCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestAdapterCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new RequestAdapterCallbackInfo2().set(val)
 }
 export class RequestDeviceCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestDeviceCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 40, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $mode(){ return new CallbackMode(this.buffer, this.offset + 8) }
-  get $callback(){ return new RequestDeviceCallback2(this.buffer, this.offset + 16) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 32) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $mode(){ return new CallbackMode(this._buffer, this._offset + 8) }
+  get $callback(){ return new RequestDeviceCallback2(this._buffer, this._offset + 16) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 32) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, mode: this.$mode, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; mode: CallbackMode; callback: RequestDeviceCallback2; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new RequestDeviceCallbackInfo2().set(val)
 }
 export class UncapturedErrorCallbackInfo2 extends c.Struct<{ nextInChain: c.Pointer<ChainedStruct>; callback: UncapturedErrorCallback; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }> {
   constructor(buffer?: ArrayBuffer, offset?: number) {
     super(buffer, offset, 32, 8)
   }
-  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this.buffer, this.offset + 0) }
-  get $callback(){ return new UncapturedErrorCallback(this.buffer, this.offset + 8) }
-  get $userdata1(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 16) }
-  get $userdata2(){ return new c.Pointer<c.Void>(this.buffer, this.offset + 24) }
-  protected override _value = () => ({nextInChain: this.$nextInChain, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
+  get $nextInChain(){ return new c.Pointer<ChainedStruct>(this._buffer, this._offset + 0) }
+  get $callback(){ return new UncapturedErrorCallback(this._buffer, this._offset + 8) }
+  get $userdata1(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 16) }
+  get $userdata2(){ return new c.Pointer<c.Void>(this._buffer, this._offset + 24) }
+  protected override _get = () => ({nextInChain: this.$nextInChain, callback: this.$callback, userdata1: this.$userdata1, userdata2: this.$userdata2})
   static new = (val: Partial<{ nextInChain: c.Pointer<ChainedStruct>; callback: UncapturedErrorCallback; userdata1: c.Pointer<c.Void>; userdata2: c.Pointer<c.Void> }>) => new UncapturedErrorCallbackInfo2().set(val)
 }
 
