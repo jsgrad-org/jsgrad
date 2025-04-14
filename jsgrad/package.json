@@ -2,8 +2,10 @@
   "name": "@jsgrad/jsgrad",
   "exports": {
     ".": {
-      "default": "./index.ts",
-      "node": "./node.ts"
+      "node": "./node.ts",
+      "deno": "./node.ts",
+      "browser": "./index.ts",
+      "default": "./index.ts"
     },
     "./web": "./index.ts",
     "./node": "./node.ts",
