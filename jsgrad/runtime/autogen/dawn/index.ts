@@ -232,6 +232,17 @@ export const requestAdapter = async (options?: GPURequestAdapterOptions): Promis
 }
 
 // ----------------------------------------------- Device -----------------------------------------------
+const ErrorFilter = new Map([
+  ["validation", c.ErrorFilter.Validation],
+  ["out-of-memory", c.ErrorFilter.OutOfMemory],
+  ["internal", c.ErrorFilter.Internal]
+])
+const BufferBindingType = new Map<GPUBufferBindingType | undefined, c.BufferBindingType>([
+  ["read-only-storage", c.BufferBindingType.ReadOnlyStorage],
+  ["storage", c.BufferBindingType.Storage],
+  ["uniform", c.BufferBindingType.Uniform],
+  [undefined, c.BufferBindingType.BindingNotUsed]
+])
 class Device implements GPUDevice{
   constructor(private _device: c.Device){}
   onuncapturederror=null
@@ -247,7 +258,7 @@ class Device implements GPUDevice{
     throw new Error('Method not implemented.')
   }
   get queue(): GPUQueue {
-    throw new Error('Method not implemented.')
+    return new Queue(c.deviceGetQueue(this._device))
   }
   addEventListener(type: unknown, listener: unknown, options?: unknown): void {
     throw new Error('Method not implemented.')
@@ -258,8 +269,13 @@ class Device implements GPUDevice{
   destroy(): undefined {
     throw new Error('Method not implemented.')
   }
-  createBuffer(descriptor: unknown): GPUBuffer {
-    throw new Error('Method not implemented.')
+  createBuffer(descriptor: GPUBufferDescriptor): GPUBuffer {
+    const desc = c.BufferDescriptor.new({
+      size: c.U64.new(BigInt(descriptor.size)),
+      usage: c.BufferUsage.new(BigInt(descriptor.usage)),
+      mappedAtCreation: c.Bool.new(Number(descriptor.mappedAtCreation ?? 0)),
+    })
+    return new Buffer(c.deviceCreateBuffer(this._device, desc._ptr()))
   }
   createTexture(descriptor: unknown): GPUTexture {
     throw new Error('Method not implemented.')
@@ -270,20 +286,68 @@ class Device implements GPUDevice{
   importExternalTexture(descriptor: unknown): GPUExternalTexture {
     throw new Error('Method not implemented.')
   }
-  createBindGroupLayout(descriptor: unknown): GPUBindGroupLayout {
-    throw new Error('Method not implemented.')
+  createBindGroupLayout(descriptor: GPUBindGroupLayoutDescriptor): GPUBindGroupLayout {
+    const layouts: c.BindGroupLayoutEntry[] = []
+    for (const entry of descriptor.entries){
+      const layout = c.BindGroupLayoutEntry.new({
+        binding: c.U32.new(entry.binding),
+        visibility: c.ShaderStage.new(BigInt(entry.visibility)),
+        buffer: c.BufferBindingLayout.new({ type: BufferBindingType.get(entry.buffer?.type)!, }),
+      })
+      layouts.push(layout)
+    }
+    return new BindGroupLayout(c.deviceCreateBindGroupLayout(
+      this._device,
+      c.BindGroupLayoutDescriptor.new({
+        entryCount: c.Size.new(BigInt(layouts.length)),
+        entries: c.createArray(layouts)._ptr(),
+      })._ptr()
+    ))
   }
-  createPipelineLayout(descriptor: unknown): GPUPipelineLayout {
-    throw new Error('Method not implemented.')
+  createPipelineLayout(descriptor: GPUPipelineLayoutDescriptor): GPUPipelineLayout {
+    const bindGroupLayouts = (descriptor.bindGroupLayouts as BindGroupLayout[]).map(x=>x._bindGroupLayout)
+    const pipeline_layout_desc = c.PipelineLayoutDescriptor.new({
+      bindGroupLayoutCount: c.Size.new(BigInt(bindGroupLayouts.length)),
+      bindGroupLayouts: c.createArray(bindGroupLayouts)._ptr(),
+    })
+    return new PipelineLayout(c.deviceCreatePipelineLayout(this._device, pipeline_layout_desc._ptr()))
   }
-  createBindGroup(descriptor: unknown): GPUBindGroup {
-    throw new Error('Method not implemented.')
+  createBindGroup(descriptor: GPUBindGroupDescriptor): GPUBindGroup {
+    const entries:c.BindGroupEntry[] = []
+    for (const x of descriptor.entries){
+      const resource = x.resource as GPUBufferBinding
+      const entry = c.BindGroupEntry.new({
+        binding: c.U32.new(x.binding),
+        buffer: (resource.buffer as Buffer)._buffer,
+        offset: c.U64.new(BigInt(resource.offset ?? 0)),
+        size:  c.U64.new(BigInt(resource.size ??0))
+      })
+      entries.push(entry)
+    }
+    const bind_group_desc = c.BindGroupDescriptor.new({ 
+      layout: (descriptor.layout as BindGroupLayout)._bindGroupLayout,
+      entryCount: c.Size.new(BigInt(entries.length)),
+      entries: c.createArray(entries)._ptr(),
+    })
+    return new BindGroup(c.deviceCreateBindGroup(this._device, bind_group_desc._ptr()))
   }
-  createShaderModule(descriptor: unknown): GPUShaderModule {
-    throw new Error('Method not implemented.')
+  createShaderModule(descriptor: GPUShaderModuleDescriptor): ShaderModule {
+    const shader = c.ShaderModuleWGSLDescriptor.new({
+      code: to_wgpu_str(descriptor.code),
+      chain: c.ChainedStruct.new({ sType: c.SType.ShaderSourceWGSL }),
+    })
+    const module = c.ShaderModuleDescriptor.new({nextInChain: shader._ptr()})
+    return new ShaderModule(c.deviceCreateShaderModule(this._device, module._ptr()))
   }
-  createComputePipeline(descriptor: unknown): GPUComputePipeline {
-    throw new Error('Method not implemented.')
+  createComputePipeline(descriptor: GPUComputePipelineDescriptor): GPUComputePipeline {
+    const compute_desc = c.ComputePipelineDescriptor.new({
+      layout: (descriptor.layout as PipelineLayout)._piplineLayout,
+      compute: c.ComputeState.new({ 
+        module: (descriptor.compute.module as ShaderModule)._shaderModule, 
+        entryPoint: to_wgpu_str(descriptor.compute.entryPoint!) 
+      }),
+    })
+    return new ComputePipeline(c.deviceCreateComputePipeline(this._device,compute_desc._ptr()))
   }
   createRenderPipeline(descriptor: unknown): GPURenderPipeline {
     throw new Error('Method not implemented.')
@@ -294,8 +358,8 @@ class Device implements GPUDevice{
   createRenderPipelineAsync(descriptor: unknown): Promise<GPURenderPipeline> {
     throw new Error('Method not implemented.')
   }
-  createCommandEncoder(descriptor?: unknown): GPUCommandEncoder {
-    throw new Error('Method not implemented.')
+  createCommandEncoder(descriptor?: GPUCommandEncoderDescriptor): GPUCommandEncoder {
+    return new CommandEncoder(c.deviceCreateCommandEncoder(this._device, new c.CommandEncoderDescriptor()._ptr()))
   }
   createRenderBundleEncoder(descriptor: unknown): GPURenderBundleEncoder {
     throw new Error('Method not implemented.')
@@ -306,25 +370,37 @@ class Device implements GPUDevice{
   get lost(): Promise<GPUDeviceLostInfo>{
     throw new Error("Method not implemented")
   }
-  pushErrorScope(filter: unknown): undefined {
-    throw new Error('Method not implemented.')
+  pushErrorScope(filter: GPUErrorFilter): undefined {
+    c.devicePushErrorScope(this._device, ErrorFilter.get(filter)!)
   }
-  popErrorScope(): Promise<GPUError | null> {
-    throw new Error('Method not implemented.')
+  async popErrorScope(): Promise<GPUError | null> {
+    const [_ , __, message] = await _run(c.PopErrorScopeCallbackInfo, (cb) => c.devicePopErrorScopeF(this._device, cb))
+    return message ? { message } : null
   }
   dispatchEvent(event: unknown): boolean {
     throw new Error('Method not implemented.')
   }
 }
+class ShaderModule implements GPUShaderModule{
+  constructor(public _shaderModule: c.ShaderModule) {}
+  __brand = 'GPUShaderModule' as const
+  label = ''
+  getCompilationInfo(): Promise<GPUCompilationInfo> {
+    throw new Error('Method not implemented.')
+  }
+}
 class BindGroupLayout implements GPUBindGroupLayout{
+  constructor(public _bindGroupLayout: c.BindGroupLayout) {}
   __brand = 'GPUBindGroupLayout' as const
   label = ''
 }
-class PiplineLayout implements GPUPipelineLayout{
+class PipelineLayout implements GPUPipelineLayout{
+  constructor(public _piplineLayout: c.PipelineLayout) {}
   __brand = 'GPUPipelineLayout' as const
   label = ''
 }
 class ComputePipeline implements GPUComputePipeline{
+  constructor(public _computePipeline: c.ComputePipeline) {}
   __brand = 'GPUComputePipeline' as const
   label = ''
   getBindGroupLayout(index: unknown): GPUBindGroupLayout {
@@ -332,20 +408,28 @@ class ComputePipeline implements GPUComputePipeline{
   }
 }
 class BindGroup implements GPUBindGroup{
+  constructor(public _bindGroup: c.BindGroup) {}
   __brand = 'GPUBindGroup' as const
   label = ''
 }
 class CommandEncoder implements GPUCommandEncoder{
+  constructor(public _commandEncoder: c.CommandEncoder) {}
   __brand = 'GPUCommandEncoder' as const
   label = ''
   beginRenderPass(descriptor: unknown): GPURenderPassEncoder {
     throw new Error('Method not implemented.')
   }
-  beginComputePass(descriptor?: unknown): GPUComputePassEncoder {
-    throw new Error('Method not implemented.')
+  beginComputePass(descriptor?: GPUComputePassDescriptor): GPUComputePassEncoder {
+    const desc = new c.ComputePassDescriptor()
+    if (descriptor?.timestampWrites) desc.timestampWrites = c.ComputePassTimestampWrites.new({
+      querySet: (descriptor.timestampWrites.querySet as QuerySet)._querySet,
+      beginningOfPassWriteIndex: c.U32.new(descriptor.timestampWrites.beginningOfPassWriteIndex ?? 0),
+      endOfPassWriteIndex: c.U32.new(descriptor.timestampWrites.endOfPassWriteIndex ?? 0),
+    })._ptr()._value
+    return new ComputePassEncoder(c.commandEncoderBeginComputePass(this._commandEncoder, desc._ptr()))
   }
-  copyBufferToBuffer(source: unknown, sourceOffset: unknown, destination?: unknown, destinationOffset?: unknown, size?: unknown): undefined {
-    throw new Error('Method not implemented.')
+  copyBufferToBuffer(source: Buffer, sourceOffset: number, destination: Buffer, destinationOffset?: number, size?: number): undefined {
+    c.commandEncoderCopyBufferToBuffer(this._commandEncoder, source._buffer, c.U64.new(BigInt(sourceOffset)), destination._buffer, c.U64.new(BigInt(destinationOffset ?? 0)), c.U64.new(BigInt(BigInt(size ?? 0))))
   }
   copyBufferToTexture(source: unknown, destination: unknown, copySize: unknown): undefined {
     throw new Error('Method not implemented.')
@@ -362,8 +446,8 @@ class CommandEncoder implements GPUCommandEncoder{
   resolveQuerySet(querySet: unknown, firstQuery: unknown, queryCount: unknown, destination: unknown, destinationOffset: unknown): undefined {
     throw new Error('Method not implemented.')
   }
-  finish(descriptor?: unknown): GPUCommandBuffer {
-    throw new Error('Method not implemented.')
+  finish(descriptor?: GPUCommandBufferDescriptor): GPUCommandBuffer {
+    return new CommandBuffer(c.commandEncoderFinish(this._commandEncoder, new c.CommandBufferDescriptor()._ptr()))
   }
   pushDebugGroup(groupLabel: unknown): undefined {
     throw new Error('Method not implemented.')
@@ -375,7 +459,13 @@ class CommandEncoder implements GPUCommandEncoder{
     throw new Error('Method not implemented.')
   }
 }
+class CommandBuffer implements GPUCommandBuffer{
+  constructor(public _commandBuffer: c.CommandBuffer){}
+  __brand = 'GPUCommandBuffer' as const
+  label = ''
+}
 class QuerySet implements GPUQuerySet{
+  constructor(public _querySet: c.QuerySet) {}
   __brand = 'GPUQuerySet' as const
   label = ''
   destroy(): undefined {
@@ -389,10 +479,11 @@ class QuerySet implements GPUQuerySet{
   }
 }
 class Buffer implements GPUBuffer{
+  constructor(public _buffer: c.Buffer) {}
   __brand = 'GPUBuffer' as const 
   label = ''
   get size(): number{
-    throw new Error('Method not implemented.')
+    return Number(c.bufferGetSize(this._buffer)._value)
   }
   get usage(): number{
     throw new Error('Method not implemented.')
@@ -400,33 +491,37 @@ class Buffer implements GPUBuffer{
   get mapState(): GPUBufferMapState{
     throw new Error('Method not implemented.')
   }
-  mapAsync(mode: unknown, offset?: unknown, size?: unknown): Promise<undefined> {
-    throw new Error('Method not implemented.')
+  async mapAsync(mode: GPUMapModeFlags, offset?: number, size?: number): Promise<undefined> {
+    const [status, msg] = await _run(c.BufferMapCallbackInfo2, (cb) => c.bufferMapAsync2(this._buffer, c.MapMode.new(BigInt(mode)), c.Size.new(BigInt(offset ?? 0)), c.Size.new(BigInt(size ?? 0)), cb))
+    if (status._value !== c.BufferMapAsyncStatus.Success._value) throw new Error(`Async failed: ${msg}`)
   }
-  getMappedRange(offset?: unknown, size?: unknown): ArrayBuffer {
-    throw new Error('Method not implemented.')
+  getMappedRange(offset?: number, size?: number): ArrayBuffer {
+    const ptr = c.bufferGetConstMappedRange(this._buffer, c.Size.new(BigInt(offset ?? 0)), c.Size.new(BigInt(size ?? 0)))
+    const buf = new c.Type(new ArrayBuffer(size ?? 0), 0, size)._replaceWithPtr(ptr)
+    return buf._buffer
   }
   unmap(): undefined {
     throw new Error('Method not implemented.')
   }
   destroy(): undefined {
-    throw new Error('Method not implemented.')
+    c.bufferDestroy(this._buffer)
   }
 }
 class ComputePassEncoder implements GPUComputePassEncoder{
+  constructor(private _computePassEncoder: c.ComputePassEncoder) {}
   __brand = 'GPUComputePassEncoder' as const
   label = ''
-  setPipeline(pipeline: unknown): undefined {
-    throw new Error('Method not implemented.')
+  setPipeline(pipeline: ComputePipeline): undefined {
+    c.computePassEncoderSetPipeline(this._computePassEncoder, pipeline._computePipeline)
   }
-  dispatchWorkgroups(workgroupCountX: unknown, workgroupCountY?: unknown, workgroupCountZ?: unknown): undefined {
-    throw new Error('Method not implemented.')
+  dispatchWorkgroups(workgroupCountX: GPUSize32, workgroupCountY: GPUSize32, workgroupCountZ: GPUSize32): undefined {
+    c.computePassEncoderDispatchWorkgroups(this._computePassEncoder, c.U32.new(workgroupCountX), c.U32.new(workgroupCountY), c.U32.new(workgroupCountZ))
   }
   dispatchWorkgroupsIndirect(indirectBuffer: unknown, indirectOffset: unknown): undefined {
     throw new Error('Method not implemented.')
   }
   end(): undefined {
-    throw new Error('Method not implemented.')
+    c.computePassEncoderEnd(this._computePassEncoder)
   }
   pushDebugGroup(groupLabel: unknown): undefined {
     throw new Error('Method not implemented.')
@@ -437,21 +532,23 @@ class ComputePassEncoder implements GPUComputePassEncoder{
   insertDebugMarker(markerLabel: unknown): undefined {
     throw new Error('Method not implemented.')
   }
-  setBindGroup(index: unknown, bindGroup: unknown, dynamicOffsetsData?: unknown, dynamicOffsetsDataStart?: unknown, dynamicOffsetsDataLength?: unknown): undefined {
-    throw new Error('Method not implemented.')
+  setBindGroup(index: GPUIndex32, bindGroup?: BindGroup): undefined {
+    c.computePassEncoderSetBindGroup(this._computePassEncoder, c.U32.new(index), bindGroup!._bindGroup, c.Size.new(0n), new c.Pointer())
   }
 }
 class Queue implements GPUQueue{
+  constructor(private _queue: c.Queue) {}
   __brand = 'GPUQueue' as const 
   label = ''
-  submit(commandBuffers: unknown): undefined {
-    throw new Error('Method not implemented.')
+  submit(commandBuffers: CommandBuffer[]): undefined {
+    const bufs = commandBuffers.map(x => x._commandBuffer)
+    c.queueSubmit(this._queue, c.Size.new(BigInt(bufs.length)), c.createArray(bufs)._ptr())
   }
   onSubmittedWorkDone(): Promise<undefined> {
     throw new Error('Method not implemented.')
   }
-  writeBuffer(buffer: unknown, bufferOffset: unknown, data: unknown, dataOffset?: unknown, size?: unknown): undefined {
-    throw new Error('Method not implemented.')
+  writeBuffer(buffer: Buffer, bufferOffset: GPUSize64, data: BufferSource | SharedArrayBuffer, dataOffset?: GPUSize64, size?: GPUSize64): undefined {
+    c.queueWriteBuffer(this._queue, buffer._buffer, c.U64.new(BigInt(bufferOffset)), new c.Pointer()._setNative(env.ptr(data as ArrayBuffer)), c.Size.new(BigInt(data.byteLength)))
   }
   writeTexture(destination: unknown, data: unknown, dataLayout: unknown, size: unknown): undefined {
     throw new Error('Method not implemented.')

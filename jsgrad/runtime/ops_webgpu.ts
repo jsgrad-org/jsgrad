@@ -55,7 +55,7 @@ class WebGPUProgram extends Program {
     const bind_group = device.createBindGroup({ layout: this.bind_group_layout, entries: bindings })
     const encoder = device.createCommandEncoder()
     let timestampWrites: GPUComputePassTimestampWrites | undefined, querySet: GPUQuerySet | undefined, queryBuf: GPUBuffer | undefined
-    if (wait && env.NAME !== 'deno') {
+    if (wait) {
       querySet = device.createQuerySet({ type: 'timestamp', count: 2 })
       queryBuf = device.createBuffer({ size: 16, usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC })
       timestampWrites = { querySet, beginningOfPassWriteIndex: 0, endOfPassWriteIndex: 1 }
@@ -65,7 +65,7 @@ class WebGPUProgram extends Program {
     compute_pass.setBindGroup(0, bind_group)
     compute_pass.dispatchWorkgroups(global_size[0], global_size[1], global_size[2]) // x y z
     compute_pass.end()
-    if (wait && env.NAME !== 'deno') encoder.resolveQuerySet(querySet!, 0, 2, queryBuf!, 0)
+    if (wait) encoder.resolveQuerySet(querySet!, 0, 2, queryBuf!, 0)
     const st = performance.now()
     device.queue.submit([encoder.finish()])
 
@@ -73,8 +73,6 @@ class WebGPUProgram extends Program {
     if (error) throw new Error(error.message)
 
     if (wait) {
-      if (env.NAME === 'deno') return perf(st)
-
       await device.queue.onSubmittedWorkDone()
 
       const staging = device.createBuffer({ size: 16, usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST })
