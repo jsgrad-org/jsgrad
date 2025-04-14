@@ -13,7 +13,11 @@ import { requestAdapter } from '../runtime/autogen/dawn/index.ts'
 export class DenoEnv extends NodeEnv {
   constructor(){
     super()
-    if (!vars.get_num("WGPU")) navigator.gpu.requestAdapter = requestAdapter
+    
+    if (!vars.get_num("WGPU")) {
+      navigator.gpu.requestAdapter = requestAdapter
+      if (vars.DEBUG >= 1) console.log("Using DAWN bingings")
+    }
   }
   override NAME = 'deno'
   override CPU_DEVICE = 'CLANG'

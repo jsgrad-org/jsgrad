@@ -31,12 +31,12 @@ class WebGPUProgram extends Program {
     return res
   }
   override call = async (bufs: GPUBuffer[], { global_size = [1, 1, 1], vals = [] }: ProgramCallArgs, wait = false) => {
+    const isStorage = (i: number) => i < bufs.length && bytes_to_string(this.lib).split('\n').find((x) => x.includes(`binding(${i + 1})`))?.includes('var<storage,read_write>')
     device.pushErrorScope('validation')
-
     if (!this.bind_group_layout || !this.compute_pipeline) {
       const binding_layouts: GPUBindGroupLayoutEntry[] = [
         { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'uniform' } },
-        ...[...bufs, ...vals].map<GPUBindGroupLayoutEntry>((_, i) => ({ binding: i + 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: i < bufs.length ? 'storage' : 'uniform' } })),
+        ...[...bufs, ...vals].map<GPUBindGroupLayoutEntry>((_, i) => ({ binding: i + 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: isStorage(i) ? 'storage' : 'uniform' } })),
       ]
 
       this.bind_group_layout = device.createBindGroupLayout({ entries: binding_layouts })
@@ -87,7 +87,7 @@ class WebGPUProgram extends Program {
 class WebGpuAllocator extends Allocator<GPUBuffer> {
   _alloc = (size: number, options?: BufferSpec) => {
     // WebGPU buffers have to be 4-byte aligned
-    const buf = device.createBuffer({ size: round_up(size, 4), usage: GPUBufferUsage.STORAGE | GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC })
+    const buf = device.createBuffer({ size: round_up(size, 16), usage: GPUBufferUsage.STORAGE | GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC })
     return buf
   }
   _copyin = (dest: GPUBuffer, src: MemoryView) => device.queue.writeBuffer(dest, 0, src.bytes)
