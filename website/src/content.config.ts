@@ -15,19 +15,26 @@ const getFiles = (dir: string) => {
   return results
 }
 
-const PATH = `src/content`
+const load = (path: string, prefix: string) =>{
+  const names = getFiles(path)
+  const files = names.map((name) => {
+    const content = new TextDecoder().decode(fs.readFileSync(name))
+    const data = codeToNotebook(content.split('\n'))
+    return {
+      id: name.replace(`${path}/`, prefix ? `${prefix}/` : "").replace('.ts', ''),
+      ...data,
+    }
+  })
+  return files
+}
+
 const notebooks = defineCollection({
   loader: async () => {
-    const names = getFiles(PATH)
-    const files = names.map((name) => {
-      const content = new TextDecoder().decode(fs.readFileSync(name))
-      const data = codeToNotebook(content.split('\n'))
-      return {
-        id: name.replace(`${PATH}/`, '').replace('.ts', ''),
-        ...data,
-      }
-    })
-    return files
+    return [
+      ...load("src/content", ""),
+      ...load("../examples", "examples")
+    ]
+  
   },
   schema: z.object({
     id: z.string(),

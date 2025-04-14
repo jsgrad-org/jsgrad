@@ -1,11 +1,17 @@
-import { env, Tensor } from '@jsgrad/jsgrad/node'
+/** [](type:markdown) */
+/**
+# Llama 3
+
+Llama 3 1B running in browser with jsgrad.
+
+*/
+/** [](type:code) */
+import { env, Tensor } from '@jsgrad/jsgrad'
 import { Llama3 } from '@jsgrad/models/llama3'
 import { parseArgs, z } from '@jsgrad/jsgrad/args'
 
 const args = parseArgs({
-  // model: z.string().optional().describe('Model path'),
   size: z.enum(['1B', '8B', '70B']).default('1B').describe('Model size'),
-  // shard: z.number().int().default(1).describe('Shard the model across multiple devices'),
   quantize: z.enum(['int8', 'nf4', 'float16']).default('float16').describe('Quantization method'),
   seed: z.number().optional().describe('Random seed'),
   temperature: z.number().default(0.85).describe('Temperature'),
@@ -13,9 +19,13 @@ const args = parseArgs({
   system: z.string().default('You are an helpful assistant.').describe('System prompt'),
 })
 
-// download_model is the default without a model passed in
+/** [](type:markdown) */
+/**
+## Loading
+*/
+/** [](type:code) */
 if (args.seed !== undefined) Tensor.manual_seed(args.seed)
-console.log(`seed = ${Tensor._seed}`)
+
 const model = await Llama3.load({
   size: args.size,
   temperature: args.temperature,
@@ -23,6 +33,11 @@ const model = await Llama3.load({
   system: args.system,
 })
 
+/** [](type:markdown) */
+/**
+## Running
+*/
+/** [](type:code) */
 if (args.prompt) {
   const res = await model.chat({
     messages: [{ role: 'user', content: args.prompt }],
@@ -33,12 +48,15 @@ if (args.prompt) {
 } else {
   while (true) {
     const content = (await env.prompt('Q: '))!
+    let out = ""
     await model.chat({
       messages: [{ role: 'user', content }],
       onToken: (res) => {
-        env.writeStdout(res.token)
+        out += res.token
+        env.writeStdout(out) // TODO: fix web stdout so it appends the text correctly
       },
     })
     env.writeStdout('\n')
   }
 }
+
