@@ -17,10 +17,6 @@ const to_wgpu_str = (str: string) => {
   return c.StringView.new({ data: _str._ptr(), length: c.Size.new(BigInt(_str._byteLength)) })
 }
 
-const write_buffer = (device: c.Device, buf: c.Buffer, offset: number, src: Uint8Array) => {
-  c.queueWriteBuffer(c.deviceGetQueue(device), buf, c.U64.new(BigInt(offset)), new c.Pointer()._setNative(env.ptr(src.buffer as ArrayBuffer)), c.Size.new(BigInt(src.length)))
-}
-
 type ReplaceStringView<T extends any[]> = { [K in keyof T]: T[K] extends c.StringView ? string : T[K] }
 type CallBack = typeof c.BufferMapCallbackInfo2 | typeof c.PopErrorScopeCallbackInfo | typeof c.CreateComputePipelineAsyncCallbackInfo2 | typeof c.RequestAdapterCallbackInfo | typeof c.RequestDeviceCallbackInfo | typeof c.QueueWorkDoneCallbackInfo2
 const _run = async <T extends CallBack>(cb_class: T, async_fn: (cb: InstanceType<T>) => c.Future): Promise<ReplaceStringView<Parameters<Parameters<InstanceType<T>['$callback']['_set']>[0]>>> => {
@@ -199,14 +195,14 @@ class Adapter implements GPUAdapter {
 let instance: c.Instance
 
 const PowerPreference =new Map<GPUPowerPreference|undefined, c.PowerPreference>([
-  ["high-performance",c.PowerPreference.HighPerformance],
-  ["low-power",c.PowerPreference.LowPower],
-  [undefined,c.PowerPreference.Undefined]
+  ["high-performance", c.PowerPreference.HighPerformance],
+  ["low-power", c.PowerPreference.LowPower],
+  [undefined, c.PowerPreference.Undefined]
 ])
 const FeatureLevel =new Map<string|undefined, c.FeatureLevel>([
-  ["compatibility",c.FeatureLevel.Compatibility],
-  ["core",c.FeatureLevel.Core],
-  [undefined,c.FeatureLevel.Undefined],
+  ["compatibility", c.FeatureLevel.Compatibility],
+  ["core", c.FeatureLevel.Core],
+  [undefined, c.FeatureLevel.Undefined],
 ])
 export const requestAdapter = async (options?: GPURequestAdapterOptions): Promise<Adapter | null> => {
   const FILE = env.OSX ? 'libwebgpu_dawn.dylib' : 'libwebgpu_dawn.so'
@@ -320,7 +316,7 @@ class Device implements GPUDevice{
         binding: c.U32.new(x.binding),
         buffer: (resource.buffer as Buffer)._buffer,
         offset: c.U64.new(BigInt(resource.offset ?? 0)),
-        size:  c.U64.new(BigInt(resource.size ??0))
+        size:  c.U64.new(BigInt(resource.size ?? 0))
       })
       entries.push(entry)
     }
@@ -497,6 +493,7 @@ class Buffer implements GPUBuffer{
   }
   getMappedRange(offset?: number, size?: number): ArrayBuffer {
     const ptr = c.bufferGetConstMappedRange(this._buffer, c.Size.new(BigInt(offset ?? 0)), c.Size.new(BigInt(size ?? 0)))
+    if (ptr._value === 0n) throw new Error(`Failed to get mapped range!`)
     const buf = new c.Type(new ArrayBuffer(this.size), 0, this.size)._replaceWithPtr(ptr)
     return buf._buffer
   }
@@ -547,8 +544,8 @@ class Queue implements GPUQueue{
   onSubmittedWorkDone(): Promise<undefined> {
     throw new Error('Method not implemented.')
   }
-  writeBuffer(buffer: Buffer, bufferOffset: GPUSize64, data: BufferSource | SharedArrayBuffer, dataOffset?: GPUSize64, size?: GPUSize64): undefined {
-    c.queueWriteBuffer(this._queue, buffer._buffer, c.U64.new(BigInt(bufferOffset)), new c.Pointer()._setNative(env.ptr(data as ArrayBuffer)), c.Size.new(BigInt(data.byteLength)))
+  writeBuffer(buffer: Buffer, bufferOffset: GPUSize64, data: ArrayBuffer, dataOffset?: GPUSize64, size?: GPUSize64): undefined {
+    c.queueWriteBuffer(this._queue, buffer._buffer, c.U64.new(BigInt(bufferOffset)), new c.Pointer()._setNative(env.ptr(data.slice(dataOffset, size))), c.Size.new(BigInt(data.byteLength)))
   }
   writeTexture(destination: unknown, data: unknown, dataLayout: unknown, size: unknown): undefined {
     throw new Error('Method not implemented.')
