@@ -13,10 +13,12 @@ const args = parseArgs({
 
 /** [](type:markdown) */
 /**
-## Model
+## Loading training data and initializing model
 */
 /** [](type:code) */
-class MNIST {
+const [X_train, Y_train, X_test, Y_test] = await mnist(undefined)
+
+class MNIST { 
   layers: Layer[] = [
     new Conv2d(1, 32, 5), Tensor.relu,
     new Conv2d(32, 32, 5), Tensor.relu,
@@ -28,15 +30,9 @@ class MNIST {
   ]
   call = (x: Tensor) => x.sequential(this.layers)
 }
-;(window as any).MNIST = MNIST // TODO: make classes also work accross cells and remove this
 
-/** [](type:markdown) */
-/**
-## Preparations
-*/
-/** [](type:code) */
-const [X_train, Y_train, X_test, Y_test] = await mnist(undefined)
 const model = new MNIST()
+
 const opt = new Adam(get_parameters(model))
 
 const train_step = new TinyJit(async () => {
