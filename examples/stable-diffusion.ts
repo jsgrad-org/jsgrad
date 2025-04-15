@@ -13,7 +13,6 @@ const args = parseArgs({
   steps: z.number().default(6).describe('Number of steps in diffusion'),
   prompt: z.string().default('a horse sized cat eating a bagel'),
   out: z.string().default(await env.tempFile('png')).describe('Output path'),
-  noshow: z.boolean().optional().describe("Don't show the image"),
   fp16: z.boolean().default(true).describe('Cast the weight to float16'),
   timing: z.boolean().optional().describe('Print timing per step'),
   seed: z.number().optional().describe('Set the random latent seed'),

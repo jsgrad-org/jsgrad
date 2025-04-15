@@ -24,3 +24,6 @@ jobs:
       - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A examples/simple-matmul.ts
       - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A examples/llama3.ts --prompt=hi --seed=4
       - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/train-gpt2.ts
+      - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/stable-diffusion.ts --seed=4
+      # - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/yolo.ts
+      # - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/whisper.ts
