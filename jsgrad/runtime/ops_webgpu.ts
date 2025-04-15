@@ -110,7 +110,7 @@ export class WEBGPU extends Compiled {
   override init = async () => {
     if (device) return
 
-    const adapter = await navigator.gpu.requestAdapter()
+    const adapter = await navigator.gpu.requestAdapter({ powerPreference: "high-performance" })
     if (!adapter) throw new Error('No adapter')
     f16_supported = adapter.features.has('shader-f16')
     timestamp_supported = adapter.features.has('timestamp-query')
