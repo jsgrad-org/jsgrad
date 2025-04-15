@@ -90,7 +90,7 @@ export class GPT {
     this.wte.weight = this.lm_head.weight // https://paperswithcode.com/method/weight-tying
   }
   load_pretrained = async () => {
-    const file = await env.fetchSave(`https://huggingface.co/gpt2/resolve/main/model.safetensors`, 'weights/gpt2.safetensors')
+    const file = await env.fetchSave(`https://huggingface.co/gpt2/resolve/main/model.safetensors`, 'models/gpt2.safetensors')
     const weights = await safe_load(file)
     const transposed = ['attn.c_attn.weight', 'attn.c_proj.weight', 'mlp.c_fc.weight', 'mlp.c_proj.weight']
     for (const k of Object.keys(weights)) {

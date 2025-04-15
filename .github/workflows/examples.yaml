@@ -1,0 +1,37 @@
+name: Examples
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: [self-hosted, linux]
+    env:
+      CACHE_DB: ":memory:"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm i
+
+      - run: DEVICE=WEBGPU deno -A examples/mnist.ts
+      - run: DEVICE=WEBGPU deno -A examples/simple-matmul.ts
+      - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/llama3.ts --prompt=hi --seed=4
+      - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/train-gpt2.ts
+      - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/stable-diffusion.ts --seed=4
+
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/mnist.ts
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/simple-matmul.ts
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/llama3.ts --prompt=hi --seed=4
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/train-gpt2.ts
+      # - run: DEVICE=WEBGPU ./cli/chrome.ts examples/stable-diffusion.ts --seed=4 // Array buffer allocation failed
+      

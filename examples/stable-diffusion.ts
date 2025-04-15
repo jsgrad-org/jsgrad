@@ -13,7 +13,6 @@ const args = parseArgs({
   steps: z.number().default(6).describe('Number of steps in diffusion'),
   prompt: z.string().default('a horse sized cat eating a bagel'),
   out: z.string().default(await env.tempFile('png')).describe('Output path'),
-  noshow: z.boolean().optional().describe("Don't show the image"),
   fp16: z.boolean().default(true).describe('Cast the weight to float16'),
   timing: z.boolean().optional().describe('Print timing per step'),
   seed: z.number().optional().describe('Set the random latent seed'),
@@ -26,7 +25,7 @@ Tensor.no_grad = true
 const model = new StableDiffusion()
 
 // load in weights
-const file = await env.fetchSave('https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/refs%2Fpr%2F228/sd-v1-4.safetensors?download=true', 'weights/sd-v1-4.safetensors')
+const file = await env.fetchSave('https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/refs%2Fpr%2F228/sd-v1-4.safetensors?download=true', 'models/stable-diffusion/sd-v1-4.safetensors')
 await load_state_dict(model, await safe_load(file), false)
 
 if (args.fp16) {
