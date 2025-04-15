@@ -3,8 +3,8 @@ import { Tensor, dtypes, range, vars } from '@jsgrad/jsgrad'
 
 vars.set("DEBUG", "2")
 
-// vars.set("HALF", "1") // Uncomment for tesing half precision
-// vars.set("BEAM", "2") // Uncomment for seeing if BEAM makes it faster
+// vars.set("HALF", "1") // Uncomment for testing half precision
+// vars.set("BEAM", "2") // Uncomment to see if BEAM=2 makes it faster
 
 let dtype_in = vars.get('HALF') ? dtypes.half : vars.get('BFLOAT16') ? dtypes.bfloat16 : dtypes.float
 let acc_dtype = vars.get('ACC_HALF') ? dtypes.half : vars.get('ACC_BFLOAT16') ? dtypes.bfloat16 : undefined
