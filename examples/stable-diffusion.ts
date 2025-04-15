@@ -7,7 +7,7 @@ import { env, load_state_dict, Tensor, TinyJit, Tqdm,Device, dtypes, get_state_d
 import { parseArgs, z } from '@jsgrad/jsgrad/args'
 import { StableDiffusion } from '@jsgrad/models/stable_diffusion'
 import { ClipTokenizer } from '@jsgrad/models/clip'
-import sharp from 'sharp'
+import { Image } from 'image-js';
 
 const args = parseArgs({
   steps: z.number().default(6).describe('Number of steps in diffusion'),
@@ -75,6 +75,10 @@ await vars.withAsync({ BEAM: vars.get('LATEBEAM', '')! }, async () => {
 let x = await model.decode(latent)
 console.log(x.shape)
 
-await sharp((await x.data()).bytes, { raw: { width: 512, height: 512, channels: 3 } }).toFormat('png').toFile(args.out)
+
+const image = new Image(512, 512, await x.data().then(x=>x.bytes), { kind: "RGB" });
+
+const pngBuffer = await image.toBuffer({ format:"image/png" });
+await env.writeFile(args.out, pngBuffer)
 
 console.log(`Saved image to ${args.out}`)
