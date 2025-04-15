@@ -19,4 +19,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm i
       - run: DEVICE=WEBGPU deno -A examples/mnist.ts
