@@ -239,6 +239,10 @@ const BufferBindingType = new Map<GPUBufferBindingType | undefined, c.BufferBind
   ["uniform", c.BufferBindingType.Uniform],
   [undefined, c.BufferBindingType.BindingNotUsed]
 ])
+const QueryType = new Map<GPUQueryType,c.QueryType>([
+  ["occlusion", c.QueryType.Occlusion],
+  ["timestamp", c.QueryType.Timestamp]
+])
 class Device implements GPUDevice{
   constructor(private _device: c.Device){}
   onuncapturederror=null
@@ -360,8 +364,12 @@ class Device implements GPUDevice{
   createRenderBundleEncoder(descriptor: unknown): GPURenderBundleEncoder {
     throw new Error('Method not implemented.')
   }
-  createQuerySet(descriptor: unknown): GPUQuerySet {
-    throw new Error('Method not implemented.')
+  createQuerySet(descriptor: GPUQuerySetDescriptor): GPUQuerySet {
+    const desc = c.QuerySetDescriptor.new({
+      count: c.U32.new(descriptor.count),
+      type: QueryType.get(descriptor.type)!
+    })
+    return new QuerySet(c.deviceCreateQuerySet(this._device, desc.ptr()))
   }
   get lost(): Promise<GPUDeviceLostInfo>{
     throw new Error("Method not implemented")
@@ -444,8 +452,8 @@ class CommandEncoder implements GPUCommandEncoder{
   clearBuffer(buffer: unknown, offset?: unknown, size?: unknown): undefined {
     throw new Error('Method not implemented.')
   }
-  resolveQuerySet(querySet: unknown, firstQuery: unknown, queryCount: unknown, destination: unknown, destinationOffset: unknown): undefined {
-    throw new Error('Method not implemented.')
+  resolveQuerySet(querySet: QuerySet, firstQuery: GPUSize32, queryCount: GPUSize32, destination: Buffer, destinationOffset: GPUSize64): undefined {
+    c.commandEncoderResolveQuerySet(this._commandEncoder, querySet._querySet, c.U32.new(firstQuery), c.U32.new(queryCount), destination._buffer, c.U64.new(BigInt(destinationOffset)))
   }
   finish(descriptor?: GPUCommandBufferDescriptor): GPUCommandBuffer {
     return new CommandBuffer(c.commandEncoderFinish(this._commandEncoder, new c.CommandBufferDescriptor().ptr()))
@@ -470,7 +478,7 @@ class QuerySet implements GPUQuerySet{
   __brand = 'GPUQuerySet' as const
   label = ''
   destroy(): undefined {
-    throw new Error('Method not implemented.')
+    c.querySetDestroy(this._querySet)
   }
   get type(): GPUQueryType{
     throw new Error('Method not implemented.')
@@ -487,7 +495,7 @@ class Buffer implements GPUBuffer{
     return Number(c.bufferGetSize(this._buffer).get)
   }
   get usage(): number{
-    throw new Error('Method not implemented.')
+    return Number(c.bufferGetUsage(this._buffer).get)
   }
   get mapState(): GPUBufferMapState{
     throw new Error('Method not implemented.')
@@ -546,8 +554,9 @@ class Queue implements GPUQueue{
     const bufs = commandBuffers.map(x => x._commandBuffer)
     c.queueSubmit(this._queue, c.Size.new(BigInt(bufs.length)), c.createArray(bufs).ptr())
   }
-  onSubmittedWorkDone(): Promise<undefined> {
-    throw new Error('Method not implemented.')
+  async onSubmittedWorkDone(): Promise<undefined> {
+    const [res] = await _run(c.QueueWorkDoneCallbackInfo2, (cb) => c.queueOnSubmittedWorkDone2(this._queue, cb))
+    if (res.get !== c.QueueWorkDoneStatus.Success.get) throw new Error(`onSubmittedWorkDone failed with ${res}`)
   }
   writeBuffer(buffer: Buffer, bufferOffset: GPUSize64, data: ArrayBuffer, dataOffset?: GPUSize64, size?: GPUSize64): undefined {
     c.queueWriteBuffer(this._queue, buffer._buffer, c.U64.new(BigInt(bufferOffset)), new c.Pointer().setNative(env.ptr(data.slice(dataOffset, size))), c.Size.new(BigInt(data.byteLength)))

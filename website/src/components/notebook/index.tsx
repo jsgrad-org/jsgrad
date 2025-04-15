@@ -8,6 +8,7 @@ import { marked } from 'marked'
 import { toast } from 'sonner'
 import { cellsToCode, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes, type Notebook as NotebookType, codeToNotebook } from './helpers'
 import { runJS, tscOptions } from './runner'
+import type { NB } from "../../../../global.d.ts"
 
 const NOTEBOOK = Uri.file('notebook.ts')
 
@@ -61,16 +62,6 @@ const save = (cells: Cell[], notebookBaseUrl: string) => {
 
 const useAsyncEffect = (fn: () => Promise<void>, deps: any[]) => useEffect(() => void fn(), deps)
 
-type NB = {
-  /**
-   * Rended any html under the cell.
-   */
-  display: (html: string) => void
-  /**
-   * Display an image under the cell.
-   */
-  image: (href: string) => void
-}
 const NB = `declare const nb: {
   /**
    * Rended any html under the cell.

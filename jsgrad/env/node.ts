@@ -27,7 +27,7 @@ export class NodeEnv extends WebEnv {
   override stat = fs.stat
   override statSync = statSync
   override writeStdout = (p: string) => process.stdout.write(string_to_bytes(p))
-  override tempFile = async (ext?: string) => `/tmp/dg_tmp_${random_id()}${ext ? `.${ext}` : ''}`
+  override tempFile = async (ext?: string) => `/tmp/jsgrad_tmp_${random_id()}${ext ? `.${ext}` : ''}`
   override homedir = os.homedir
   override mkdir = async (path: string) => void (await fs.mkdir(path, { recursive: true }))
   override args = () => process.argv.slice(2)
