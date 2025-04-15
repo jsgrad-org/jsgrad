@@ -121,4 +121,7 @@ export class WEBGPU extends Compiled {
       requiredLimits: { maxStorageBufferBindingSize, maxBufferSize, maxUniformBufferBindingSize, maxStorageBuffersPerShaderStage, maxComputeInvocationsPerWorkgroup, maxUniformBuffersPerShaderStage },
     })
   }
+  synchronize = async ():Promise<void> => {
+    await device.queue.onSubmittedWorkDone()
+  }
 }
