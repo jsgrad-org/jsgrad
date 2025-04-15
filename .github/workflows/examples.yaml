@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: john
+    runs-on: [self-hosted, linux]
     env:
       CACHE_DB: ":memory:"
     steps:
