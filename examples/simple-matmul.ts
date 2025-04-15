@@ -1,3 +1,10 @@
+/** [](type:markdown) */
+/**
+# Simple matmul
+
+See how fast your device does matmul, you can try with HALF and BEAM as well
+
+*/
 /** [](type:code) */
 import { Tensor, dtypes, range, vars } from '@jsgrad/jsgrad'
 
