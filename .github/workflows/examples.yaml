@@ -22,11 +22,16 @@ jobs:
         with:
           node-version: '22'
       - run: npm i
+
       - run: DEVICE=WEBGPU deno -A examples/mnist.ts
       - run: DEVICE=WEBGPU deno -A examples/simple-matmul.ts
       - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/llama3.ts --prompt=hi --seed=4
       - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/train-gpt2.ts
       - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/stable-diffusion.ts --seed=4
-      # - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/yolo.ts
-      # - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/whisper.ts
+
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/mnist.ts
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/simple-matmul.ts
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/llama3.ts --prompt=hi --seed=4
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/train-gpt2.ts
+      - run: DEVICE=WEBGPU ./cli/chrome.ts examples/stable-diffusion.ts --seed=4
       

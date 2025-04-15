@@ -4,7 +4,7 @@ import esbuild from 'esbuild'
 import process from 'node:process'
 import { string_to_bytes } from '@jsgrad/jsgrad'
 
-const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL', 'TQDM']
+const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL', 'TQDM', "HALF"]
 
 const [entry, ...args] = Deno.args
 const build = await esbuild.build({
@@ -28,7 +28,7 @@ const code = build.outputFiles[0].text + ';console.log("ASYNC_CODE_COMPLETE");'
 
 const browser = await chromium.launchPersistentContext('.playwright', {
   headless: !process.env.SHOW,
-  args: ['--disable-web-security', '--enable-unsafe-webgpu', '--enable-features=Vulkan'],
+  args: ['--disable-web-security', '--use-angle=vulkan', '--enable-unsafe-webgpu', '--enable-features=Vulkan'],
 })
 const page = await browser.newPage()
 await page.goto('https://jsgrad.org') // needed cause indexedDB won't work in about:blank
