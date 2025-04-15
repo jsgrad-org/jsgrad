@@ -76,9 +76,10 @@ let x = await model.decode(latent)
 console.log(x.shape)
 
 
-const image = new Image(512, 512, await x.data().then(x=>x.bytes), { kind: "RGB" });
+const image = new Image(512, 512, await x.data().then(x => x.bytes), { kind: "RGB" as any });
 
-const pngBuffer = await image.toBuffer({ format:"image/png" });
-await env.writeFile(args.out, pngBuffer)
+if (env.NAME === "web") nb.image(image.toDataURL())
+else await env.writeFile(args.out, image.toBuffer({ format: "png" }))
+
 
 console.log(`Saved image to ${args.out}`)

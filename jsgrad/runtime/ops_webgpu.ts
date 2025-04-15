@@ -1,4 +1,4 @@
-import { bytes_to_string, isInt, round_up } from '../helpers/helpers.ts'
+import { bytes_to_string, isInt, range, round_up } from '../helpers/helpers.ts'
 import { Allocator, type BufferSpec, Compiled, Compiler, Program, type ProgramCallArgs } from './allocator.ts'
 import { WGSLRenderer } from '../renderer/wgsl.ts'
 import type { MemoryView } from '../helpers/memoryview.ts'
@@ -31,12 +31,24 @@ class WebGPUProgram extends Program {
     return res
   }
   override call = async (bufs: GPUBuffer[], { global_size = [1, 1, 1], vals = [] }: ProgramCallArgs, wait = false) => {
-    const isStorage = (i: number) => i < bufs.length && bytes_to_string(this.lib).split('\n').find((x) => x.includes(`binding(${i + 1})`))?.includes('var<storage,read_write>')
+    wait = wait && !!timestamp_supported
+    const tmp_bufs = [...bufs]
+    let buf_patch = false
+
+    // WebGPU does not allow using the same buffer for input and output
+    for (const i of range(1, bufs.length)){
+      if (bufs[i] === bufs[0]){
+        tmp_bufs[0] = device.createBuffer({ size: bufs[0].size, usage: bufs[0].usage })
+        buf_patch = true
+      }
+    }
+
+    const isStorage = (i: number) => i < tmp_bufs.length && bytes_to_string(this.lib).split('\n').find((x) => x.includes(`binding(${i + 1})`))?.includes('var<storage,read_write>')
     device.pushErrorScope('validation')
     if (!this.bind_group_layout || !this.compute_pipeline) {
       const binding_layouts: GPUBindGroupLayoutEntry[] = [
         { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'uniform' } },
-        ...[...bufs, ...vals].map<GPUBindGroupLayoutEntry>((_, i) => ({ binding: i + 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: isStorage(i) ? 'storage' : 'uniform' } })),
+        ...[...tmp_bufs, ...vals].map<GPUBindGroupLayoutEntry>((_, i) => ({ binding: i + 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: isStorage(i) ? 'storage' : 'uniform' } })),
       ]
 
       this.bind_group_layout = device.createBindGroupLayout({ entries: binding_layouts })
@@ -46,7 +58,7 @@ class WebGPUProgram extends Program {
 
     const bindings: GPUBindGroupEntry[] = [
       { binding: 0, resource: { buffer: create_uniform(Infinity), offset: 0, size: 4 } },
-      ...[...bufs, ...vals].map<GPUBindGroupEntry>((x, i) => (
+      ...[...tmp_bufs, ...vals].map<GPUBindGroupEntry>((x, i) => (
         typeof x === 'number' ? { binding: i + 1, resource: { buffer: create_uniform(x), offset: 0, size: 4 } } : { binding: i + 1, resource: { buffer: x, offset: 0, size: x.size } }
       )),
     ]
@@ -67,7 +79,14 @@ class WebGPUProgram extends Program {
     device.queue.submit([encoder.finish()])
 
     const error = await device.popErrorScope()
-    if (error) throw new Error(error.message)
+    if (error) throw new Error(error.message+this.code)
+
+    if (buf_patch){
+      const commandEncoder = device.createCommandEncoder()
+      commandEncoder.copyBufferToBuffer(tmp_bufs[0], 0,  bufs[0], 0,  bufs[0].size)
+      device.queue.submit([commandEncoder.finish()])
+      tmp_bufs[0].destroy()
+    }
 
     if (wait) {
       await device.queue.onSubmittedWorkDone()

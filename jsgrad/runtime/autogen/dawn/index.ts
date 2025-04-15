@@ -495,7 +495,7 @@ class Buffer implements GPUBuffer{
     return Number(c.bufferGetSize(this._buffer).get)
   }
   get usage(): number{
-    throw new Error('Method not implemented.')
+    return Number(c.bufferGetUsage(this._buffer).get)
   }
   get mapState(): GPUBufferMapState{
     throw new Error('Method not implemented.')
