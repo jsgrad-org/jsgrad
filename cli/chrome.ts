@@ -2,7 +2,7 @@
 import { chromium } from 'playwright'
 import esbuild from 'esbuild'
 import process from 'node:process'
-import { string_to_bytes } from '@jsgrad/jsgrad'
+import { string_to_bytes, env } from '@jsgrad/jsgrad'
 
 const FORWARD_ENVS = ['DEBUG', 'D', 'DEVICE', 'JIT', 'BEAM', 'CACHELEVEL', 'TQDM', "HALF"]
 
@@ -17,7 +17,7 @@ const build = await esbuild.build({
   target: ['chrome100'],
   external: ['./jsgrad/env/deno.ts', './jsgrad/env/bun.ts', './jsgrad/env/node.ts'],
   define: {
-    'window.args': JSON.stringify(args),
+    'window.cli_args': JSON.stringify(args),
     process: JSON.stringify({
       env: Object.fromEntries(FORWARD_ENVS.map((k) => [k, process.env[k]])),
     }),
@@ -26,7 +26,7 @@ const build = await esbuild.build({
 
 const code = build.outputFiles[0].text + ';console.log("ASYNC_CODE_COMPLETE");'
 
-const browser = await chromium.launchPersistentContext('.playwright', {
+const browser = await chromium.launchPersistentContext(`${env.CACHE_DIR}/.playwright`, {
   headless: !process.env.SHOW,
   args: ['--disable-web-security', '--use-angle=vulkan', '--enable-unsafe-webgpu', '--enable-features=Vulkan'],
 })

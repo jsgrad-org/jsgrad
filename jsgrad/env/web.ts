@@ -95,21 +95,13 @@ export class WebEnv {
   }
 
   // SYSTEM
-  _stdout = ['']
-  writeStdout = (p: string) => {
-    if (p === '\n') {
-      this._stdout = ['']
-      return
-    }
-    this._stdout[0] = p.replace('[1G', '')
-    console.log(this._stdout)
-  }
+  writeStdout = (p: string) => console.log(p)
   homedir = () => '/home'
   gunzip = async (buffer: ArrayBuffer): Promise<ArrayBuffer> => {
     const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'))
     return await new Response(stream).arrayBuffer()
   }
-  args = (): string[] => (window as any).jsgrad_args || []
+  args = (): string[] => (window as any).cli_args || []
   machine = () => 'browser'
   exit = (code: number): never => {
     throw new Error(`Exited with status code ${code}`)
