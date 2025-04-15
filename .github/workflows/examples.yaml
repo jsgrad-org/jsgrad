@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: self-hosted
+    env:
+      CACHE_DB: ":memory:"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -20,10 +22,10 @@ jobs:
         with:
           node-version: '22'
       - run: npm i
-      - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A examples/mnist.ts
-      - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A examples/simple-matmul.ts
-      - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A examples/llama3.ts --prompt=hi --seed=4
-      - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/train-gpt2.ts
-      - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/stable-diffusion.ts --seed=4
-      # - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/yolo.ts
-      # - run: TQDM=0 CACHE_DB=":memory:" DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/whisper.ts
+      - run: DEVICE=WEBGPU deno -A examples/mnist.ts
+      - run: DEVICE=WEBGPU deno -A examples/simple-matmul.ts
+      - run: DEVICE=WEBGPU deno -A examples/llama3.ts --prompt=hi --seed=4
+      - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/train-gpt2.ts
+      - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/stable-diffusion.ts --seed=4
+      # - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/yolo.ts
+      # - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/whisper.ts
