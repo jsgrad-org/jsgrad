@@ -3,7 +3,7 @@ name: Examples
 on:
   push:
     branches:
-      - main
+      - 84-models-ci
   workflow_dispatch:
 
 jobs:
