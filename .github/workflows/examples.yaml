@@ -21,3 +21,8 @@ jobs:
           node-version: '22'
       - run: npm i
       - run: DEVICE=WEBGPU deno -A examples/mnist.ts
+      - run: DEVICE=WEBGPU deno -A examples/simple-matmul.ts
+      - run: DEVICE=WEBGPU deno -A examples/llama3.ts --prompt=hi --seed=4
+      - run: DEVICE=WEBGPU deno -A --v8-flags=--max-old-space-size=8192 examples/train-gpt2.ts
+      # - run: DEVICE=WEBGPU deno -A examples/whisper.ts
+      # - run: DEVICE=WEBGPU deno -A examples/stable-diffusion.ts
