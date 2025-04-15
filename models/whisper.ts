@@ -410,7 +410,7 @@ export const prep_audio = async (_waveforms: Float32Array[], batch_size: number,
 
 const get_encoding = async (is_multilingual: boolean) => {
   const url = `https://raw.githubusercontent.com/openai/whisper/main/whisper/assets/${is_multilingual ? 'multilingual' : 'gpt2'}.tiktoken`
-  const path = await env.fetchSave(url, id(url).toString(), env.CACHE_DIR)
+  const path = await env.fetchSave(url, `models/whisper/${is_multilingual ? 'multilingual' : 'gpt2'}.tiktoken`)
   const data = await env.readTextFile(path)
   const ranks = data.split('\n').filter((line) => line).map((line) => line.split(' ')).map(([token, rank]) => [token === '=' ? '<THIS_IS_EXTRA_TOKEN_FOR_MULTILANG_MODELS>' : atob(token), Number(rank)])
   let n_vocab = ranks.length
@@ -465,7 +465,7 @@ const state_map = {
 export const init_whisper = async (model_name: WhisperModel, batch_size = 1): Promise<[Whisper, Tokenizer]> => {
   if (!MODELS[model_name]) throw new Error()
   const { dims, url } = MODELS[model_name]
-  const filename = await env.fetchSave(url, model_name, env.CACHE_DIR)
+  const filename = await env.fetchSave(url, `models/whisper/${model_name}.safetensors`)
   let state = await safe_load(filename)
   state = replace_state_dict(state, state_map)
   const model = await Whisper.init(dims, batch_size)
@@ -531,7 +531,7 @@ export const load_file_waveform = async (filename: string): Promise<Float32Array
 }
 
 export const transcribe_file = async (model: any, enc: Tokenizer, filename: string, language?: string) => {
-  if (filename.startsWith('http')) filename = await env.fetchSave(filename, id(filename).toString(), env.CACHE_DIR)
+  if (filename.startsWith('http')) filename = await env.fetchSave(filename, id(filename).toString())
   const waveforms = await load_file_waveform(filename)
   return await transcribe_waveform(model, enc, waveforms, false, language)
 }

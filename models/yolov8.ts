@@ -246,7 +246,5 @@ export class YOLOv8 {
 }
 
 export const get_weights_location = async (yolo_variant: string) => {
-  let weights_location = `weights/yolov8${yolo_variant}.safetensors`
-  await env.fetchSave(`https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8${yolo_variant}.safetensors`, weights_location)
-  return weights_location
+  return await env.fetchSave(`https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8${yolo_variant}.safetensors`, `weights/yolov8/${yolo_variant}.safetensors`)
 }

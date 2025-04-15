@@ -25,7 +25,7 @@ Tensor.no_grad = true
 const model = new StableDiffusion()
 
 // load in weights
-const file = await env.fetchSave('https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/refs%2Fpr%2F228/sd-v1-4.safetensors?download=true', 'weights/sd-v1-4.safetensors')
+const file = await env.fetchSave('https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/refs%2Fpr%2F228/sd-v1-4.safetensors?download=true', 'models/stable-diffusion/sd-v1-4.safetensors')
 await load_state_dict(model, await safe_load(file), false)
 
 if (args.fp16) {

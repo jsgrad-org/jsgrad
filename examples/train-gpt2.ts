@@ -45,7 +45,7 @@ await model.load_pretrained()
 ## Loading training data
 */
 /** [](type:code) */
-const tokens_bin = await env.fetchSave('https://huggingface.co/datasets/karpathy/llmc-starter-pack/resolve/main/tiny_shakespeare_val.bin', 'weights/tiny_shakespeare_val.bin')
+const tokens_bin = await env.fetchSave('https://huggingface.co/datasets/karpathy/llmc-starter-pack/resolve/main/tiny_shakespeare_val.bin', 'tiny_shakespeare_val.bin')
 let data = await env.readFile(tokens_bin)
 data = data.slice(0x400)
 const tokens = new Tensor([...new Uint16Array(data.buffer)])

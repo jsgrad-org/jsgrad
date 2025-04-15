@@ -124,22 +124,15 @@ export class NodeEnv extends WebEnv {
     }
   }
   // TODO: stream to fs
-  override fetchSave = async (url: string, path: string, dir?: string, onProgress?: TqdmOnProgress) => {
-    if (dir) {
-      path = this.realPath(dir, path)
-      await this.mkdir(dir)
-    } else path = this.realPath(path)
-    if (
-      await this.stat(path)
-        .then((x) => x.isFile())
-        .catch(() => undefined)
-    ) {
-      return path
-    }
+  override fetchSave = async (url: string, path: string, onProgress?: TqdmOnProgress) => {
+    if (!path.startsWith("/")) path = this.realPath(this.CACHE_DIR, path)
+    const dir = path.split("/").slice(0, -1).join("/")
+    if (dir) await this.mkdir(dir)
+    if (await this.stat(path).then((x) => x.isFile()).catch(() => undefined)) return path
+
     const res = await fetch(url)
     if (!res.ok) throw new Error(`Error ${res.status}`)
-    let size = Number(res.headers.get('content-length')),
-      i = 0
+    let size = Number(res.headers.get('content-length')), i = 0
     let data: Uint8Array
     if (size) {
       const reader = res.body?.getReader()

@@ -304,22 +304,22 @@ export class Llama3 implements Llama3Constructor {
     }
   }
 
-  _download = async (dir = `weights/llama3-${this.size}`, onProgress?: TqdmOnProgress) => {
+  _download = async (dir = `models/llama3-${this.size}`, onProgress?: TqdmOnProgress) => {
     if (this.size === '1B') {
-      await env.fetchSave('https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/main/original/tokenizer.model', 'tokenizer.model', dir, onProgress)
-      return await env.fetchSave('https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q6_K.gguf', 'Llama-3.2-1B-Instruct-Q6_K.gguf', dir, onProgress)
+      await env.fetchSave('https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/main/original/tokenizer.model', `${dir}/tokenizer.model`, onProgress)
+      return await env.fetchSave('https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q6_K.gguf', `${dir}/Llama-3.2-1B-Instruct-Q6_K.gguf`, onProgress)
     } else if (this.size === '8B') {
-      await env.fetchSave('https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/main/original/tokenizer.model', 'tokenizer.model', dir, onProgress)
-      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00001-of-00004.safetensors', 'model-00001-of-00004.safetensors', dir, onProgress)
-      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00002-of-00004.safetensors', 'model-00002-of-00004.safetensors', dir, onProgress)
-      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00003-of-00004.safetensors', 'model-00003-of-00004.safetensors', dir, onProgress)
-      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00004-of-00004.safetensors', 'model-00004-of-00004.safetensors', dir, onProgress)
-      return await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/raw/main/model.safetensors.index.json', 'model.safetensors.index.json', dir, onProgress)
+      await env.fetchSave('https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/main/original/tokenizer.model', `${dir}/tokenizer.model`, onProgress)
+      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00001-of-00004.safetensors', `${dir}/model-00001-of-00004.safetensors`, onProgress)
+      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00002-of-00004.safetensors', `${dir}/model-00002-of-00004.safetensors`, onProgress)
+      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00003-of-00004.safetensors', `${dir}/model-00003-of-00004.safetensors`, onProgress)
+      await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/resolve/main/model-00004-of-00004.safetensors', `${dir}/model-00004-of-00004.safetensors`, onProgress)
+      return await env.fetchSave('https://huggingface.co/TriAiExperiments/SFR-Iterative-DPO-LLaMA-3-8B-R/raw/main/model.safetensors.index.json', `${dir}/model.safetensors.index.json`, onProgress)
     } else if (this.size === '70B') {
-      const model = await env.fetchSave('https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B/resolve/main/model.safetensors.index.json?download=true', 'model.safetensors.index.json', dir, onProgress)
-      await env.fetchSave('https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/main/original/tokenizer.model', 'tokenizer.model', dir, onProgress)
+      const model = await env.fetchSave('https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B/resolve/main/model.safetensors.index.json?download=true', `${dir}/model.safetensors.index.json`, onProgress)
+      await env.fetchSave('https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/main/original/tokenizer.model', `${dir}/tokenizer.model`, onProgress)
       for (const i of range(17)) {
-        await env.fetchSave(`https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B/resolve/main/model-${(i + 1).toString().padStart(5, '0')}-of-000017.safetensors?download=true`, `model-${(i + 1).toString().padStart(5, '0')}-of-000017.safetensors`, dir, onProgress)
+        await env.fetchSave(`https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B/resolve/main/model-${(i + 1).toString().padStart(5, '0')}-of-000017.safetensors?download=true`, `${dir}/model-${(i + 1).toString().padStart(5, '0')}-of-000017.safetensors`, onProgress)
       }
       return model
     } else throw new Error(`Invalid model size ${this.size}`)

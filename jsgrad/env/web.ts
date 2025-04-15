@@ -27,7 +27,7 @@ export class WebEnv {
     return this.PLATFORM === 'win32'
   }
   get CACHE_DIR() {
-    return `${vars.get('CACHE_DIR') || vars.get('XDG_CACHE_HOME') || (this.OSX ? `${this.homedir()}/Library/Caches` : `${this.homedir()}/.cache`)}/jsgrad`
+    return `${vars.get('CACHE_DIR') || vars.get('XDG_CACHE_HOME') || `${this.homedir()}/.cache`}/jsgrad`
   }
   get CACHE_DB() {
     return vars.get('CACHE_DB') || `${this.CACHE_DIR}/jsgrad.db`
@@ -63,8 +63,8 @@ export class WebEnv {
   statSync = (path: string): Stats => this.notImplemented()
   tempFile = async (ext?: string): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}${ext ? `.${ext}` : ''}`
   mkdir = async (path: string): Promise<void> => {}
-  fetchSave = async (url: string, path: string, dir?: string, onProgress?: TqdmOnProgress) => {
-    path = this.realPath(dir || '', path)
+  fetchSave = async (url: string, path: string, onProgress?: TqdmOnProgress) => {
+    path = this.realPath(path)
     const cache = await this._cache()
     const cached = await cache.match(path)
     if (cached) return path
