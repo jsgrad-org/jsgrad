@@ -4,7 +4,7 @@
 */
 /** [](type:code) */
 import { get_weights_location, YOLOv8 } from "@jsgrad/models/yolov8";
-import { safe_load, load_state_dict, Tensor, TinyJit, env } from "@jsgrad/jsgrad";
+import { safe_load, load_state_dict, Tensor, TinyJit, env as jsgradEnv } from "@jsgrad/jsgrad";
 import { Image } from "image-js"
 import { parseArgs, z } from "@jsgrad/jsgrad/args";
 
@@ -57,8 +57,8 @@ const net = new TinyJit(async (x: Tensor) => {
 
 const img_width = args.inputSize
 const img_height = args.inputSize
-const path = await env.fetchSave(args.image)
-let img = await Image.load(await env.readFile(path))
+const path = await jsgradEnv.fetchSave(args.image)
+let img = await Image.load(await jsgradEnv.readFile(path))
 img = img.resize({ width: img_width, height: img_height })
 const red = []
 const green = []
@@ -109,6 +109,6 @@ for (const x of boxes){
   img = img.paintLabels([x[4]],[[x[0],x[1]]])
 }
 
-if (env.NAME === "web") nb.image(await img.toDataURL())
+if (jsgradEnv.NAME === "web") nb.image(await img.toDataURL())
 else await img.save(args.out)
 
