@@ -115,7 +115,7 @@ const renderInputs = (schema: Schema, args: any) => {
     ;(window.nb as any).display(`<label>${name}<input name="${name}" value="${args[name] ?? ''}" type="${item.name === 'boolean' ? 'checkbox' : item.name}" /></label>`)
   }
   for (const name of Object.keys(schema)) {
-    document.querySelector(`[name="${name}"]`)!.addEventListener('input', (event: any) => {
+    document.querySelector(`[name="${name}"]`)?.addEventListener('input', (event: any) => {
       args[name] = event.target.value
     })
   }

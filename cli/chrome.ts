@@ -24,11 +24,12 @@ const build = await esbuild.build({
   },
 })
 
-const code = build.outputFiles[0].text + ';console.log("ASYNC_CODE_COMPLETE");'
+const code = [`window.nb={display:console.log,image:console.log}`,build.outputFiles[0].text ,'console.log("ASYNC_CODE_COMPLETE")'].join(";\n")
 
+console.log(env.PLATFORM)
 const browser = await chromium.launchPersistentContext(`${env.CACHE_DIR}/.playwright`, {
   headless: !process.env.SHOW,
-  args: ['--disable-web-security', '--use-angle=vulkan', '--enable-unsafe-webgpu', '--enable-features=Vulkan'],
+  args: ['--disable-web-security', env.PLATFORM==="linux" ? '--use-angle=vulkan' : undefined, '--enable-unsafe-webgpu', '--enable-features=Vulkan'].filter(Boolean) as string[],
 })
 const page = await browser.newPage()
 await page.goto('https://jsgrad.org') // needed cause indexedDB won't work in about:blank
