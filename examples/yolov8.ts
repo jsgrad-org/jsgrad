@@ -13,6 +13,8 @@ import { safe_load, load_state_dict, Tensor, env, TinyJit } from "@jsgrad/jsgrad
 import { Image } from "image-js"
 import { parseArgs, z } from "@jsgrad/jsgrad/args";
 
+const jsgradEnv = env // TODO: remove this, for some reason rn env... is always undefined when running the notebook
+
 const args = parseArgs({
   image: z.string().default("https://lh7-us.googleusercontent.com/GNVsVvVmCDLtFtqburTWaTQOjXn3N0wLBKXt6BhXO2GG037S9o7xZ7HyPjFcJoWgds1PFKvbHgCCEWTqiB-MR0VFIo7UC7jVEX6t10LD6zPg61YoEAR-NGbA2RJj7dVdYwMH2nsOJY648uXmMlpNiZw"),
   inputSize: z.number().default(416),
@@ -62,8 +64,8 @@ const net = new TinyJit(async (x: Tensor) => {
 
 const img_width = args.inputSize
 const img_height = args.inputSize
-const path = await env.fetchSave(args.image)
-let img = await Image.load(await env.readFile(path))
+const path = await jsgradEnv.fetchSave(args.image)
+let img = await Image.load(await jsgradEnv.readFile(path))
 img = img.resize({ width: img_width, height: img_height })
 const red = []
 const green = []
@@ -114,6 +116,6 @@ for (const x of boxes){
   img = img.paintLabels([x[4]],[[x[0],x[1]]])
 }
 
-if (env.NAME === "web") nb.image(await img.toDataURL())
+if (jsgradEnv.NAME === "web") nb.image(await img.toDataURL())
 else await img.save(args.out)
 
