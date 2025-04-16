@@ -1,5 +1,5 @@
 import type { Stats as NodeStats } from 'node:fs'
-import { memsize_to_str, vars } from '../helpers/helpers.ts'
+import { id, memsize_to_str, vars } from '../helpers/helpers.ts'
 import type { Compiled } from '../runtime/allocator.ts'
 import { Sha256 } from '../helpers/sha256.js'
 import { Tqdm, type TqdmOnProgress } from '../helpers/tqdm.ts'
@@ -63,7 +63,8 @@ export class WebEnv {
   statSync = (path: string): Stats => this.notImplemented()
   tempFile = async (ext?: string): Promise<string> => `/tmp/${(Math.random() * 100000000).toFixed(0)}${ext ? `.${ext}` : ''}`
   mkdir = async (path: string): Promise<void> => {}
-  fetchSave = async (url: string, path: string, onProgress?: TqdmOnProgress) => {
+  fetchSave = async (url: string, path?: string, onProgress?: TqdmOnProgress) => {
+    if (!path) path = id(url).toString()
     path = this.realPath(path)
     const cache = await this._cache()
     const cached = await cache.match(path)

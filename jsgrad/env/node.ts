@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { type Dlopen, type FFICallback, WebEnv } from './web.ts'
 import { JS } from '../runtime/ops_js.ts'
 import { CLOUD } from '../runtime/ops_cloud.ts'
-import { memsize_to_str, random_id, string_to_bytes } from '../helpers/helpers.ts'
+import { id, memsize_to_str, random_id, string_to_bytes } from '../helpers/helpers.ts'
 import * as fs from 'node:fs/promises'
 import { statSync } from 'node:fs'
 import * as path from 'node:path'
@@ -124,7 +124,8 @@ export class NodeEnv extends WebEnv {
     }
   }
   // TODO: stream to fs
-  override fetchSave = async (url: string, path: string, onProgress?: TqdmOnProgress) => {
+  override fetchSave = async (url: string, path?: string, onProgress?: TqdmOnProgress) => {
+    if (!path) path = id(url).toString()
     if (!path.startsWith("/")) path = this.realPath(this.CACHE_DIR, path)
     const dir = path.split("/").slice(0, -1).join("/")
     if (dir) await this.mkdir(dir)

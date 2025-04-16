@@ -13,3 +13,4 @@ weights/
 .playwright
 .vscode
 notebook/public/@jsgrad/
+out.png
