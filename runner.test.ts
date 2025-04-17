@@ -5,63 +5,63 @@ const check = (input: string, output: string) => test(input, () => expect(transf
 const same = (input:string)=>check(input, input)
 
 const esm = `https://esm.sh`
-
+const block = (...lines: string[])=>["{",...lines.map(x=>`    ${x}`),"}"].join("\n")
 describe("declaration", () => {
-
   check(
     'const a = 5', 
-    `const a = 5;\nsetGlobal({ a });`)
+    block(`const a = 5;`, `setGlobal({ a });`)
+  )
   check(
     'const a = 5, b = 77',
-    `const a = 5, b = 77;\nsetGlobal({ a, b });`
+    block(`const a = 5, b = 77;`,`setGlobal({ a, b });`)
   )
   check(
     'const { a, b } = { a: 3, b: 66 }',
-    `const { a, b } = { a: 3, b: 66 };\nsetGlobal({ a, b });`
+    block(`const { a, b } = { a: 3, b: 66 };`, `setGlobal({ a, b });`)
   )
   check(
     'var [x, y] = [4, 99]',
-    `var [x, y] = [4, 99];\nsetGlobal({ x, y });`
+    block(`var [x, y] = [4, 99];`, `setGlobal({ x, y });`)
   )
   check(
     'const [c, ...d] = [1, 2, 3, 4, 5]',
-    `const [c, ...d] = [1, 2, 3, 4, 5];\nsetGlobal({ c, d });`
+    block(`const [c, ...d] = [1, 2, 3, 4, 5];`, `setGlobal({ c, d });`)
   )
   check(
     'let { e, a, ...f } = { e: 44, a: 1, b: 2, c: 3 }',
-    `let { e, a, ...f } = { e: 44, a: 1, b: 2, c: 3 };\nsetGlobal({ e, a, f });`
+    block(`let { e, a, ...f } = { e: 44, a: 1, b: 2, c: 3 };`, `setGlobal({ e, a, f });`)
   )
   check(
     'let { e: x } = { e: 44, a: 1, b: 2, c: 3 }',
-    `let { e: x } = { e: 44, a: 1, b: 2, c: 3 };\nsetGlobal({ x });`
+    block(`let { e: x } = { e: 44, a: 1, b: 2, c: 3 };`, `setGlobal({ x });`)
   )
   check(
     'let { e: { a } } = { e: { a: 34 } }',
-    `let { e: { a } } = { e: { a: 34 } };\nsetGlobal({ a });`
+    block(`let { e: { a } } = { e: { a: 34 } };`, `setGlobal({ a });`)
   )
   check(
     'let { e = 0 } = {}',
-    `let { e = 0 } = {};\nsetGlobal({ e });`
+    block(`let { e = 0 } = {};`, `setGlobal({ e });`)
   )
   check(
     'class Person { a = 4 }',
-    `class Person {\n    a = 4;\n}\nsetGlobal({ Person });`
+    block(`class Person {`, `    a = 4;`, `}`, `setGlobal({ Person });`)
   )
   check(
     'const add = (x, y) => x + y',
-    `const add = (x, y) => x + y;\nsetGlobal({ add });`
+    block(`const add = (x, y) => x + y;`, `setGlobal({ add });`)
   )
   check(
     'function add(x, y) { let x = 4; }',
-    `function add(x, y) { let x = 4; }\nsetGlobal({ add });`
+    block(`function add(x, y) { let x = 4; }`, `setGlobal({ add });`)
   )
   check(
     'async function add(x, y) { const b = 4; }',
-    `async function add(x, y) { const b = 4; }\nsetGlobal({ add });`
+    block(`async function add(x, y) { const b = 4; }`, `setGlobal({ add });`)
   )
   check(
     `const User = class {constructor(name) { this.name = name }}`,
-    `const User = class {\n    constructor(name) { this.name = name; }\n};\nsetGlobal({ User });`
+    block(`const User = class {`, `    constructor(name) { this.name = name; }`, `};`, `setGlobal({ User });`)
   )
 
   // Should remain the same
@@ -70,24 +70,24 @@ describe("declaration", () => {
 
 describe("last line console.log",async ()=>{
   check(`(() => { const a = 4; })();`,"console.log((() => { const a = 4; })());")
-  check(`const a = 5;\na + b;`,`const a = 5;\nsetGlobal({ a });\nconsole.log(a + b);`)
+  check(`const a = 5;\na + b;`,`${block("const a = 5;","setGlobal({ a });")}\nconsole.log(a + b);`)
   check(`a + (b \n?1\n: 0);`,`console.log(a + (b\n    ? 1\n    : 0));`)
 })
 
 describe("imports",async () => {
-  check(`import { a, b } from 'package'`, `const { a, b } = await import("${esm}/package");\nsetGlobal({ a, b });`)
-  check(`import * as a from 'package'`, `const a = await import("${esm}/package");\nsetGlobal({ a });`)
+  check(`import { a, b } from 'package'`, block(`const { a, b } = await import("${esm}/package");`,`setGlobal({ a, b });`))
+  check(`import * as a from 'package'`, block(`const a = await import("${esm}/package");`,`setGlobal({ a });`))
 
-  check(`import a from 'package'`, `const a = await import("${esm}/package").then(x => x.default);\nsetGlobal({ a });`)
-  check(`import { a as b } from 'package'`, `const { a: b } = await import("${esm}/package");\nsetGlobal({ b });`)
-  check(`import { a, type b } from 'package'`, `const { a } = await import("${esm}/package");\nsetGlobal({ a });`)
+  check(`import a from 'package'`, block(`const a = await import("${esm}/package").then(x => x.default);`,`setGlobal({ a });`))
+  check(`import { a as b } from 'package'`, block(`const { a: b } = await import("${esm}/package");`,`setGlobal({ b });`))
+  check(`import { a, type b } from 'package'`, block(`const { a } = await import("${esm}/package");`,`setGlobal({ a });`))
   // check(`import type { a, b } from 'package'`, ``)
 })
 
 describe("transpiler", async () => {
   const check = (input: string, output: string) => test(input, () => expect(transformCode(input).trim()).toBe(output))
-  check(`const a: string = "a"`, `"use strict";\nconst a = "a";\nsetGlobal({ a });`)
-  check(`let a: undefined`, `"use strict";\nlet a;\nsetGlobal({ a });`)
+  check(`const a: string = "a"`, `"use strict";\n${block('const a = "a";','setGlobal({ a });')}`)
+  check(`let a: undefined`, `"use strict";\n${block('let a;','setGlobal({ a });')}`)
 })
 
 describe("runCell", async () => {
@@ -118,12 +118,12 @@ describe("runCell", async () => {
     res = await runCell(`let var1 = 0; var1+=69`)
 
     res = await runCell(`return var1`)
-    expect(res).toBe(69) // TODO: this is wrong it should be 69
+    expect(res).toBe(69)
 
     res = await runCell(`var1+=55`)
-    expect(console.log).lastCalledWith(55)
+    expect(console.log).lastCalledWith(124)
 
     res = await runCell(`var1`)
-    expect(console.log).lastCalledWith(55)
+    expect(console.log).lastCalledWith(124)
   })
 })

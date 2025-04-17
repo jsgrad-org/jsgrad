@@ -175,7 +175,7 @@ export const transformTypescript = (code: string) => {
         if (!variableStatement) return node;
         const assign = setGlobal(identifiers.map(id => factory.createShorthandPropertyAssignment(id)))
 
-        return [variableStatement, assign];
+        return factory.createBlock([variableStatement, assign])
       }
 
       // Handle class declarations (only top-level)
@@ -183,7 +183,7 @@ export const transformTypescript = (code: string) => {
         if (parent && ts.isSourceFile(parent)) {
           const className = node.name.text;
           const assign = setGlobal([factory.createShorthandPropertyAssignment(className)])
-          return [node, assign];
+          return factory.createBlock([node, assign]);
         }
         return node;
       }
@@ -193,7 +193,7 @@ export const transformTypescript = (code: string) => {
         if (parent && ts.isSourceFile(parent)) {
           const functionName = node.name.text;
           const assign = setGlobal([factory.createShorthandPropertyAssignment(functionName)])
-          return [node, assign];
+          return factory.createBlock([node, assign])
         }
         return node;
       }
@@ -218,7 +218,7 @@ export const transformTypescript = (code: string) => {
         
           if (boundIdentifiers.length > 0) {
             const assign = setGlobal(boundIdentifiers.map(id => factory.createShorthandPropertyAssignment(id.text)))
-            return [node, assign];
+            return factory.createBlock([node, assign])
           }
         }
         return node;
