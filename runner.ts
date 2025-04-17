@@ -1,4 +1,4 @@
-import ts, { factory, type Node, type TransformationContext } from 'typescript';
+import ts, { factory, type Node, type ShorthandPropertyAssignment, type TransformationContext } from 'typescript';
 
 declare global {
     var __nb__: {};
@@ -16,7 +16,13 @@ const tscOptions = {
   strictNullChecks: true,
 };
 
-const ctx = ts.factory.createIdentifier('globalThis')
+const setGlobal = (items:ShorthandPropertyAssignment[])=>{
+  return factory.createExpressionStatement(factory.createCallExpression(
+      factory.createIdentifier("setGlobal"),
+      undefined,
+      [factory.createObjectLiteralExpression(items, false)]
+    ))
+}
 const esm = `https://esm.sh`
 
 export const transformTypescript = (code: string) => {
@@ -167,16 +173,7 @@ export const transformTypescript = (code: string) => {
         }
 
         if (!variableStatement) return node;
-
-        const assign = factory.createExpressionStatement(
-          factory.createAssignment(
-            ctx,
-            factory.createObjectLiteralExpression([
-              factory.createSpreadAssignment(ctx),
-              ...identifiers.map(id => factory.createShorthandPropertyAssignment(id))
-            ])
-          )
-        );
+        const assign = setGlobal(identifiers.map(id => factory.createShorthandPropertyAssignment(id)))
 
         return [variableStatement, assign];
       }
@@ -185,15 +182,7 @@ export const transformTypescript = (code: string) => {
       if (ts.isClassDeclaration(node) && node.name) {
         if (parent && ts.isSourceFile(parent)) {
           const className = node.name.text;
-          const assign = factory.createExpressionStatement(
-            factory.createAssignment(
-              ctx,
-              factory.createObjectLiteralExpression([
-                factory.createSpreadAssignment(ctx),
-                factory.createShorthandPropertyAssignment(className)
-              ])
-            )
-          );
+          const assign = setGlobal([factory.createShorthandPropertyAssignment(className)])
           return [node, assign];
         }
         return node;
@@ -203,15 +192,7 @@ export const transformTypescript = (code: string) => {
       if (ts.isFunctionDeclaration(node) && node.name) {
         if (parent && ts.isSourceFile(parent)) {
           const functionName = node.name.text;
-          const assign = factory.createExpressionStatement(
-            factory.createAssignment(
-              ctx,
-              factory.createObjectLiteralExpression([
-                factory.createSpreadAssignment(ctx),
-                factory.createShorthandPropertyAssignment(functionName)
-              ])
-            )
-          );
+          const assign = setGlobal([factory.createShorthandPropertyAssignment(functionName)])
           return [node, assign];
         }
         return node;
@@ -236,15 +217,7 @@ export const transformTypescript = (code: string) => {
           });
         
           if (boundIdentifiers.length > 0) {
-            const assign = factory.createExpressionStatement(
-              factory.createAssignment(
-                ctx,
-                factory.createObjectLiteralExpression([
-                  factory.createSpreadAssignment(ctx),
-                  ...boundIdentifiers.map(id => factory.createShorthandPropertyAssignment(id.text)),
-                ])
-              )
-            );
+            const assign = setGlobal(boundIdentifiers.map(id => factory.createShorthandPropertyAssignment(id.text)))
             return [node, assign];
           }
         }
@@ -272,14 +245,18 @@ export const transformCode = (code: string) => {
 
 const workerCode = `
 
-console.log = (...args) => self.postMessage({ type: "console.log", args })
-console.error = (...args) => self.postMessage({ type: "console.error", args})
+const setGlobal = (args) => {
+  Object.assign(globalThis, args)
+}
+
+console.log = (...args) => self.postMessage({ type: "console.log", args: JSON.stringify(args) })
+console.error = (...args) => self.postMessage({ type: "console.error", args: JSON.stringify(args) })
 
 self.onmessage = async ({ data }) => {
   try{
-    console.log(data)
-    const fn = new Function(\`const main = async () => {\${data.code}}\nreturn main()\`)
-    const result = await fn()
+    // const inputs = \`{\${Object.keys(globalThis.__nb__)}}\`
+    const fn = new Function("setGlobal",\`const main = async () => {\${data.code}}\nreturn main()\`)
+    const result = await fn(setGlobal)
     self.postMessage({ type: "success", result })
   } catch(error){
     self.postMessage({ type: "error", error }) 
@@ -289,14 +266,15 @@ self.onmessage = async ({ data }) => {
 const url = URL.createObjectURL(new Blob([workerCode], { type: 'application/javascript' }))
 const worker = new Worker(url, { type: 'module' })
 
-export const runCell = async (code: string) => {
+export const runCell = async (code: string | string[]) => {
+  if (Array.isArray(code)) code = code.join("\n")
   code = transformCode(code);
 
   worker.postMessage({code})
   const res =  await new Promise((resolve, reject)=>worker.onmessage = ({ data })=>{
     if (data.type === "success") resolve(data.result)
-    else if (data.type === "console.log") console.log(...data.args)
-    else if (data.type === "console.error") console.error(...data.args)
+    else if (data.type === "console.log") console.log(...JSON.parse(data.args))
+    else if (data.type === "console.error") console.error(...JSON.parse(data.args))
     else if (data.type === "error") reject(data.error)
     else throw new Error(`Invalid data: ${data}`)
   })
