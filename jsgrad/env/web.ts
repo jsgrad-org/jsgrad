@@ -65,7 +65,7 @@ export class WebEnv {
   mkdir = async (path: string): Promise<void> => {}
   fetchSave = async (url: string, path?: string, onProgress?: TqdmOnProgress) => {
     if (!path) path = id(url).toString()
-    path = this.realPath(path)
+    path = this.realPath(this.homedir(), path)
     const cache = await this._cache()
     const cached = await cache.match(path)
     if (cached) return path
@@ -96,7 +96,7 @@ export class WebEnv {
   }
 
   // SYSTEM
-  writeStdout = (p: string) => console.log(p)
+  writeStdout = (p: string) => console.log(p + '\u200B') // Marking the log with zero-width space
   homedir = () => '/home'
   gunzip = async (buffer: ArrayBuffer): Promise<ArrayBuffer> => {
     const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'))

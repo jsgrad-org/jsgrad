@@ -94,7 +94,6 @@ const opt = new Adam(get_parameters(model))
 const train_step = new TinyJit(() => Tensor.train(async () => {
   opt.zero_grad()
   const samples = Tensor.randint([512], undefined, X_train.shape_num[0])
-  // TODO: fix this on WEBGPU, tracking issue https://github.com/jsgrad-org/jsgrad/issues/66
   const loss = model.call(X_train.get(samples)).sparse_categorical_crossentropy(Y_train.get(samples)).backward()
   await opt.step()
   return loss
