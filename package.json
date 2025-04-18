@@ -1,8 +1,9 @@
 {
-  "version": "0.0.29",
+  "version": "0.0.30",
   "private": true,
   "scripts": {
     "test": "deno -A npm:vitest run --testTimeout 0",
+    "test-watch": "deno -A npm:vitest --testTimeout 0",
     "format": "prettier --write .",
     "check": "tsc --noEmit",
     "build": "tsc"

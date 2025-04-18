@@ -6,7 +6,7 @@ export type NB = {
   /**
    * Display an image under the cell.
    */
-  image: (href: string) => void
+  image: (src: string) => void
 }
 
 declare global {

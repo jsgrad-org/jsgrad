@@ -109,17 +109,6 @@ const help = (schema: Schema): string => {
   res += lines.map((line) => line.map((line, i) => line.padEnd(maxLengths[i] + 2)).join('')).join('\n') + '\n'
   return res
 }
-const renderInputs = (schema: Schema, args: any) => {
-  if (typeof window === 'undefined' || !('nb' in window)) return
-  for (const [name, item] of Object.entries(schema)) {
-    ;(window.nb as any).display(`<label>${name}<input name="${name}" value="${args[name] ?? ''}" type="${item.name === 'boolean' ? 'checkbox' : item.name}" /></label>`)
-  }
-  for (const name of Object.keys(schema)) {
-    document.querySelector(`[name="${name}"]`)?.addEventListener('input', (event: any) => {
-      args[name] = event.target.value
-    })
-  }
-}
 export const parseArgs = <T extends Schema>(schema: T): ParsedSchema<T> => {
   const args = env.args().join(' ').split('--').filter(Boolean)
   const obj: Record<string, unknown> = {}
@@ -143,6 +132,5 @@ export const parseArgs = <T extends Schema>(schema: T): ParsedSchema<T> => {
     return env.exit(1) as any
   }
 
-  renderInputs(schema, res.data)
   return res.data
 }

@@ -22,7 +22,6 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "astro": "^5.6.1",
-    "console-feed": "^3.8.0",
     "lucide-react": "^0.485.0",
     "marked": "^15.0.8",
     "monaco-editor": "^0.52.2",
