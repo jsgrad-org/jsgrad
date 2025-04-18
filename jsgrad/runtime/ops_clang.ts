@@ -15,7 +15,7 @@ export class ClangCompiler extends Compiler {
     const bin = await env.tempFile()
     await env.writeTextFile(code, src)
 
-    const args = ['clang', '-shared', ...this.args, '-O2', '-Wall', '-Werror', '-x', 'c', '-fPIC', '-ffreestanding', '-nostdlib', '-lSystem', code, '-o', bin]
+    const args = ['clang', '-shared', ...this.args, '-O2', '-Wall', '-Werror', '-x', 'c', '-fPIC', '-ffreestanding', '-nostdlib', code, '-o', bin]
     await env.exec(args.join(' '))
 
     const data = await env.readFile(bin)
