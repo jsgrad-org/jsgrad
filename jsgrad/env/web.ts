@@ -43,6 +43,7 @@ export class WebEnv {
 
   private _cache = async () => await caches.open('jsgrad')
   readFile = async (path: string): Promise<Uint8Array> => {
+    path = "/" +path
     const cache = await this._cache()
     const res = await cache.match(path)
     return new Uint8Array(await res!.arrayBuffer())
@@ -65,7 +66,8 @@ export class WebEnv {
   mkdir = async (path: string): Promise<void> => {}
   fetchSave = async (url: string, path?: string, onProgress?: TqdmOnProgress) => {
     if (!path) path = id(url).toString()
-    path = this.realPath(path)
+    path = this.realPath(this.homedir(), path)
+    console.log(path)
     const cache = await this._cache()
     const cached = await cache.match(path)
     if (cached) return path

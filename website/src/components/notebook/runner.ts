@@ -79,7 +79,7 @@ export const transformTypescript = (code: string) => {
 
         const moduleSpecifierNode = node.moduleSpecifier;
         if (!ts.isStringLiteral(moduleSpecifierNode)) return node;
-        const moduleSpecifier = moduleSpecifierNode.text.startsWith("@jsgrad") ? `/${moduleSpecifierNode.text.replace("@jsgrad/", "packages/")}` : `${esm}/${moduleSpecifierNode.text}`
+        const moduleSpecifier = `${esm}/${moduleSpecifierNode.text}`
 
         const defaultImport = importClause.name?.text;
         const namedBindings = importClause.namedBindings;
