@@ -7,7 +7,7 @@ import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
 import { toast } from 'sonner'
 import { cellsToCode, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes, type Notebook as NotebookType, codeToNotebook } from './helpers'
-import { runJS, tscOptions } from './runner'
+import { runCell, tscOptions } from './runner'
 import type { NB } from "../../../../global.d.ts"
 
 const NOTEBOOK = Uri.file('notebook.ts')
@@ -134,7 +134,7 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
       image: (path) => display(`<img src="${path}" />`),
     }
     Object.assign(window, { nb })
-    await runJS(cell.content)
+    await runCell(cell.content)
 
     setIsRunning(false)
     setCellIsRunning((x) => ({ ...x, [index]: false }))

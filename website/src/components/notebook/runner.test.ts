@@ -116,6 +116,7 @@ describe("runCell", async () => {
     expect(console.log).lastCalledWith([10,5])
 
     res = await runCell(`let var1 = 0; var1+=69`)
+    expect(console.log).lastCalledWith(69)
 
     res = await runCell(`return var1`)
     expect(res).toBe(69)
@@ -124,6 +125,9 @@ describe("runCell", async () => {
     expect(console.log).lastCalledWith(124)
 
     res = await runCell(`var1`)
+    expect(console.log).lastCalledWith(124)
+    
+    res = await runCell("const idk = 5")
     expect(console.log).lastCalledWith(124)
   })
 })

@@ -1,13 +1,9 @@
 import ts, { factory, type Node, type ShorthandPropertyAssignment, type TransformationContext } from 'typescript';
 
-declare global {
-    var __nb__: {};
-}
-
-const tscOptions = {
-  target: ts.ScriptTarget.ESNext,
-  module: ts.ModuleKind.ESNext,
-  moduleResolution: ts.ModuleResolutionKind.Node10,
+export const tscOptions = {
+  target: ts.ScriptTarget.ESNext as 99,
+  module: ts.ModuleKind.ESNext as 99,
+  moduleResolution: ts.ModuleResolutionKind.Node10 as 2,
   isolatedModules: false,
   noUnusedLocals: false,
   noUnusedParameters: false,
@@ -44,12 +40,30 @@ export const transformTypescript = (code: string) => {
       if (originalLastExprPos !== undefined && originalLastExprEnd !== undefined &&
           ts.isExpressionStatement(node) && node.pos === originalLastExprPos && node.end === originalLastExprEnd) {
         // Replace with console.log
-        const loggedExpr = factory.createCallExpression(
-          factory.createIdentifier('console.log'),
-          undefined,
-          [node.expression]
+        return factory.createIfStatement(
+          factory.createBinaryExpression(
+            factory.createBinaryExpression(
+              node.expression,
+              factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken),
+              factory.createIdentifier("undefined")
+            ),
+            factory.createToken(ts.SyntaxKind.AmpersandAmpersandToken),
+            factory.createBinaryExpression(
+              node.expression,
+              factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken),
+              factory.createNull()
+            )
+          ),
+          factory.createExpressionStatement(factory.createCallExpression(
+            factory.createPropertyAccessExpression(
+              factory.createIdentifier("console"),
+              factory.createIdentifier("log")
+            ),
+            undefined,
+            [node.expression]
+          )),
+          undefined
         );
-        return factory.createExpressionStatement(loggedExpr);
       }
 
       // Handle Import Declarations
