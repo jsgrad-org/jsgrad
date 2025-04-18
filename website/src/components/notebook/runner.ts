@@ -27,11 +27,10 @@ export const transformTypescript = (code: string) => {
   // Find the last top-level expression statement in the original code
   let originalLastExprPos: number | undefined;
   let originalLastExprEnd: number | undefined;
-  for (const statement of sourceFile.statements) {
-    if (ts.isExpressionStatement(statement)) {
-      originalLastExprPos = statement.pos;
-      originalLastExprEnd = statement.end;
-    }
+  const last = sourceFile.statements.at(-1)
+  if (last && ts.isExpressionStatement(last)) {
+    originalLastExprPos = last.pos;
+    originalLastExprEnd = last.end;
   }
 
   const transformer = (context: TransformationContext) => {
