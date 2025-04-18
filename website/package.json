@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "cd .. && npm run build && cd website && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "kv-worker": "wrangler deploy"
