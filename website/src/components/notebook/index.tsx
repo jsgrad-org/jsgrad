@@ -3,11 +3,10 @@ import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
 import { ArrowDownIcon, ArrowUpIcon, CirclePlayIcon, CodeIcon, CopyIcon, CopyPlusIcon, Loader2Icon, PlayIcon, PlusIcon, RefreshCwIcon, RefreshCwOffIcon, SaveIcon, ShareIcon, TextIcon, XIcon } from 'lucide-react'
-import { Console, Hook, Unhook } from 'console-feed'
 import { marked } from 'marked'
 import { toast } from 'sonner'
 import { cellsToCode, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes, type Notebook as NotebookType, codeToNotebook } from './helpers'
-import { runCell, tscOptions } from './runner'
+import { runCell, tscOptions, type CellOutput } from './runner'
 import type { NB } from "../../../../global.d.ts"
 
 const NOTEBOOK = Uri.file('notebook.ts')
@@ -47,7 +46,7 @@ export type NotebookContext = {
   setQueue: React.Dispatch<React.SetStateAction<number[]>>
   isRunning: boolean
   cellIsRunning: Record<number, boolean>
-  cellLogs: Record<number, any[]>
+  cellLogs: Record<number, CellOutput[]>
   notebookBaseUrl: string
   kvBaseUrl: string
 }
@@ -79,7 +78,7 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
   const [cells, setCells] = useState(notebook.cells)
   const [queue, setQueue] = useState<number[]>([])
   const [isRunning, setIsRunning] = useState(false)
-  const [cellLogs, setCellLogs] = useState<Record<number, any[]>>({})
+  const [cellLogs, setCellLogs] = useState<Record<number, CellOutput[]>>({})
   const [cellIsRunning, setCellIsRunning] = useState<Record<number, boolean>>({})
   const [importedPackages, setImportedPackages] = useState<string[]>([])
 
@@ -121,25 +120,12 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
     setIsRunning(true)
     setCellIsRunning((x) => ({ ...x, [index]: true }))
     setCellLogs((x) => ({ ...x, [index]: [] }))
-    const out = document.querySelector(`#output-${index}`)!
-    out.innerHTML = ''
 
-    const hookedConsole = Hook(window.console, (log) => setCellLogs((x) => ({ ...x, [index]: [...(x[index] ?? []), log] })), false)
-
-    const display = (html: string) => {
-      out.innerHTML += html
-    }
-    const nb: NB = {
-      display,
-      image: (path) => display(`<img src="${path}" />`),
-    }
-    Object.assign(window, { nb })
-    await runCell(cell.content)
+    await runCell(cell.content, (out) => setCellLogs(x => ({ ...x, [index]: [...x[index], out] })) )
 
     setIsRunning(false)
     setCellIsRunning((x) => ({ ...x, [index]: false }))
 
-    void Unhook(hookedConsole)
   }, [queue, isRunning])
 
   // Initializing notebook
@@ -353,25 +339,56 @@ const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; o
 export const CodeBlock = ({ start, end, content, index }: { index: number; content: string; start: number; end: number }) => {
   const { setQueue, cellLogs, cellIsRunning } = useNotebook()
   const run = () => setQueue((x) => [...x, index])
-  const logs = cellLogs[index]
+  const logs = (cellLogs[index] || [])
   const isRunning = cellIsRunning[index]
   return (
     <Cell index={index} onClick={run} Icon={!isRunning ? PlayIcon : ({ className }) => <Loader2Icon className={className + ' animate-spin'} />}>
       <Code start={start} end={end} run={run} />
       <div>
-        <Console
-          logs={logs}
-          variant="dark"
-          styles={{
-            LOG_BACKGROUND: 'transparent',
-            BASE_BACKGROUND_COLOR: 'transparent',
-          }}
-        />
-        <div id={`output-${index}`}></div>
+        <Console logs={logs} />
       </div>
     </Cell>
   )
 }
+
+const logItem = (item:any): string => {
+  if (Array.isArray(item)) return item.map((item)=>logItem(item)).join(", ")
+  if (typeof item === "object") return "{ " + Object.entries(item).map(([k,v])=>`${k}: ${logItem(v)}`).join(", ") + " }"
+  if (typeof item === "string") return item
+  return JSON.stringify(item)
+}
+
+export const Console = ({logs}:{logs:CellOutput[]}) => {
+  return <div className='flex flex-col bg-white/5 rounded-b-md overflow-hidden'>
+    {logs.map((log,i)=><div key={i} className={`text-sm w-full  p-0.5 px-2 ${log.type==="error" || log.type==="console.error" ? "bg-red-500/50 hover:bg-red-500/60":"hover:bg-white/10"}`}>
+      {log.type==="console.log" && <div>{logItem(JSON.parse(log.args))}</div>}
+      {log.type==="console.error" && <div>{logItem(JSON.parse(log.args))}</div>}
+      {log.type==="console.table" && <Table args={JSON.parse(log.args)[0]}/>}
+      {log.type==="error" && <div>{log.error}</div>}
+      {log.type==="display" && <div dangerouslySetInnerHTML={{__html:log.html}}></div>}
+      {log.type==="image" && <img src={log.src}/>}
+    </div>)}
+  </div>
+}
+const Table = ({args}:{args:Record<string,Record<string,any>>}) => {
+  const allKeys = [...new Set(Object.values(args).flatMap(x=>Object.keys(x)))]
+  return <table className='table-auto w-full border !rounded-md border-white/10'>
+    <thead>
+      <tr>
+        {["",...allKeys].map((x,i)=><th key={i}>{x}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+    {Object.entries(args).map(([k,v],i)=>
+      <tr key={i} className='odd:bg-white/3 border-t border-white/10'>
+        <th>{k}</th>
+        {allKeys.map((k,i)=><td key={i} className='odd:bg-white/3 text-center p-0.5'>{logItem(v[k])}</td>)}
+      </tr>
+    )}
+    </tbody>
+  </table>
+}
+
 export const Code = ({ start, end, run }: { run?: () => void; start: number; end: number }) => {
   const lineHeight = 18
   const ref = useRef<any>(null)

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { runCell, transformCode, transformTypescript } from "./runner.ts"
+import { runCell, transformCode, transformTypescript, type CellOutput } from "./runner.ts"
 
 const check = (input: string, output: string) => test(input, () => expect(transformTypescript(input).trim()).toBe(output))
 const same = (input:string)=>check(input, input)
@@ -69,9 +69,10 @@ describe("declaration", () => {
 })
 
 describe("last line console.log",async ()=>{
-  check(`(() => { const a = 4; })();`,"console.log((() => { const a = 4; })());")
-  check(`const a = 5;\na + b;`,`${block("const a = 5;","setGlobal({ a });")}\nconsole.log(a + b);`)
-  check(`a + (b \n?1\n: 0);`,`console.log(a + (b\n    ? 1\n    : 0));`)
+  const ending = "if (__out__ !== undefined)\n        console.log(__out__);"
+  check(`(() => { const a = 4; })();`,block("const __out__ = (() => { const a = 4; })();",ending))
+  check(`const a = 5;\na + b;`,`${block("const a = 5;","setGlobal({ a });")}\n${block("const __out__ = a + b;",ending)}`)
+  check(`a + (b \n?1\n: 0);`,block("const __out__ = a + (b\n        ? 1\n        : 0);", ending))
 })
 
 describe("imports",async () => {
@@ -92,42 +93,55 @@ describe("transpiler", async () => {
 
 describe("runCell", async () => {
   test("runCell", async () => {
-    vi.spyOn(console, "log")
+    const onOutput = vi.fn((data:CellOutput) => {})
+    const log = (...args:any[]) => ({ type: "console.log", args: JSON.stringify(args) })
     
-    let res = await runCell(`const a = 7\nconst b = 6`)
+    let res = await runCell(`const a = 7\nconst b = 6`, onOutput)
 
-    res = await runCell(`const c = 55;a + c`)
-    expect(console.log).lastCalledWith(62)
+    res = await runCell(`const c = 55;\na + c`, onOutput)
+    expect(onOutput).lastCalledWith(log(62))
 
-    res = await runCell(`import { z } from "zod"\nconst schema = z.string()`)
+    res = await runCell(`import { z } from "zod"\nconst schema = z.string()`, onOutput)
 
-    res = await runCell(`let res = schema.safeParse("hi");res`)
-    expect(console.log).lastCalledWith({ success: true, data: "hi" })
+    res = await runCell(`let res = schema.safeParse("hi");res`, onOutput)
+    expect(onOutput).lastCalledWith(log({ success: true, data: "hi" }))
 
-    res = await runCell(`return res.data`)
+    res = await runCell(`return res.data`, onOutput)
     expect(res).toBe("hi")
 
-    await runCell(`const fn = (a:number, b:number)=> a / b`)
+    await runCell(`const fn = (a:number, b:number)=> a / b`, onOutput)
 
-    res = await runCell(`fn(100, 2)`)
-    expect(console.log).lastCalledWith(50)
+    res = await runCell(`fn(100, 2)`, onOutput)
+    expect(onOutput).lastCalledWith(log(50))
 
-    res = await runCell(`[fn(100, 10), 5]`)
-    expect(console.log).lastCalledWith([10,5])
+    res = await runCell(`[fn(100, 10), 5]`, onOutput)
+    expect(onOutput).lastCalledWith(log([10,5]))
 
-    res = await runCell(`let var1 = 0; var1+=69`)
-    expect(console.log).lastCalledWith(69)
+    res = await runCell(`let var1 = 0; var1+=69`, onOutput)
+    expect(onOutput).lastCalledWith(log(69))
 
-    res = await runCell(`return var1`)
+    res = await runCell(`return var1`, onOutput)
     expect(res).toBe(69)
 
-    res = await runCell(`var1+=55`)
-    expect(console.log).lastCalledWith(124)
+    res = await runCell(`var1+=55`, onOutput)
+    expect(onOutput).lastCalledWith(log(124))
 
-    res = await runCell(`var1`)
-    expect(console.log).lastCalledWith(124)
+    res = await runCell(`var1`, onOutput)
+    expect(onOutput).lastCalledWith(log(124))
     
-    res = await runCell("const idk = 5")
-    expect(console.log).lastCalledWith(124)
+    res = await runCell("const idk = 5", onOutput)
+    expect(onOutput).lastCalledWith(log(124))
+
+    res = await runCell("nb.display('<p>hi</p>')", onOutput)
+    expect(onOutput).lastCalledWith({ type: "display", html: "<p>hi</p>" })
+
+    res = await runCell("nb.image('/img.png')", onOutput)
+    expect(onOutput).lastCalledWith({ type: "image", src: "/img.png" })
+
+    res = await runCell("asdfsfdgdfg", onOutput)
+    expect(onOutput).lastCalledWith({ type: "error", error: "asdfsfdgdfg is not defined" })
+
+    res = await runCell("console.error('hi')", onOutput)
+    expect(onOutput).lastCalledWith({ type: "console.error", args:JSON.stringify(["hi"]) })
   })
 })

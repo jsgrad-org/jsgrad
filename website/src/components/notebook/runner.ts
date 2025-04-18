@@ -40,30 +40,37 @@ export const transformTypescript = (code: string) => {
       if (originalLastExprPos !== undefined && originalLastExprEnd !== undefined &&
           ts.isExpressionStatement(node) && node.pos === originalLastExprPos && node.end === originalLastExprEnd) {
         // Replace with console.log
-        return factory.createIfStatement(
-          factory.createBinaryExpression(
-            factory.createBinaryExpression(
-              node.expression,
-              factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken),
-              factory.createIdentifier("undefined")
+        return factory.createBlock(
+          [
+            factory.createVariableStatement(
+              undefined,
+              factory.createVariableDeclarationList(
+                [factory.createVariableDeclaration(
+                  factory.createIdentifier("__out__"),
+                  undefined,
+                  undefined,
+                  node.expression
+                )],
+                ts.NodeFlags.Const 
+              )
             ),
-            factory.createToken(ts.SyntaxKind.AmpersandAmpersandToken),
-            factory.createBinaryExpression(
-              node.expression,
-              factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken),
-              factory.createNull()
+            factory.createIfStatement(
+              factory.createBinaryExpression(
+                factory.createIdentifier("__out__"),
+                factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken),
+                factory.createIdentifier("undefined")
+              ),
+              factory.createExpressionStatement(factory.createCallExpression(
+                factory.createPropertyAccessExpression(
+                  factory.createIdentifier("console"),
+                  factory.createIdentifier("log")
+                ),
+                undefined,
+                [factory.createIdentifier("__out__")]
+              )),
             )
-          ),
-          factory.createExpressionStatement(factory.createCallExpression(
-            factory.createPropertyAccessExpression(
-              factory.createIdentifier("console"),
-              factory.createIdentifier("log")
-            ),
-            undefined,
-            [node.expression]
-          )),
-          undefined
-        );
+          ]
+        )
       }
 
       // Handle Import Declarations
@@ -263,34 +270,57 @@ const setGlobal = (args) => {
   Object.assign(globalThis, args)
 }
 
-console.log = (...args) => self.postMessage({ type: "console.log", args: JSON.stringify(args) })
-console.error = (...args) => self.postMessage({ type: "console.error", args: JSON.stringify(args) })
+globalThis.nb = {
+  display: (html) => self.postMessage({ type: "display", html }),
+  image: (src) => self.postMessage({ type: "image", src }),
+}
+const log = console.log
+console.log = (...args) => {
+  log(...args)
+  self.postMessage({ type: "console.log", args: JSON.stringify(args) })
+}
+const error = console.error
+console.error = (...args) => {
+  error(...args)
+  self.postMessage({ type: "console.error", args: JSON.stringify(args) })
+}
+const table = console.table
+console.table = (...args) =>{
+  table(...args)
+  self.postMessage({ type: "console.table", args: JSON.stringify(args) })
+}
 
 self.onmessage = async ({ data }) => {
   try{
-    // const inputs = \`{\${Object.keys(globalThis.__nb__)}}\`
-    const fn = new Function("setGlobal",\`const main = async () => {\${data.code}}\nreturn main()\`)
+    const fn = new Function("setGlobal", \`const main = async () => {\${data.code}}\nreturn main()\`)
     const result = await fn(setGlobal)
     self.postMessage({ type: "success", result })
   } catch(error){
-    self.postMessage({ type: "error", error }) 
+    console.error(error)
+    self.postMessage({ type: "error", error: error.message }) 
   }
 }
 `
 const url = URL.createObjectURL(new Blob([workerCode], { type: 'application/javascript' }))
 const worker = new Worker(url, { type: 'module' })
 
-export const runCell = async (code: string | string[]) => {
+export type CellOutput = { type: "display", html: string }
+                       | { type: "image", src: string }
+                       | { type: "console.log" | "console.error" | "console.table", args: string }
+                       | { type: "error", error: string }
+  
+export const runCell = async (code: string | string[], onOutput: (out:CellOutput)=>void) => {
   if (Array.isArray(code)) code = code.join("\n")
   code = transformCode(code);
 
   worker.postMessage({code})
-  const res =  await new Promise((resolve, reject)=>worker.onmessage = ({ data })=>{
+  const res = await new Promise((resolve, reject)=>worker.onmessage = ({ data })=>{
     if (data.type === "success") resolve(data.result)
-    else if (data.type === "console.log") console.log(...JSON.parse(data.args))
-    else if (data.type === "console.error") console.error(...JSON.parse(data.args))
-    else if (data.type === "error") reject(data.error)
-    else throw new Error(`Invalid data: ${data}`)
+    else if (data.type === "error") {
+      onOutput(data)
+      resolve(undefined)
+    }
+    else onOutput(data)
   })
   worker.onmessage = null
 
