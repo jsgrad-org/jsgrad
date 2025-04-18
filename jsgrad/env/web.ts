@@ -96,7 +96,7 @@ export class WebEnv {
   }
 
   // SYSTEM
-  writeStdout = (p: string) => console.log(p)
+  writeStdout = (p: string) => console.log(p + '\u200B') // Marking the log with zero-width space
   homedir = () => '/home'
   gunzip = async (buffer: ArrayBuffer): Promise<ArrayBuffer> => {
     const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'))

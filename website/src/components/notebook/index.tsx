@@ -120,8 +120,17 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
     setIsRunning(true)
     setCellIsRunning((x) => ({ ...x, [index]: true }))
     setCellLogs((x) => ({ ...x, [index]: [] }))
-
-    await runCell(cell.content, (out) => setCellLogs(x => ({ ...x, [index]: [...x[index], out] })) )
+    const addOutput = (out:CellOutput)=>{
+      setCellLogs(x => {
+        const last = x[index].at(-1)
+        // handle env.stdout
+        if (last?.type === "console.log" && last.args.includes('\u200B')){
+          console.log(last, out)
+        }
+        return { ...x, [index]: [...x[index], out] }
+    })
+    }
+    await runCell(cell.content, addOutput)
 
     setIsRunning(false)
     setCellIsRunning((x) => ({ ...x, [index]: false }))
