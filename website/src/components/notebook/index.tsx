@@ -409,7 +409,7 @@ const Table = ({args}:{args:Record<string,Record<string,any>>}) => {
   return <table className='table-auto w-full border !rounded-md border-white/10'>
     <thead>
       <tr>
-        {["",...allKeys].map((x,i)=><th key={i}>{x}</th>)}
+        {["",...allKeys].map((x,i)=><th key={i} className='p-0.5 odd:bg-white/3'>{x}</th>)}
       </tr>
     </thead>
     <tbody>
