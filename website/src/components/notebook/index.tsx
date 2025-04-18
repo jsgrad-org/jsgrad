@@ -352,17 +352,51 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
 }
 
 const logItem = (item:any): string => {
-  if (Array.isArray(item)) return item.map((item)=>logItem(item)).join(", ")
+  if (Array.isArray(item)) return "[" + item.map((item)=>logItem(item)).join(", ") + "]"
   if (typeof item === "object") return "{ " + Object.entries(item).map(([k,v])=>`${k}: ${logItem(v)}`).join(", ") + " }"
   if (typeof item === "string") return item
   return JSON.stringify(item)
 }
 
+const String = ({ children }: { children: string }) => {
+  const colors = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
+
+  const regex = /\u001b\[(\d+)(;\d+)*m/g;
+  let lastIndex = 0;
+  const elements: ReactNode[] = [];
+
+  children.replace(regex, (match, code, _subcode, index) => {
+    if (index > lastIndex) elements.push(<span key={lastIndex}>{children.slice(lastIndex, index)}</span>);
+
+    const codeNum = parseInt(code, 10);
+    let style: React.CSSProperties = {};
+
+    if (codeNum === 0) style = {};
+    else if (codeNum >= 30 && codeNum <= 37) style = { color: colors[codeNum - 30] };
+    else if (codeNum >= 90 && codeNum <= 97) style = { color: colors[codeNum - 90], filter: 'brightness(1.5)' };
+    else if (codeNum >= 40 && codeNum <= 47) style = { backgroundColor: colors[codeNum - 40] };
+    else if (codeNum >= 100 && codeNum <= 107) style = { backgroundColor: colors[codeNum - 100], filter: 'brightness(1.5)' };
+
+    const nextMatch = children.slice(index + match.length).match(/\u001b\[\d+(;\d+)*m/);
+    const textEnd = nextMatch ? index + match.length + nextMatch.index! : children.length;
+    const text = children.slice(index + match.length, textEnd);
+
+    if (text) elements.push(<span key={index} style={style}>{text}</span>);
+
+    lastIndex = textEnd;
+    return match;
+  });
+
+  if (lastIndex < children.length) elements.push(<span key={lastIndex}>{children.slice(lastIndex)}</span>);
+
+  return <>{elements}</>;
+};
+
 export const Console = ({logs}:{logs:CellOutput[]}) => {
-  return <div className='flex flex-col bg-white/5 rounded-b-md overflow-hidden'>
-    {logs.map((log,i)=><div key={i} className={`text-sm w-full  p-0.5 px-2 ${log.type==="error" || log.type==="console.error" ? "bg-red-500/50 hover:bg-red-500/60":"hover:bg-white/10"}`}>
-      {log.type==="console.log" && <div>{logItem(JSON.parse(log.args))}</div>}
-      {log.type==="console.error" && <div>{logItem(JSON.parse(log.args))}</div>}
+  return <div className='flex flex-col bg-white/5 rounded-b-md overflow-hidden whitespace-pre overflow-x-auto font-mono text-xs'>
+    {logs.map((log,i)=><div key={i} className={`w-full p-0.5 px-2 ${log.type==="error" || log.type==="console.error" ? "bg-red-500/50 hover:bg-red-500/60":"hover:bg-white/10"}`}>
+      {log.type==="console.log" && <String>{JSON.parse(log.args).map((x:any)=>logItem(x)).join(", ")}</String>}
+      {log.type==="console.error" && <String>{JSON.parse(log.args).map((x:any)=>logItem(x)).join(", ")}</String>}
       {log.type==="console.table" && <Table args={JSON.parse(log.args)[0]}/>}
       {log.type==="error" && <div>{log.error}</div>}
       {log.type==="display" && <div dangerouslySetInnerHTML={{__html:log.html}}></div>}
