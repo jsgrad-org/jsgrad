@@ -113,9 +113,9 @@ const train_step = new TinyJit(async (x:Tensor, selected_action:Tensor, reward:T
   return res
 })
 
-const get_action = new TinyJit((obs:Tensor)=>{
+const get_action = new TinyJit(async (obs:Tensor)=>{
   Tensor.no_grad = true
-  const ret = model.call(obs)[0].exp().multinomial().realize()
+  const ret = await model.call(obs)[0].exp().multinomial().realize()
   Tensor.no_grad = false
   return ret
 })
@@ -140,7 +140,7 @@ for (const _ of t){
     An.push(act);
 
     [obs, rew, terminated, truncated] = env.step(act)
-
+    console.log(obs,rew,terminated,truncated)
     rews.push(rew)
   }
   steps += rews.length
@@ -148,8 +148,8 @@ for (const _ of t){
   // reward to go
   // TODO: move this into tinygrad
   const discounts = range(rews.length).map(i => Math.pow(DISCOUNT_FACTOR, i));
-  const mul = (arr1:number[],arr2:number[])=>zip(arr1,arr2).map(([x,y])=>x*y)
-  Rn.push(...range(rews.length).map(i=>sum(mul(rews.slice(i) , discounts.slice(rews.length-i)))))
+  const mul = (arr1:number[], arr2:number[])=>zip(arr1,arr2).map(([x,y])=>x*y)
+  Rn.push(...range(rews.length).map(i=>sum(mul(rews.slice(i), discounts.slice(0, rews.length-i)))))
 
   Xn = Xn.slice(-REPLAY_BUFFER_SIZE), An = An.slice(-REPLAY_BUFFER_SIZE), Rn = Rn.slice(-REPLAY_BUFFER_SIZE)
   const X= new Tensor(Xn), A = new Tensor(An), R = new  Tensor(Rn)
@@ -160,7 +160,7 @@ for (const _ of t){
 
   const old_log_dist = model.call(X)[0].detach()   // TODO: could save these instead of recomputing
   let action_loss, entropy_loss, critic_loss
-  for (const i of range(TRAIN_STEPS)){
+  for (const _ of range(TRAIN_STEPS)){
     const samples = await Tensor.randint([BATCH_SIZE],undefined,num(X.shape[0])).realize();  // TODO: remove the need for this
     // TODO: is this recompiling based on the shape?
     [action_loss, entropy_loss, critic_loss] = await train_step.call(X.get(samples), A.get(samples), R.get(samples), old_log_dist.get(samples))
