@@ -181,7 +181,7 @@ for (const _ of t){
 
     [obs, rew, terminated, truncated] = env.step(act)
     rews.push(rew)
-    nb.eval(`window.render(${env.state[0], env.state[2]})`)
+    nb.eval(`window.render(${env.state[0]}, ${env.state[2]})`)
   }
   steps += rews.length
 

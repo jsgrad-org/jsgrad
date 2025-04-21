@@ -348,7 +348,6 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
   const run = () => setQueue((x) => [...x, index])
   const logs = (cellLogs[index] || [])
   const isRunning = cellIsRunning[index]
-  console.log("refresh",index)
   return (
     <Cell index={index} onClick={run} Icon={!isRunning ? PlayIcon : ({ className }) => <Loader2Icon className={className + ' animate-spin'} />}>
       <Code start={start} end={end} run={run} />
