@@ -190,7 +190,10 @@ const MenuButton = ({ Icon, text, onClick }: { Icon: Icon; text: string; onClick
 }
 
 const Cells = () => {
-  const { cells, notebookBaseUrl, kvBaseUrl, set } = useNotebook()
+  const cells = useNotebook(x=>x.cells)
+  const notebookBaseUrl = useNotebook(x=>x.notebookBaseUrl)
+  const kvBaseUrl = useNotebook(x=>x.kvBaseUrl)
+  const set = useNotebook(x=>x.set)
   const [raw, setRaw] = useState(false)
   const startEnd = getStartEnd(cells)
   const copy = (text: string) => {
@@ -266,7 +269,7 @@ const AddCell = ({ bottom, add }: { bottom?: boolean; add: (c: CellType) => void
 }
 
 const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; onClick: () => void; children: ReactNode }) => {
-  const { set } = useNotebook()
+  const set = useNotebook(x=>x.set)
   const cell = useNotebook(x=>x.cells[index])
   const monaco = useMonaco()
   const setCells = (cells: Cell[]) => {
