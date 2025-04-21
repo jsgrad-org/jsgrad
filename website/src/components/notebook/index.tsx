@@ -1,4 +1,4 @@
-import { createContext, Fragment, type ReactNode, useContext, useRef, useState } from 'react'
+import { createContext, Fragment, type ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { Editor, useMonaco } from '@monaco-editor/react'
 import { Uri, Range, KeyMod, KeyCode } from 'monaco-editor'
 import { useEffect } from 'react'
@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { cellsToCode, getStartEnd, type CellType, type CodeType, type Cell, fetchTypes, type Notebook as NotebookType, codeToNotebook } from './helpers'
 import { runCell, tscOptions, type CellOutput } from './runner'
 import type { NB } from "../../../../global.d.ts"
+import { create } from 'zustand'
 
 const NOTEBOOK = Uri.file('notebook.ts')
 
@@ -41,17 +42,25 @@ export const Notebook = (args: { kvBaseUrl: string; notebookBaseUrl: string }) =
 
 export type NotebookContext = {
   cells: Cell[]
-  setCells: React.Dispatch<React.SetStateAction<Cell[]>>
   queue: number[]
-  setQueue: React.Dispatch<React.SetStateAction<number[]>>
   isRunning: boolean
-  cellIsRunning: Record<number, boolean>
-  cellLogs: Record<number, CellOutput[]>
+  cellDatas: Record<number, CellData>
   notebookBaseUrl: string
   kvBaseUrl: string
+  importedPackages: string[]
 }
-
-const NotebookContext = createContext<NotebookContext | undefined>(undefined)
+type Set<T> = (partial: Partial<T> | ((state: T) => T | Partial<T>), replace?: false) => void
+type CellData = { logs:CellOutput[], isRunning:boolean }
+const useNotebook = create<NotebookContext & {set: Set<NotebookContext>}>((set)=>({
+  cells: [],
+  queue: [],
+  cellDatas: {},
+  notebookBaseUrl: '',
+  kvBaseUrl: '',
+  isRunning: false,
+  importedPackages: [],
+  set,
+}))
 
 const save = (cells: Cell[], notebookBaseUrl: string) => {
   const url = `${notebookBaseUrl}?data=${encodeURIComponent(btoa(cellsToCode(cells)))}`
@@ -77,21 +86,18 @@ const NB = `declare const nb: {
 }
 `
 
-export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kvBaseUrl }: { type: CodeType; notebook: NotebookType; notebookBaseUrl: string; kvBaseUrl: string; children: ReactNode }) => {
+export const NotebookProvider = ({ type, notebook, notebookBaseUrl, kvBaseUrl }: { type: CodeType; notebook: NotebookType; notebookBaseUrl: string; kvBaseUrl: string; }) => {
   const monaco = useMonaco()
-  const [cells, setCells] = useState(notebook.cells)
-  const [queue, setQueue] = useState<number[]>([])
-  const [isRunning, setIsRunning] = useState(false)
-  const [cellLogs, setCellLogs] = useState<Record<number, CellOutput[]>>({})
-  const [cellIsRunning, setCellIsRunning] = useState<Record<number, boolean>>({})
-  const [importedPackages, setImportedPackages] = useState<string[]>([])
+  const { cells, queue, isRunning, set, importedPackages } = useNotebook()
 
   // Pushing every runOnLoad to the queue
-  useEffect(() => setQueue([...cells.entries()].filter(([_, x]) => x.runOnLoad).map(([i]) => i)), [])
-
+  useEffect(() => set({ queue: [...cells.entries()].filter(([_, x]) => x.runOnLoad).map(([i]) => i) }), [])
+  
+  useEffect(()=>set({ notebookBaseUrl, kvBaseUrl }),[notebookBaseUrl, kvBaseUrl])
+  
   // Updating the cells and code when notebook changes
   useEffect(() => {
-    setCells(notebook.cells)
+    set({ cells: notebook.cells})
     monaco?.editor.getModel(NOTEBOOK)?.setValue(cellsToCode(notebook.cells))
   }, [notebook.cells, monaco])
 
@@ -121,17 +127,13 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
     const cell = cells[index]
     if (!cell || cell.type !== 'code') throw new Error(`Trying to run markdown block!`)
 
-    setIsRunning(true)
-    setCellIsRunning((x) => ({ ...x, [index]: true }))
-    setCellLogs((x) => ({ ...x, [index]: [] }))
+    set(x=>({ isRunning: true, cellDatas:{...x.cellDatas,[index]:{isRunning:true,logs:[]}} }))
 
     await runCell(cell.content, (out) => {
       if (out.type === "eval") eval(out.code)
-      else setCellLogs(x => ({ ...x, [index]: [...x[index], out] }))
+      else set(x=>({ cellDatas: {...x.cellDatas, [index]: { ...x.cellDatas[index], logs:[...(x.cellDatas[index].logs ?? []), out]}} }))
     })
-
-    setIsRunning(false)
-    setCellIsRunning((x) => ({ ...x, [index]: false }))
+    set(x=>({ isRunning: false, cellDatas:{...x.cellDatas,[index]:{...x.cellDatas[index],isRunning:false}} }))
 
   }, [queue, isRunning])
 
@@ -143,7 +145,7 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
     if (!model) model = monaco.editor.createModel(cellsToCode(cells), type, NOTEBOOK)
     model.onDidChangeContent((e) => {
       const { cells } = codeToNotebook(model.getLinesContent())
-      setCells(cells)
+      set({cells})
     })
     monaco.languages.typescript[`${type}Defaults`].setCompilerOptions(tscOptions)
   }, [monaco])
@@ -161,41 +163,20 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
           for (const { name, content } of res) {
             monaco.languages.typescript[`${type}Defaults`].addExtraLib(content, `file:///node_modules/${name}`)
           }
-          setImportedPackages((i) => [...i, x])
+          set((i) => ({importedPackages:[...i.importedPackages, x]}))
         }),
     )
   }, [cells, monaco])
 
-  return (
-    <NotebookContext.Provider
-      value={{
-        cells,
-        setCells,
-        queue,
-        setQueue,
-        cellIsRunning,
-        cellLogs,
-        isRunning,
-        notebookBaseUrl,
-        kvBaseUrl,
-      }}
-    >
-      {children}
-    </NotebookContext.Provider>
-  )
-}
-
-export const useNotebook = () => {
-  const res = useContext(NotebookContext)
-  if (!res) throw new Error(`You can access NotebookContext only in the provider`)
-  return res
+  return null
 }
 
 export const NotebookWrapper = (args: { kvBaseUrl: string; notebookBaseUrl: string; notebook: NotebookType }) => {
   return (
-    <NotebookProvider type="typescript" {...args}>
+    <>
+      <NotebookProvider type="typescript" {...args}/>
       <Cells />
-    </NotebookProvider>
+    </>
   )
 }
 
@@ -209,7 +190,7 @@ const MenuButton = ({ Icon, text, onClick }: { Icon: Icon; text: string; onClick
 }
 
 const Cells = () => {
-  const { cells, setQueue, notebookBaseUrl, kvBaseUrl } = useNotebook()
+  const { cells, notebookBaseUrl, kvBaseUrl, set } = useNotebook()
   const [raw, setRaw] = useState(false)
   const startEnd = getStartEnd(cells)
   const copy = (text: string) => {
@@ -237,7 +218,7 @@ const Cells = () => {
           }}
         />
         <MenuButton Icon={CodeIcon} text={raw ? 'Edit blocks' : 'Edit raw'} onClick={() => setRaw((r) => !r)} />
-        <MenuButton Icon={CirclePlayIcon} text="Run all" onClick={() => setQueue(() => [...cells.entries()].filter(([i, x]) => x.type === 'code').map(([i]) => i))} />
+        <MenuButton Icon={CirclePlayIcon} text="Run all" onClick={() => set({ queue: [...cells.entries()].filter(([i, x]) => x.type === 'code').map(([i]) => i) })} />
       </div>
       {raw && (
         <div className="section">
@@ -249,7 +230,7 @@ const Cells = () => {
           return (
             <Fragment key={i}>
               {cell.type === 'markdown' && <MarkdownBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
-              {cell.type === 'code' && <CodeBlock index={i} content={cell.content} start={startEnd[i].start} end={startEnd[i].end} />}
+              {cell.type === 'code' && <CodeBlock index={i} start={startEnd[i].start} end={startEnd[i].end} />}
             </Fragment>
           )
         })}
@@ -285,11 +266,11 @@ const AddCell = ({ bottom, add }: { bottom?: boolean; add: (c: CellType) => void
 }
 
 const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; onClick: () => void; children: ReactNode }) => {
-  const { cells, setCells } = useNotebook()
-  const cell = cells[index]
+  const { set } = useNotebook()
+  const cell = useNotebook(x=>x.cells[index])
   const monaco = useMonaco()
-  const set = (cells: Cell[]) => {
-    setCells(cells)
+  const setCells = (cells: Cell[]) => {
+    set({cells})
     monaco!.editor.getModel(NOTEBOOK)!.setValue(cellsToCode(cells))
   }
   return (
@@ -303,51 +284,63 @@ const Cell = ({ index, children, onClick, Icon }: { index: number; Icon: Icon; o
               description="Move up"
               onClick={() => {
                 if (index === 0) return
+                const {cells} = useNotebook.getState()
                 ;[cells[index - 1], cells[index]] = [cells[index], cells[index - 1]]
 
-                set(cells)
+                setCells(cells)
               }}
             />
             <SmallIcon
               Icon={ArrowDownIcon}
               description="Move down"
               onClick={() => {
+                const {cells} = useNotebook.getState()
                 if (index === cells.length - 1) return
                 ;[cells[index + 1], cells[index]] = [cells[index], cells[index + 1]]
 
-                set(cells)
+                setCells(cells)
               }}
             />
             <SmallIcon
               Icon={cell.runOnLoad ? RefreshCwOffIcon : RefreshCwIcon}
               description={cell.runOnLoad ? 'Disable running on start' : 'Enable running on start'}
               onClick={() => {
-                set(cells.map((x, i) => (i !== index ? x : { ...x, runOnLoad: x.runOnLoad ? undefined : 'true' })))
+                const {cells} = useNotebook.getState()
+                setCells(cells.map((x, i) => (i !== index ? x : { ...x, runOnLoad: x.runOnLoad ? undefined : 'true' })))
               }}
             />
             <SmallIcon
               Icon={cell.type === 'code' ? TextIcon : CodeIcon}
               description={cell.type === 'code' ? 'Change to markdown cell' : 'Change to code cell'}
               onClick={() => {
-                set(cells.map((x, i) => (i !== index ? x : { ...x, type: x.type === 'code' ? 'markdown' : 'code' })))
+                const {cells} = useNotebook.getState()
+                setCells(cells.map((x, i) => (i !== index ? x : { ...x, type: x.type === 'code' ? 'markdown' : 'code' })))
               }}
             />
-            <SmallIcon Icon={CopyPlusIcon} description="Clone cell" onClick={() => set([...cells.slice(0, index + 1), ...cells.slice(index)])} />
-            <SmallIcon Icon={XIcon} description="Delete cell" onClick={() => set([...cells.slice(0, index), ...cells.slice(index + 1)])} />
+            <SmallIcon Icon={CopyPlusIcon} description="Clone cell" onClick={() => {
+                const {cells} = useNotebook.getState()
+                setCells([...cells.slice(0, index + 1), ...cells.slice(index)])
+            }} />
+            <SmallIcon Icon={XIcon} description="Delete cell" onClick={() => {
+                const {cells} = useNotebook.getState()
+                setCells([...cells.slice(0, index), ...cells.slice(index + 1)])}} />
           </div>
           {children}
         </div>
       </div>
-      <AddCell bottom add={(type) => set([...cells.slice(0, index + 1), { type, content: '' }, ...cells.slice(index + 1)])} />
+      <AddCell bottom add={(type) => {
+          const {cells} = useNotebook.getState()
+          setCells([...cells.slice(0, index + 1), { type, content: '' }, ...cells.slice(index + 1)])
+      }} />
     </div>
   )
 }
 
-export const CodeBlock = ({ start, end, content, index }: { index: number; content: string; start: number; end: number }) => {
-  const { setQueue, cellLogs, cellIsRunning } = useNotebook()
-  const run = () => setQueue((x) => [...x, index])
-  const logs = (cellLogs[index] || [])
-  const isRunning = cellIsRunning[index]
+export const CodeBlock = ({ start, end, index }: { index: number; start: number; end: number }) => {
+  const data = useNotebook(useCallback(x=>x.cellDatas[index],[index]))
+  const {logs,isRunning} = data ?? {logs:[],isRunning:false}
+  const set = useNotebook(x=>x.set)
+  const run = () => set(x=>({queue:[...x.queue, index]}))
   return (
     <Cell index={index} onClick={run} Icon={!isRunning ? PlayIcon : ({ className }) => <Loader2Icon className={className + ' animate-spin'} />}>
       <Code start={start} end={end} run={run} />
