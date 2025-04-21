@@ -2,6 +2,13 @@
 /**
 # CartPole
 
+[CartPole](https://www.gymlibrary.dev/environments/classic_control/cart_pole/) training example.
+There's some bug in training, can you find it?
+
+*/
+/** [](type:markdown) */
+/**
+## CartPole moving logic 
 */
 /** [](type:code) */
 import { Tensor, Linear, Adam, get_parameters, TinyJit, num, Tqdm, range, zip, sum } from "@jsgrad/jsgrad"
@@ -48,6 +55,10 @@ class CartPole {
   };
 }
 
+/** [](type:markdown) */
+/**
+## Model
+*/
 /** [](type:code) */
 const BATCH_SIZE = 256
 const ENTROPY_SCALE = 0.0005
@@ -90,6 +101,10 @@ class ActorCritic{
   }
 }
 
+/** [](type:markdown) */
+/**
+## Initialize
+*/
 /** [](type:code) */
 const env = new CartPole()
 
@@ -159,6 +174,10 @@ window.render = (x, theta) => {
 }
 `)
 
+/** [](type:markdown) */
+/**
+## Training
+*/
 /** [](type:code) */
 let st = performance.now(), steps =  0
 let Xn:number[][] = [], An:number[] = [], Rn:number[] = []
