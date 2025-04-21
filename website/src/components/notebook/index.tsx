@@ -70,6 +70,10 @@ const NB = `declare const nb: {
    * Display an image under the cell.
    */
   image: (href: string) => void
+  /**
+   * Run JS code on main thread
+   */
+  eval: (code:string) => void
 }
 `
 
@@ -121,7 +125,10 @@ export const NotebookProvider = ({ type, notebook, children, notebookBaseUrl, kv
     setCellIsRunning((x) => ({ ...x, [index]: true }))
     setCellLogs((x) => ({ ...x, [index]: [] }))
 
-    await runCell(cell.content, (out) => setCellLogs(x => ({ ...x, [index]: [...x[index], out] })) )
+    await runCell(cell.content, (out) => {
+      if (out.type === "eval") eval(out.code)
+      else setCellLogs(x => ({ ...x, [index]: [...x[index], out] }))
+    })
 
     setIsRunning(false)
     setCellIsRunning((x) => ({ ...x, [index]: false }))
@@ -341,6 +348,7 @@ export const CodeBlock = ({ start, end, content, index }: { index: number; conte
   const run = () => setQueue((x) => [...x, index])
   const logs = (cellLogs[index] || [])
   const isRunning = cellIsRunning[index]
+  console.log("refresh",index)
   return (
     <Cell index={index} onClick={run} Icon={!isRunning ? PlayIcon : ({ className }) => <Loader2Icon className={className + ' animate-spin'} />}>
       <Code start={start} end={end} run={run} />
@@ -477,6 +485,7 @@ export const Code = ({ start, end, run }: { run?: () => void; start: number; end
           stickyScroll: { enabled: false },
           wordWrap: 'off',
           minimap: { enabled: false },
+          tabSize: 2,
           lineHeight,
           scrollbar: {
             vertical: 'hidden',

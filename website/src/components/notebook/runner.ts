@@ -272,6 +272,7 @@ const setGlobal = (args) => {
 globalThis.nb = {
   display: (html) => self.postMessage({ type: "display", html }),
   image: (src) => self.postMessage({ type: "image", src }),
+  eval: (code) => self.postMessage({ type: "eval", code })
 }
 const log = console.log
 console.log = (...args) => {
@@ -305,6 +306,7 @@ const worker = new Worker(url, { type: 'module' })
 
 export type CellOutput = { type: "display", html: string }
                        | { type: "image", src: string }
+                       | { type: "eval", code: string }
                        | { type: "console.log" | "console.error" | "console.table", args: string }
                        | { type: "error", error: string }
   

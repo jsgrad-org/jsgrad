@@ -7,6 +7,10 @@ export type NB = {
    * Display an image under the cell.
    */
   image: (src: string) => void
+  /**
+   * Run JS code on main thread
+   */
+  eval: (code:string) => void
 }
 
 declare global {

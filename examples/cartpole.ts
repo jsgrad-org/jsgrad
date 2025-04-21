@@ -1,3 +1,9 @@
+/** [](type:markdown) */
+/**
+# CartPole
+
+*/
+/** [](type:code) */
 import { Tensor, Linear, Adam, get_parameters, TinyJit, num, Tqdm, range, zip, sum } from "@jsgrad/jsgrad"
 
 class CartPole {
@@ -42,6 +48,7 @@ class CartPole {
   };
 }
 
+/** [](type:code) */
 const BATCH_SIZE = 256
 const ENTROPY_SCALE = 0.0005
 const REPLAY_BUFFER_SIZE = 2000
@@ -71,19 +78,19 @@ class ActorCritic{
     x = this.c1.call(obs).relu()
     return [act, this.c2.call(x)]
   }
-}
-
-const evaluate = async (model:ActorCritic, test_env:CartPole) => {
-  let obs = test_env.reset().observation, terminated = false, truncated = false
-  let total_rew = 0.0, rew = 0
-  while (!terminated && !truncated){
-    const act = await model.call(new Tensor(obs))[0].argmax().item();
-    [obs, rew, terminated, truncated] = test_env.step(act)
-    total_rew += rew
+  evaluate = async (test_env:CartPole) => {
+    let obs = test_env.reset().observation, terminated = false, truncated = false
+    let total_rew = 0.0, rew = 0
+    while (!terminated && !truncated){
+      const act = await model.call(new Tensor(obs))[0].argmax().item();
+      [obs, rew, terminated, truncated] = test_env.step(act)
+      total_rew += rew
+    }
+    return total_rew
   }
-  return total_rew
 }
 
+/** [](type:code) */
 const env = new CartPole()
 
 const model = new ActorCritic(4,2)
@@ -120,6 +127,39 @@ const get_action = new TinyJit(async (obs:Tensor)=>{
   return ret
 })
 
+nb.display(`<canvas id="cartpole" width="600" height="400" style="border: 1px solid black;"></canvas>`)
+nb.eval(`
+window.render = (x, theta) => {
+  const canvas = document.getElementById('cartpole');
+  const ctx = canvas.getContext('2d');  
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw track
+  ctx.beginPath();
+  ctx.moveTo(0, 300);
+  ctx.lineTo(600, 300);
+  ctx.stroke();
+
+  // Draw cart
+  const cartX = x * 100 + 300;
+  ctx.fillStyle = 'blue';
+  ctx.fillRect(cartX - 20, 280, 40, 20);
+
+  // Draw pole
+  const poleX = cartX;
+  const poleY = 280;
+  const poleLength = 100;
+  ctx.beginPath();
+  ctx.moveTo(poleX, poleY);
+  ctx.lineTo(poleX + poleLength * Math.sin(theta), poleY - poleLength * Math.cos(theta));
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+}
+`)
+
+/** [](type:code) */
 let st = performance.now(), steps =  0
 let Xn:number[][] = [], An:number[] = [], Rn:number[] = []
 const t = new Tqdm(EPISODES)
@@ -140,8 +180,8 @@ for (const _ of t){
     An.push(act);
 
     [obs, rew, terminated, truncated] = env.step(act)
-    console.log(obs,rew,terminated,truncated)
     rews.push(rew)
+    nb.eval(`window.render(${env.state[0], env.state[2]})`)
   }
   steps += rews.length
 
@@ -167,5 +207,5 @@ for (const _ of t){
   }
   t.set_description(`sz: ${Xn.length.toString().padEnd(5)} steps/s: ${(steps/(performance.now()-st)).toFixed(2).padEnd(7)} action_loss: ${(await action_loss!.item()).toFixed(3).padEnd(7)} entropy_loss: ${(await entropy_loss!.item()).toFixed(3).padEnd(7)} critic_loss: ${(await critic_loss!.item()).toFixed(3).padEnd(8)} reward: ${sum(rews).toFixed(2).padEnd(6)}`)
 }
-const test_rew = await evaluate(model, new CartPole())
+const test_rew = await model.evaluate(new CartPole())
 console.log(`test reward: ${test_rew}`)
