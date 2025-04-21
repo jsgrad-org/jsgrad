@@ -67,7 +67,7 @@ const PPO_EPSILON = 0.2
 const HIDDEN_UNITS = 32
 const LEARNING_RATE = 1e-2
 const TRAIN_STEPS = 5
-const EPISODES = 100
+const EPISODES = 40
 const DISCOUNT_FACTOR = 0.99
 
 class ActorCritic{
@@ -144,11 +144,13 @@ const get_action = new TinyJit(async (obs:Tensor)=>{
 
 nb.display(`<canvas id="cartpole" width="600" height="400" style="border: 1px solid black;"></canvas>`)
 nb.eval(`
-window.render = (x, theta) => {
+window.render = (x, theta, text) => {
   const canvas = document.getElementById('cartpole');
   const ctx = canvas.getContext('2d');  
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.font = "32px serif";
+  ctx.fillText(text, 0, 32)
 
   // Draw track
   ctx.beginPath();
@@ -200,7 +202,7 @@ for (const _ of t){
 
     [obs, rew, terminated, truncated] = env.step(act)
     rews.push(rew)
-    nb.eval(`window.render(${env.state[0]}, ${env.state[2]})`)
+    nb.eval(`window.render(${env.state[0]}, ${env.state[2]}, "Reward: ${rews.length}")`)
   }
   steps += rews.length
 
